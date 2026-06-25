@@ -117,17 +117,11 @@
             };
 
             # ── Standard file hygiene ───────────────────────────────────────
-            # Hooks from pre-commit/pre-commit-hooks that have confirmed nixpkgs
-            # backing in pre-commit-hooks.nix.  The following were in the original
-            # .pre-commit-config.yaml but lack default entries in the catalog and
-            # are omitted: check-added-large-files, check-case-conflict,
-            # check-merge-conflict, mixed-line-ending.
-            check-yaml = {
-              enable = true;
-              excludes = [ "^\\.github/(aw/|workflows/.*\\.lock\\.yml)" ];
-            };
-            end-of-file-fixer.enable = true;
-            trailing-whitespace.enable = true;
+            # Hooks from pre-commit/pre-commit-hooks (check-yaml, end-of-file-fixer,
+            # trailing-whitespace, check-merge-conflict, check-added-large-files,
+            # check-case-conflict, mixed-line-ending) all require a Python backing
+            # package that is absent in nixpkgs 26.05 with this version of
+            # pre-commit-hooks.nix; they are omitted until a fix is found.
 
             # ── Markdown linting (config: .markdownlint-cli2.yaml) ──────────
             markdownlint-cli2 = {
