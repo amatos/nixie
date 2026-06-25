@@ -70,12 +70,21 @@ in
       # Communication
       telegram-desktop
 
+      # Tools
+      htop # interactive process viewer
+      imagemagick # image manipulation
+      pandoc # universal document converter
+      ragenix # ragenix CLI — rekey secrets, add recipients
+
       # Fonts — those without nixpkgs equivalents stay as homebrew casks
       anonymousPro
+      font-awesome
+      hack-font
       inconsolata
       jetbrains-mono
       liberation_ttf
       nerd-fonts.dejavu-sans-mono
+      nerd-fonts.hack
       nerd-fonts.inconsolata-go
       nerd-fonts.jetbrains-mono
     ]

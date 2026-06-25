@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (9)
+
+### Added
+
+- `home/alberth/default.nix` — new `home.packages` entries:
+  - Tools: `htop`, `imagemagick`, `pandoc`, `ragenix`
+  - Fonts: `font-awesome`, `hack-font`, `nerd-fonts.hack`
+
+### Removed
+
+- `neovim` from `home.packages` — already provided by `nvf.nix`
+
+---
+
 ## 2026-06-25 (8)
 
 ### Added
