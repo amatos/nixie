@@ -6,6 +6,10 @@ config:
     tables: true
     strict: true
 
+  # Table column style — use compact (single space around content, no padding)
+  MD060:
+    style: "compact"
+
   # Allow duplicate headings in different sections (standard for changelogs)
   MD024:
     siblings_only: true

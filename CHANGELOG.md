@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (10)
+
+### Fixed
+
+- `.markdownlint-cli2.yaml` — added `MD060: { style: "compact" }` to resolve CI
+  failure; table column style now explicitly set to compact
+- `brew-nix.md` — updated all table separator rows from `|---|---|---|` to
+  `| --- | --- | --- |` to satisfy compact table style
+
+---
+
 ## 2026-06-25 (9)
 
 ### Added

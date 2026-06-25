@@ -12,7 +12,7 @@ platform limitation is resolved.
 ## Development Tools
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `visual-studio-code` | `pkgs.vscode` | Unfree |
 | `zed` | `pkgs.zed-editor` | Keeping as cask — [#59250](https://github.com/zed-industries/zed/issues/59250) |
 | `jetbrains-toolbox` | `pkgs.jetbrains-toolbox` | |
@@ -25,7 +25,7 @@ platform limitation is resolved.
 ## Communication Tools
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `discord` | `pkgs.discord` | Unfree |
 | `slack` | `pkgs.slack` | Unfree |
 | `telegram` | `pkgs.telegram-desktop` | |
@@ -34,13 +34,13 @@ platform limitation is resolved.
 ## Utility Tools
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `syncthing-app` | `pkgs.syncthing` | Nixpkgs ships the daemon; the macOS GUI wrapper (`syncthing-macos`) is not packaged — use `services.syncthing` on NixOS |
 
 ## Entertainment Tools
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `vlc` | `pkgs.vlc` | |
 | `spotify` | `pkgs.spotify` | Unfree |
 | `steam` | `pkgs.steam` | Linux only in nixpkgs; darwin is not supported |
@@ -48,19 +48,19 @@ platform limitation is resolved.
 ## Productivity Tools
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `obsidian` | `pkgs.obsidian` | Unfree |
 
 ## Security
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `tailscale-app` | `pkgs.tailscale` | Nixpkgs ships the CLI/daemon; the macOS menubar app is not the same binary — on NixOS use `services.tailscale` |
 
 ## Browsers
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `google-chrome` | `pkgs.google-chrome` | Unfree; Linux only — darwin not supported in nixpkgs |
 
 ## Fonts
@@ -68,7 +68,7 @@ platform limitation is resolved.
 Nerd Fonts in nixpkgs are available as a package set: `pkgs.nerd-fonts.<name>`.
 
 | Homebrew cask | Nix attribute | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `font-anonymous-pro` | `pkgs.anonymousPro` | |
 | `font-dejavu-sans-mono-nerd-font` | `pkgs.nerd-fonts.dejavu-sans-mono` | |
 | `font-inconsolata` | `pkgs.inconsolata` | |
