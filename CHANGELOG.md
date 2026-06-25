@@ -8,9 +8,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - `pre-commit-hooks.nix` flake input (`github:cachix/pre-commit-hooks.nix`)
-- `preCommitCheck` let-binding in `flake.nix` — runs `nixfmt` on all `.nix` files
+- `preCommitCheck` in `flake.nix` incorporating all hooks from the former `.pre-commit-config.yaml`:
+  - `nixfmt` — Nix formatting
+  - `check-added-large-files` (500 KB limit), `check-yaml`, `end-of-file-fixer`, `trailing-whitespace`, `check-case-conflict`, `check-merge-conflict`, `mixed-line-ending` (LF) — standard file hygiene
+  - `markdownlint-cli2` (`pkgs.markdownlint-cli2`) — markdown linting, config from `.markdownlint-cli2.yaml`
+  - `markdown-link-check` (`pkgs.nodePackages.markdown-link-check`) — link validation, config from `.markdown-link-check.json`
+  - `commitlint` (`pkgs.commitlint`, commit-msg stage) — conventional commit enforcement, config from `.commitlintrc.yaml`
 - `checks` output exposing the pre-commit check so `nix flake check` also validates formatting
-- `shellHook` wired into the devShell — running `nix develop` installs the git hook into `.git/hooks/pre-commit` automatically; subsequent `git commit` calls will format-check all staged `.nix` files
+- `shellHook` wired into the devShell — `nix develop` installs hooks into `.git/hooks` automatically
+
+### Removed
+- `.pre-commit-config.yaml` — superseded by the Nix-managed hooks above
+- `check-branch` hook (from `commit-check`) — not available in nixpkgs; dropped
 
 ---
 

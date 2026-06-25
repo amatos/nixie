@@ -104,13 +104,72 @@
       # Running `nix develop` installs the hooks into .git/hooks automatically.
       preCommitCheck = forAllSystems (
         system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         pre-commit-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
+            # ── Nix formatting ──────────────────────────────────────────────
             nixfmt = {
               enable = true;
-              package = nixpkgs.legacyPackages.${system}.nixfmt;
+              package = pkgs.nixfmt;
             };
+
+            # ── Standard file hygiene ───────────────────────────────────────
+            # Note: a second check-added-large-files (--maxkb=16 --enforce-all)
+            # was in the original .pre-commit-config.yaml but cannot coexist
+            # with this entry under the same hook name; dropped.
+            check-added-large-files = {
+              enable = true;
+              args = [ "--maxkb=500" ];
+            };
+            check-yaml = {
+              enable = true;
+              excludes = [ "^\\.github/(aw/|workflows/.*\\.lock\\.yml)" ];
+            };
+            end-of-file-fixer.enable = true;
+            trailing-whitespace.enable = true;
+            check-case-conflict.enable = true;
+            check-merge-conflict.enable = true;
+            mixed-line-ending = {
+              enable = true;
+              args = [ "--fix=lf" ];
+            };
+
+            # ── Markdown linting (config: .markdownlint-cli2.yaml) ──────────
+            markdownlint-cli2 = {
+              enable = true;
+              name = "markdownlint-cli2";
+              entry = "${pkgs.markdownlint-cli2}/bin/markdownlint-cli2";
+              language = "system";
+              types = [ "markdown" ];
+              excludes = [ "^\\.github/aw/" ];
+            };
+
+            # ── Markdown link checking (config: .markdown-link-check.json) ──
+            markdown-link-check = {
+              enable = true;
+              name = "markdown-link-check";
+              entry = "${pkgs.nodePackages.markdown-link-check}/bin/markdown-link-check --config .markdown-link-check.json";
+              language = "system";
+              types = [ "markdown" ];
+              pass_filenames = true;
+            };
+
+            # ── Commit message validation (config: .commitlintrc.yaml) ──────
+            commitlint = {
+              enable = true;
+              name = "commitlint";
+              entry = "${pkgs.commitlint}/bin/commitlint --edit";
+              language = "system";
+              stages = [ "commit-msg" ];
+              pass_filenames = false;
+            };
+
+            # ── Branch naming (check-branch / commit-check) ─────────────────
+            # Not available in nixpkgs; dropped from Nix config.
+            # Install manually if needed: pip install commit-check
           };
         }
       );
