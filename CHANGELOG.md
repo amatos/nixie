@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (5)
+
+### Added
+- `pre-commit-hooks.nix` flake input (`github:cachix/pre-commit-hooks.nix`)
+- `preCommitCheck` let-binding in `flake.nix` — runs `nixfmt` on all `.nix` files
+- `checks` output exposing the pre-commit check so `nix flake check` also validates formatting
+- `shellHook` wired into the devShell — running `nix develop` installs the git hook into `.git/hooks/pre-commit` automatically; subsequent `git commit` calls will format-check all staged `.nix` files
+
+---
+
 ## 2026-06-25 (4)
 
 ### Changed

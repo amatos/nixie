@@ -52,6 +52,11 @@
       url = "github:amatos/zapp/add-aarch64-darwin-support-for-nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -68,6 +73,7 @@
       catppuccin,
       nix-homebrew,
       zapp,
+      pre-commit-hooks,
       ...
     }:
     let
@@ -93,6 +99,21 @@
           catppuccin
           ;
       };
+
+      # Pre-commit hooks — shared between checks output and devShell shellHook.
+      # Running `nix develop` installs the hooks into .git/hooks automatically.
+      preCommitCheck = forAllSystems (
+        system:
+        pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            nixfmt = {
+              enable = true;
+              package = nixpkgs.legacyPackages.${system}.nixfmt;
+            };
+          };
+        }
+      );
     in
     {
       # nix-darwin configurations (macOS)
@@ -167,6 +188,11 @@
       # Canonical formatter — enables `nix fmt` and `nix run .#formatter -- --check`
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
 
+      # Expose pre-commit check so `nix flake check` verifies formatting too
+      checks = forAllSystems (system: {
+        pre-commit = preCommitCheck.${system};
+      });
+
       # Dev shells and packages (optional)
       devShells = forAllSystems (
         system:
@@ -183,6 +209,8 @@
               nix-tree # visualize derivation dependency graph
               nvd # diff two NixOS/darwin closures before switching
             ];
+            # Installs git hooks into .git/hooks when entering the devShell
+            inherit (preCommitCheck.${system}) shellHook;
           };
         }
       );
