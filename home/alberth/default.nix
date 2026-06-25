@@ -16,6 +16,7 @@ let
 in
 {
   imports = [
+    ./chezmoi.nix
     ./devenv.nix
     ./starship.nix
   ];

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (3)
+
+### Added
+- `home/alberth/chezmoi.nix` — installs chezmoi via `programs.chezmoi` and configures `sourceURL = "https://github.com/amatos/dotfiles"` so `chezmoi init --apply` works without arguments on a new machine
+- Imported in `home/alberth/default.nix` (applies to all hosts)
+
+---
+
 ## 2026-06-25 (2)
 
 ### Added
