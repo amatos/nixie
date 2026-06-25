@@ -2,6 +2,11 @@
 { pkgs, ... }:
 
 {
+  home.packages = with pkgs; [
+    _1password-gui # 1Password desktop app
+    _1password-cli # 1Password CLI (op)
+  ];
+
   home.shellAliases = {
     open = "xdg-open";
   };

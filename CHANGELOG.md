@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (2)
+
+### Added
+- 1Password app and CLI (`1password`, `1password-cli`) added to Homebrew casks in `hosts/darwin/codex/default.nix`
+- `_1password-gui` and `_1password-cli` added to `home.packages` in `home/alberth/nixos.nix` for NixOS hosts
+
+---
+
 ## 2026-06-25
 
 ### Added
