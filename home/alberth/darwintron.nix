@@ -12,8 +12,8 @@
   };
 
   programs.ghostty = {
-    enable  = true;
-    package = null;  # no aarch64-darwin build in nixpkgs; installed via homebrew cask
+    enable = true;
+    package = null; # no aarch64-darwin build in nixpkgs; installed via homebrew cask
   };
-  catppuccin.ghostty.enable  = true;
+  catppuccin.ghostty.enable = true;
 }

@@ -110,14 +110,26 @@
     python = {
       format = "[$symbol$pyenv_prefix$version( \\($virtualenv\\))]($style) ";
       symbol = " ";
-      detect_files = [ ".python-version" "requirements.txt" "pyproject.toml" "Pipfile" "setup.py" "setup.cfg" "tox.ini" ];
+      detect_files = [
+        ".python-version"
+        "requirements.txt"
+        "pyproject.toml"
+        "Pipfile"
+        "setup.py"
+        "setup.cfg"
+        "tox.ini"
+      ];
     };
 
     # Node.js — nvm / nodenv / .nvmrc
     nodejs = {
       format = "[$symbol$version]($style) ";
       symbol = " ";
-      detect_files = [ "package.json" ".node-version" ".nvmrc" ];
+      detect_files = [
+        "package.json"
+        ".node-version"
+        ".nvmrc"
+      ];
     };
 
     # Ruby — rbenv / rvm
@@ -130,7 +142,12 @@
     golang = {
       format = "[$symbol$version]($style) ";
       symbol = " ";
-      detect_files = [ "go.mod" "go.sum" "go.work" ".go-version" ];
+      detect_files = [
+        "go.mod"
+        "go.sum"
+        "go.work"
+        ".go-version"
+      ];
     };
 
     # Rust
@@ -143,7 +160,12 @@
     java = {
       format = "[$symbol$version]($style) ";
       symbol = " ";
-      detect_files = [ "pom.xml" "build.gradle" "build.gradle.kts" ".java-version" ];
+      detect_files = [
+        "pom.xml"
+        "build.gradle"
+        "build.gradle.kts"
+        ".java-version"
+      ];
     };
 
     # Lua — luaenv

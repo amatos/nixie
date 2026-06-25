@@ -7,22 +7,30 @@
 # Usage — in a host's default.nix:
 #   nixie.certbot.domains = [ "example.com" "*.example.com" ];
 #   nixie.certbot.syncthingDeploy = true;  # copy renewed cert to syncthing + restart
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
-  userDefs    = import ../../users.nix;
+  userDefs = import ../../users.nix;
   primaryUser = userDefs.primaryUser;
-  cfg         = config.nixie.certbot;
+  cfg = config.nixie.certbot;
 
   # certbot-dns-luadns is not in nixpkgs — packaged locally
   certbotDnsLuadns = pkgs.python3.pkgs.callPackage ../../pkgs/python/certbot-dns-luadns.nix {
-    certbot     = pkgs.python3.pkgs.certbot;
-    acme        = pkgs.python3.pkgs.acme;
+    certbot = pkgs.python3.pkgs.certbot;
+    acme = pkgs.python3.pkgs.acme;
     dns-lexicon = pkgs.python3.pkgs.dns-lexicon;
   };
 
   # Python environment with certbot + LuaDNS plugin; provides bin/certbot
-  certbotWithLuadns = pkgs.python3.withPackages (ps: [ ps.certbot certbotDnsLuadns ]);
+  certbotWithLuadns = pkgs.python3.withPackages (ps: [
+    ps.certbot
+    certbotDnsLuadns
+  ]);
 
   # Runs only when a certificate is actually renewed (certbot --deploy-hook semantics).
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
@@ -56,15 +64,18 @@ in
     enable = lib.mkEnableOption "certbot with LuaDNS DNS-01 plugin";
 
     email = lib.mkOption {
-      type    = lib.types.str;
+      type = lib.types.str;
       default = userDefs.${userDefs.primaryUser}.email;
       description = "Email address for Let's Encrypt registration and expiry notices.";
     };
 
     domains = lib.mkOption {
-      type        = lib.types.listOf lib.types.str;
-      default     = [];
-      example     = [ "example.com" "*.example.com" ];
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [
+        "example.com"
+        "*.example.com"
+      ];
       description = "Domains to issue certificates for. Each entry becomes a -d argument.";
     };
 
@@ -77,10 +88,16 @@ in
     launchd.daemons.certbot = {
       script = "${certbotScript}";
       serviceConfig = {
-        Label             = "org.nixie.certbot";
-        RunAtLoad         = false;
-        StartCalendarInterval = [{ Weekday = 0; Hour = 3; Minute = 0; }]; # weekly, Sunday 03:00
-        StandardOutPath   = "/var/log/certbot.log";
+        Label = "org.nixie.certbot";
+        RunAtLoad = false;
+        StartCalendarInterval = [
+          {
+            Weekday = 0;
+            Hour = 3;
+            Minute = 0;
+          }
+        ]; # weekly, Sunday 03:00
+        StandardOutPath = "/var/log/certbot.log";
         StandardErrorPath = "/var/log/certbot.log";
       };
     };

@@ -12,5 +12,9 @@
   services.xserver.enable = false;
 
   # VirtIO disk support in the initrd — required to find /dev/vda at boot
-  boot.initrd.availableKernelModules = [ "virtio_blk" "virtio_pci" "virtio_scsi" ];
+  boot.initrd.availableKernelModules = [
+    "virtio_blk"
+    "virtio_pci"
+    "virtio_scsi"
+  ];
 }

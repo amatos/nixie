@@ -12,7 +12,7 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILfxNl1S0Fvzh2aOAG6FuIwB96eqnUqY1nl2p2jSnTOD"
     ];
-    email         = "alberth@matos.cc";
+    email = "alberth@matos.cc";
     gpgSigningKey = "F41BDBF6171A3BB4";
   };
 }

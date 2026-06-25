@@ -7,26 +7,26 @@
     enable = true;
 
     settings.vim = {
-      viAlias  = true;
+      viAlias = true;
       vimAlias = true;
 
       # UI
       options = {
-        number         = true;
+        number = true;
         relativenumber = true;
-        tabstop        = 2;
-        shiftwidth     = 2;
-        expandtab      = true;
-        wrap           = false;
-        scrolloff      = 8;
-        signcolumn     = "yes";
-        colorcolumn    = "80";
+        tabstop = 2;
+        shiftwidth = 2;
+        expandtab = true;
+        wrap = false;
+        scrolloff = 8;
+        signcolumn = "yes";
+        colorcolumn = "80";
       };
 
       theme = {
         enable = true;
-        name   = "catppuccin";
-        style  = "mocha";
+        name = "catppuccin";
+        style = "mocha";
       };
 
       # Syntax / Treesitter
@@ -42,9 +42,9 @@
       # Language support
       languages = {
         enableTreesitter = true;
-        nix.enable       = true;
-        bash.enable      = true;
-        markdown.enable  = true;
+        nix.enable = true;
+        bash.enable = true;
+        markdown.enable = true;
       };
 
       # Completion
@@ -69,8 +69,8 @@
 
       # Git signs in the gutter
       git = {
-        enable            = true;
-        gitsigns.enable   = true;
+        enable = true;
+        gitsigns.enable = true;
       };
     };
   };

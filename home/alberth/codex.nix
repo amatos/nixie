@@ -1,5 +1,10 @@
 # Codex-specific home-manager settings for alberth.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   # GPG agent — use pinentry-mac for native macOS Keychain / Touch ID prompts.
@@ -17,7 +22,7 @@
   # package = null prevents home-manager from installing the nixpkgs build,
   # which has no aarch64-darwin support.
   programs.ghostty = {
-    enable  = true;
+    enable = true;
     package = null;
   };
   catppuccin.ghostty.enable = true;
@@ -25,8 +30,8 @@
   programs.ssh.settings = {
     "*" = {
       ServerAliveInterval = 120;
-      IdentityAgent       = ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
-      ForwardAgent        = true;
+      IdentityAgent = ''"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'';
+      ForwardAgent = true;
     };
     "muninn.home.matos.cc muninn.local muninn" = {
       User = "pi";

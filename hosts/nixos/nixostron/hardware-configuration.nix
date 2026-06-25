@@ -2,7 +2,13 @@
 # Replace this file with the output of:
 #   nixos-generate-config --show-hardware-config
 # run inside the VM, then commit the result.
-{ config, lib, pkgs, modulesPath, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
 
 {
   imports = [
@@ -10,18 +16,23 @@
   ];
 
   # Typical virtio disk setup — adjust to match your VM's block device
-  boot.initrd.availableKernelModules = [ "virtio_pci" "virtio_scsi" "ahci" "sd_mod" ];
+  boot.initrd.availableKernelModules = [
+    "virtio_pci"
+    "virtio_scsi"
+    "ahci"
+    "sd_mod"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/vda1";   # adjust if needed
+    device = "/dev/vda1"; # adjust if needed
     fsType = "ext4";
   };
 
   fileSystems."/boot" = {
-    device = "/dev/vda2";   # adjust if needed
+    device = "/dev/vda2"; # adjust if needed
     fsType = "vfat";
   };
 

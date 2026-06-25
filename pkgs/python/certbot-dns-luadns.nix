@@ -4,30 +4,42 @@
 #
 # To update: change version, set hash = lib.fakeHash, rebuild — the error
 # output will contain the correct hash to substitute.
-{ lib, buildPythonPackage, fetchFromGitHub, certbot, acme, dns-lexicon, setuptools }:
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  certbot,
+  acme,
+  dns-lexicon,
+  setuptools,
+}:
 
 buildPythonPackage rec {
-  pname   = "certbot-dns-luadns";
+  pname = "certbot-dns-luadns";
   version = "2.11.0";
 
   src = fetchFromGitHub {
     owner = "certbot";
-    repo  = "certbot";
-    rev   = "v${version}";
-    hash  = "sha256-Qee7lUjgliG5fmUWWPm3MzpGJHUF/DXZ08UA6kkWjjk=";
+    repo = "certbot";
+    rev = "v${version}";
+    hash = "sha256-Qee7lUjgliG5fmUWWPm3MzpGJHUF/DXZ08UA6kkWjjk=";
   };
 
   # Plugin lives in a subdirectory of the certbot monorepo
   sourceRoot = "source/certbot-dns-luadns";
 
-  pyproject    = true;
+  pyproject = true;
   build-system = [ setuptools ];
-  dependencies = [ certbot acme dns-lexicon ];
-  doCheck      = false;
+  dependencies = [
+    certbot
+    acme
+    dns-lexicon
+  ];
+  doCheck = false;
 
   meta = {
     description = "LuaDNS DNS Authenticator plugin for Certbot";
-    homepage    = "https://github.com/certbot/certbot/tree/master/certbot-dns-luadns";
-    license     = lib.licenses.asl20;
+    homepage = "https://github.com/certbot/certbot/tree/master/certbot-dns-luadns";
+    license = lib.licenses.asl20;
   };
 }

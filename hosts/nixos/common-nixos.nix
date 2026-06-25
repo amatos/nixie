@@ -9,7 +9,7 @@
 }:
 
 let
-  userDefs    = import ../../users.nix;
+  userDefs = import ../../users.nix;
   primaryUser = userDefs.primaryUser;
 in
 

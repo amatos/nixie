@@ -5,7 +5,13 @@
 
 let
   # Fields that are NixOS-only or custom metadata — not valid in nix-darwin.
-  strippedFields = [ "isNormalUser" "extraGroups" "description" "email" "gpgSigningKey" ];
+  strippedFields = [
+    "isNormalUser"
+    "extraGroups"
+    "description"
+    "email"
+    "gpgSigningKey"
+  ];
 
   # Top-level keys in users.nix that are metadata, not user entries.
   metaKeys = [ "primaryUser" ];

@@ -6,7 +6,10 @@
 let
   # Fields defined in users.nix that are NOT valid users.users options.
   # Add to this list whenever you introduce new custom metadata.
-  customFields = [ "email" "gpgSigningKey" ];
+  customFields = [
+    "email"
+    "gpgSigningKey"
+  ];
 
   # Top-level keys in users.nix that are metadata, not user entries.
   metaKeys = [ "primaryUser" ];

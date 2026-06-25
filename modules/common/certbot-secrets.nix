@@ -7,6 +7,6 @@
     file = "${nix-secrets}/luadns.ini.age";
     path = "/run/agenix/luadns.ini";
     owner = "root";
-    mode  = "0400";
+    mode = "0400";
   };
 }

@@ -22,7 +22,7 @@
         ${pkgs.age}/bin/age-keygen -y /etc/age/host-key
       fi
     '';
-    deps = [];
+    deps = [ ];
   };
 
   # Ensure the host key exists before ragenix runs

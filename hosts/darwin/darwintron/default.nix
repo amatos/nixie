@@ -1,7 +1,7 @@
 { ... }:
 
 let
-  userDefs    = import ../../../users.nix;
+  userDefs = import ../../../users.nix;
   primaryUser = userDefs.primaryUser;
 in
 {
@@ -9,9 +9,11 @@ in
     ../common-darwin.nix
   ];
 
-  networking.hostName    = "darwintron";
+  networking.hostName = "darwintron";
   networking.computerName = "darwintron";
 
   # Merge darwintron home overlay on top of the base imported by common-darwin.nix
-  home-manager.users.${primaryUser} = { imports = [ ../../../home/alberth/darwintron.nix ]; };
+  home-manager.users.${primaryUser} = {
+    imports = [ ../../../home/alberth/darwintron.nix ];
+  };
 }

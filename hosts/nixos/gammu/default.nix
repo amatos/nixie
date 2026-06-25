@@ -1,7 +1,7 @@
 { ... }:
 
 let
-  userDefs    = import ../../../users.nix;
+  userDefs = import ../../../users.nix;
   primaryUser = userDefs.primaryUser;
 in
 {
@@ -15,14 +15,14 @@ in
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home
   services.syncthing = {
-    enable  = true;
-    user    = primaryUser;
+    enable = true;
+    user = primaryUser;
     dataDir = "/home/${primaryUser}";
   };
 
   # Certbot — certificates via LuaDNS DNS-01 challenge
   nixie.certbot = {
-    enable  = true;
+    enable = true;
     domains = [ "home.matos.cc" ];
     syncthingDeploy = true;
   };
