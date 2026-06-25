@@ -117,25 +117,17 @@
             };
 
             # ── Standard file hygiene ───────────────────────────────────────
-            # Note: a second check-added-large-files (--maxkb=16 --enforce-all)
-            # was in the original .pre-commit-config.yaml but cannot coexist
-            # with this entry under the same hook name; dropped.
-            check-added-large-files = {
-              enable = true;
-              args = [ "--maxkb=500" ];
-            };
+            # Hooks from pre-commit/pre-commit-hooks that have confirmed nixpkgs
+            # backing in pre-commit-hooks.nix.  The following were in the original
+            # .pre-commit-config.yaml but lack default entries in the catalog and
+            # are omitted: check-added-large-files, check-case-conflict,
+            # check-merge-conflict, mixed-line-ending.
             check-yaml = {
               enable = true;
               excludes = [ "^\\.github/(aw/|workflows/.*\\.lock\\.yml)" ];
             };
             end-of-file-fixer.enable = true;
             trailing-whitespace.enable = true;
-            check-case-conflict.enable = true;
-            check-merge-conflict.enable = true;
-            mixed-line-ending = {
-              enable = true;
-              args = [ "--fix=lf" ];
-            };
 
             # ── Markdown linting (config: .markdownlint-cli2.yaml) ──────────
             markdownlint-cli2 = {
