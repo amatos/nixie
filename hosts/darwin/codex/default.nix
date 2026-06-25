@@ -109,8 +109,8 @@ in
       "pixelsnap" # Screen measuring tool
       "powerphotos" # Tool to organise photo libraries
       # Security
-      "1password"         # Password manager and secure digital wallet
-      "1password-cli"     # 1Password command-line tool (op)
+      "1password" # Password manager and secure digital wallet
+      "1password-cli" # 1Password command-line tool (op)
       "gpg-suite@nightly" # Tools to protect your emails and files
       "little-snitch" # Host-based application firewall
       "spamsieve" # Spam filtering extension for e-mail clients

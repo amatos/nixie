@@ -253,6 +253,7 @@
               ragenix.packages.${system}.default # rekey secrets, add recipients
               nix-tree # visualize derivation dependency graph
               nvd # diff two NixOS/darwin closures before switching
+              statix # Nix linter — catches antipatterns and suggests fixes
             ];
             # Installs git hooks into .git/hooks when entering the devShell
             inherit (preCommitCheck.${system}) shellHook;

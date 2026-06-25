@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (8)
+
+### Added
+
+- `statix` added to the devShell in `flake.nix` — Nix linter that catches
+  antipatterns and suggests idiomatic fixes
+
+---
+
 ## 2026-06-25 (7)
 
 ### Added
