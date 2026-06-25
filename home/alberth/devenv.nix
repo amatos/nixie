@@ -9,8 +9,6 @@
 {
   home.packages = [ pkgs.devenv ];
 
-  cachix.pull = [ "amatos" ];
-
   # Global devenv configuration written to ~/.config/devenv/devenv.yaml.
   # See https://devenv.sh/reference/yaml-options/ for available options.
   xdg.configFile."devenv/devenv.yaml".text = ''

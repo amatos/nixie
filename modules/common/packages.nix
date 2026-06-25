@@ -5,6 +5,12 @@
   # Allow unfree packages fleet-wide (slack, spotify, zoom-us, discord, etc.)
   nixpkgs.config.allowUnfree = true;
 
+  # Binary caches — amatos.cachix.org for devenv and personal builds
+  nix.settings = {
+    substituters = [ "https://amatos.cachix.org" ];
+    trusted-public-keys = [ "amatos.cachix.org-1:f8dGcsYmNVdex+prgb03Pu5yCIDkzrB8dp2lmpBfNT4=" ];
+  };
+
   environment.systemPackages =
     with pkgs;
     [
