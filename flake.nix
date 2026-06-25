@@ -143,7 +143,7 @@
             markdown-link-check = {
               enable = true;
               name = "markdown-link-check";
-              entry = "${pkgs.nodePackages.markdown-link-check}/bin/markdown-link-check --config .markdown-link-check.json";
+              entry = "${pkgs.markdown-link-check}/bin/markdown-link-check --config .markdown-link-check.json";
               language = "system";
               types = [ "markdown" ];
               pass_filenames = true;
