@@ -1,15 +1,18 @@
 # chezmoi — dotfile manager.
 # https://chezmoi.io
 #
-# Installs chezmoi and pre-configures it to use amatos/dotfiles as the source
-# repo. Run `chezmoi init --apply` on a new machine to clone and apply.
-{ ... }:
+# programs.chezmoi is not available in home-manager 26.05; installed via
+# home.packages instead.  On a new machine, initialise with:
+#   chezmoi init --apply amatos/dotfiles
+{ pkgs, ... }:
 
 {
-  programs.chezmoi = {
-    enable = true;
-    settings = {
-      sourceURL = "https://github.com/amatos/dotfiles";
-    };
-  };
+  home.packages = [ pkgs.chezmoi ];
+
+  # Minimal global config — sets the GitHub username so `chezmoi init` can
+  # infer the source repo without arguments.
+  xdg.configFile."chezmoi/chezmoi.toml".text = ''
+    [data]
+      githubUsername = "amatos"
+  '';
 }

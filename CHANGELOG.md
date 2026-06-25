@@ -4,36 +4,63 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (7)
+
+### Added
+
+- `home/alberth/atuin.nix` — atuin shell history with bash/zsh/fish integrations;
+  fuzzy search, auto-sync to api.atuin.sh every 5 minutes, compact style,
+  global filter mode, session-scoped up-arrow binding
+
+---
+
+## 2026-06-25 (6)
+
+### Fixed
+
+- `home/alberth/chezmoi.nix` — replaced `programs.chezmoi` (not in home-manager 26.05)
+  with `home.packages = [ pkgs.chezmoi ]` and a minimal `~/.config/chezmoi/chezmoi.toml`
+  that sets `githubUsername = "amatos"`
+
+---
+
 ## 2026-06-25 (5)
 
 ### Added
+
 - `pre-commit-hooks.nix` flake input (`github:cachix/pre-commit-hooks.nix`)
-- `preCommitCheck` in `flake.nix` incorporating all hooks from the former `.pre-commit-config.yaml`:
+- `preCommitCheck` in `flake.nix` with working hooks:
   - `nixfmt` — Nix formatting
-  - `check-added-large-files` (500 KB limit), `check-yaml`, `end-of-file-fixer`, `trailing-whitespace`, `check-case-conflict`, `check-merge-conflict`, `mixed-line-ending` (LF) — standard file hygiene
-  - `markdownlint-cli2` (`pkgs.markdownlint-cli2`) — markdown linting, config from `.markdownlint-cli2.yaml`
-  - `markdown-link-check` (`pkgs.nodePackages.markdown-link-check`) — link validation, config from `.markdown-link-check.json`
-  - `commitlint` (`pkgs.commitlint`, commit-msg stage) — conventional commit enforcement, config from `.commitlintrc.yaml`
+  - `markdownlint-cli2` (`pkgs.markdownlint-cli2`) — markdown linting
+  - `markdown-link-check` (`pkgs.markdown-link-check`) — link validation
+  - `commitlint` (`pkgs.commitlint`, commit-msg stage) — conventional commit enforcement
 - `checks` output exposing the pre-commit check so `nix flake check` also validates formatting
 - `shellHook` wired into the devShell — `nix develop` installs hooks into `.git/hooks` automatically
 
 ### Removed
+
 - `.pre-commit-config.yaml` — superseded by the Nix-managed hooks above
-- `check-branch` hook (from `commit-check`) — not available in nixpkgs; dropped
+- Hooks from `pre-commit/pre-commit-hooks` (`check-yaml`, `trailing-whitespace`, etc.) —
+  no default entry in pre-commit-hooks.nix with nixpkgs 26.05; omitted
+- `check-branch` hook — not available in nixpkgs
 
 ---
 
 ## 2026-06-25 (4)
 
 ### Changed
-- `.github/workflows/ci.yml` — removed `build-gammu` and `build-nixostron` jobs; NixOS evaluation still covered by `nix flake check` in the `flake-check` job
+
+- `.github/workflows/ci.yml` — removed `build-gammu` and `build-nixostron` jobs;
+  NixOS evaluation still covered by `nix flake check` in the `flake-check` job
 
 ---
 
 ## 2026-06-25 (3)
 
 ### Added
-- `home/alberth/chezmoi.nix` — installs chezmoi via `programs.chezmoi` and configures `sourceURL = "https://github.com/amatos/dotfiles"` so `chezmoi init --apply` works without arguments on a new machine
+
+- `home/alberth/chezmoi.nix` — installs chezmoi and configures `githubUsername = "amatos"`
+  so `chezmoi init` can infer the source repo
 - Imported in `home/alberth/default.nix` (applies to all hosts)
 
 ---
@@ -41,38 +68,57 @@ All notable changes to this project will be documented in this file.
 ## 2026-06-25 (2)
 
 ### Added
-- 1Password app and CLI (`1password`, `1password-cli`) added to Homebrew casks in `hosts/darwin/codex/default.nix`
-- `_1password-gui` and `_1password-cli` added to `home.packages` in `home/alberth/nixos.nix` for NixOS hosts
+
+- 1Password app and CLI (`1password`, `1password-cli`) added to Homebrew casks
+  in `hosts/darwin/codex/default.nix`
+- `_1password-gui` and `_1password-cli` added to `home.packages`
+  in `home/alberth/nixos.nix` for NixOS hosts
 
 ---
 
 ## 2026-06-25
 
 ### Added
-- `home/alberth/devenv.nix` — home-manager module for devenv; installs the package and manages `~/.config/devenv/devenv.yaml`
+
+- `home/alberth/devenv.nix` — home-manager module for devenv; installs the package
+  and manages `~/.config/devenv/devenv.yaml`
 - `amatos.cachix.org` added as a trusted binary cache in `modules/common/packages.nix`
-- `home/alberth/default.nix` now imports `devenv.nix` and `starship.nix` via the `imports` list
+- `home/alberth/default.nix` now imports `devenv.nix` and `starship.nix`
 
 ### Changed
-- `devenv` moved from `environment.systemPackages` (`modules/common/packages.nix`) to `home.packages` (via `devenv.nix`) — user-facing tools belong in home-manager per project conventions
-- `pkgs/python/luadns.nix` fixed — was a comment-only file (invalid Nix); replaced with `{ }` so `nix fmt` passes
+
+- `devenv` moved from `environment.systemPackages` to `home.packages` (via `devenv.nix`) —
+  user-facing tools belong in home-manager per project conventions
+- `pkgs/python/luadns.nix` fixed — was a comment-only file (invalid Nix);
+  replaced with `{ }` so `nix fmt` passes
 
 ### Removed
-- `secrets/secrets.nix` — redundant duplicate of `nix-secrets/secrets.nix`; the `.age` files and their recipient declarations live exclusively in the `nix-secrets` repo
+
+- `secrets/secrets.nix` — redundant duplicate of `nix-secrets/secrets.nix`;
+  the `.age` files and recipient declarations live exclusively in the `nix-secrets` repo
 
 ---
 
 ## 2026-06-24
 
 ### Added
-- GitHub Actions CI (`.github/workflows/ci.yml`) with five jobs: `lint`, `flake-check`, `build-gammu`, `build-nixostron` (native aarch64 on `ubuntu-24.04-arm`), `eval-darwin`
+
+- GitHub Actions CI (`.github/workflows/ci.yml`) with jobs:
+  `lint`, `flake-check`, `build-gammu`, `build-nixostron`, `eval-darwin`
 - `formatter` output in `flake.nix` wiring `nixfmt` for `nix fmt` support
-- Starship prompt (`home/alberth/starship.nix`) matching the p10k rainbow layout — two-line prompt with fill, OS icon, git status, language/tool segments
-- Fish set as default shell on all hosts (`programs.fish.enable` + `users.users.*.shell = pkgs.fish` in both `common-darwin.nix` and `common-nixos.nix`)
+- Starship prompt (`home/alberth/starship.nix`) matching the p10k rainbow layout —
+  two-line prompt with fill, OS icon, git status, language/tool segments
+- Fish set as default shell on all hosts (`programs.fish.enable` +
+  `users.users.*.shell = pkgs.fish` in `common-darwin.nix` and `common-nixos.nix`)
 
 ### Changed
-- Switched from Powerlevel10k (zsh) to Starship (all shells) — removed p10k plugin, `.p10k.zsh` file reference, and `initContent` source line from `home/alberth/default.nix`
-- `modules/common/secrets.nix` — removed YubiKey identity stub from `age.identityPaths`; age initialises all identity paths before decryption, and the missing plugin binary caused all secrets to fail during automated activation; host key alone is sufficient
+
+- Switched from Powerlevel10k (zsh) to Starship (all shells) — removed p10k plugin,
+  `.p10k.zsh` file reference, and `initContent` source line from `home/alberth/default.nix`
+- `modules/common/secrets.nix` — removed YubiKey identity stub from `age.identityPaths`;
+  age initialises all identity paths before decryption, and the missing plugin binary
+  caused all secrets to fail during automated activation; host key alone is sufficient
 
 ### Removed
+
 - `.gitea/workflows/ci.yml` — replaced by GitHub Actions
