@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (4)
+
+### Changed
+- `.github/workflows/ci.yml` — removed `build-gammu` and `build-nixostron` jobs; NixOS evaluation still covered by `nix flake check` in the `flake-check` job
+
+---
+
 ## 2026-06-25 (3)
 
 ### Added
