@@ -15,7 +15,10 @@ let
   rebuildCmd = if pkgs.stdenv.isDarwin then "nh darwin" else "nh os";
 in
 {
-  imports = [ ./starship.nix ];
+  imports = [
+    ./devenv.nix
+    ./starship.nix
+  ];
   home.username = primaryUser;
   home.homeDirectory =
     if pkgs.stdenv.isDarwin then "/Users/${primaryUser}" else "/home/${primaryUser}";

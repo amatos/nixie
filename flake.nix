@@ -136,6 +136,9 @@
         # };
       };
 
+      # Canonical formatter — enables `nix fmt` and `nix run .#formatter -- --check`
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+
       # Dev shells and packages (optional)
       devShells = forAllSystems (system:
         let pkgs = nixpkgs.legacyPackages.${system}; in
