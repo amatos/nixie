@@ -54,17 +54,45 @@
     };
   };
 
-  outputs = { self, nixpkgs, nix-darwin, determinate, home-manager, ragenix, nix-secrets, nvf, catppuccin-bat, catppuccin, nix-homebrew, zapp, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nix-darwin,
+      determinate,
+      home-manager,
+      ragenix,
+      nix-secrets,
+      nvf,
+      catppuccin-bat,
+      catppuccin,
+      nix-homebrew,
+      zapp,
+      ...
+    }:
     let
       # Helper to build a lib from nixpkgs for a given system
       lib = nixpkgs.lib;
 
       # Supported systems
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+        "x86_64-darwin"
+      ];
       forAllSystems = lib.genAttrs supportedSystems;
 
       # Shared specialArgs passed to every host configuration
-      sharedSpecialArgs = { inherit self nix-secrets nvf catppuccin-bat catppuccin; };
+      sharedSpecialArgs = {
+        inherit
+          self
+          nix-secrets
+          nvf
+          catppuccin-bat
+          catppuccin
+          ;
+      };
     in
     {
       # nix-darwin configurations (macOS)
@@ -140,17 +168,20 @@
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
 
       # Dev shells and packages (optional)
-      devShells = forAllSystems (system:
-        let pkgs = nixpkgs.legacyPackages.${system}; in
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         {
           default = pkgs.mkShell {
             name = "nixie";
             packages = with pkgs; [
-              nil               # Nix LSP
-              nixfmt             # canonical Nix formatter
-              ragenix.packages.${system}.default  # rekey secrets, add recipients
-              nix-tree          # visualize derivation dependency graph
-              nvd               # diff two NixOS/darwin closures before switching
+              nil # Nix LSP
+              nixfmt # canonical Nix formatter
+              ragenix.packages.${system}.default # rekey secrets, add recipients
+              nix-tree # visualize derivation dependency graph
+              nvd # diff two NixOS/darwin closures before switching
             ];
           };
         }
