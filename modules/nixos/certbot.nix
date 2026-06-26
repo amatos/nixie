@@ -5,7 +5,8 @@
 # It uses dns-lexicon (which IS in nixpkgs) for the LuaDNS API calls.
 #
 # Usage — in a host's default.nix:
-#   nixie.certbot.domains = [ "example.com" "*.example.com" ];
+#   nixie.certbot.domains = [ [ "example.com" "www.example.com" ] ];  # one cert, two SANs
+#   nixie.certbot.domains = [ "example.com" ];                        # single-domain shorthand
 #   nixie.certbot.syncthingDeploy = true;  # copy renewed cert to syncthing + restart
 {
   config,
@@ -44,7 +45,9 @@ let
     systemctl restart syncthing.service
   '';
 
-  certbotCmd = domain: ''
+  # Each entry in cfg.domains is a list of domain names for a single cert.
+  # Multiple entries produce multiple certs; multiple names within one entry become SANs.
+  certbotCmd = domains: ''
     ${certbotWithLuadns}/bin/certbot certonly \
       --dns-luadns \
       --dns-luadns-credentials /run/agenix/luadns-ini \
@@ -53,7 +56,7 @@ let
       --non-interactive \
       --keep-until-expiring \
       ${lib.optionalString cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"} \
-      -d '${domain}'
+      ${lib.concatMapStringsSep " " (d: "-d '${d}'") domains}
   '';
 in
 {
@@ -67,13 +70,22 @@ in
     };
 
     domains = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
+      type = lib.types.listOf (
+        lib.types.coercedTo lib.types.str lib.toList (lib.types.listOf lib.types.str)
+      );
       default = [ ];
       example = [
-        "example.com"
-        "*.example.com"
+        [
+          "example.com"
+          "www.example.com"
+        ]
+        [ "other.example.com" ]
       ];
-      description = "Domains to issue certificates for. Each entry becomes a -d argument.";
+      description = ''
+        Certificates to issue. Each entry is a list of domain names that will be
+        combined into a single certificate as SANs. A bare string is also accepted
+        and treated as a single-domain certificate.
+      '';
     };
 
     syncthingDeploy = lib.mkEnableOption "copy renewed cert to syncthing https-cert/key and restart syncthing.service";

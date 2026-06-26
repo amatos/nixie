@@ -42,9 +42,14 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/nixos.nix` — mask syncthing user unit via `home.activation` to
   prevent conflict with the system service managed by `services.syncthing`
 - `hosts/nixos/gammu/default.nix` — corrected certbot domain from `home.matos.cc`
-  to `gammu.home.matos.cc` and `gammu.ts.matos.cc`; renewed certificate now matches the host FQDN
+  to `gammu.home.matos.cc`; renewed certificate now matches the host FQDN
 - `hosts/darwin/codex/default.nix` — corrected certbot domain from `home.matos.cc`
-  to `codex.home.matos.cc` and `codex.ts.matos.cc`; renewed certificate now matches the host FQDN
+  to `codex.home.matos.cc`; renewed certificate now matches the host FQDN
+- `modules/nixos/certbot.nix`, `modules/darwin/certbot.nix` — `domains` now accepts
+  a list of lists; each inner list becomes a single cert with multiple SANs; bare
+  strings still accepted (coerced to single-element list for backward compat)
+- `hosts/nixos/gammu/default.nix` — issue single cert covering both
+  `gammu.home.matos.cc` and `gammu.ts.matos.cc` as SANs
 
 ---
 

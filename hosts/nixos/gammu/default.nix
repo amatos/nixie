@@ -42,8 +42,10 @@ in
   nixie.certbot = {
     enable = true;
     domains = [
-      "gammu.home.matos.cc"
-      "gammu.ts.matos.cc"
+      [
+        "gammu.home.matos.cc"
+        "gammu.ts.matos.cc"
+      ]
     ];
     syncthingDeploy = true;
   };
