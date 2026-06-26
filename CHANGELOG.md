@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/nixos/ephemeraltron/` (new) — minimal template NixOS host; provisions at
+  `10.0.6.66/22` with static IP, SSH key access, passwordless sudo, and Nix flakes
+  enabled so a real config can be applied immediately via `nixos-rebuild --flake`
+- `hosts/nixos/ephemeraltron/hardware-configuration.nix` — x86_64 qemu-guest
+  profile; by-label filesystem paths (`ESP`, `nixos`) so the config is disk-agnostic
+- `installer/ephemeraltron.nix` — auto-installer ISO config; detects the first
+  block device, partitions (GPT EFI + root), formats with matching labels, installs
+  from a pre-built closure bundled in the ISO (no internet required), then reboots
+- `flake.nix` — `nixosConfigurations.ephemeraltron`; `packages.x86_64-linux.ephemeraltron-iso`
+  (build with `nix build .#ephemeraltron-iso`)
+
+---
+
 ---
 
 ## 26.06.03 — 2026-06-26
