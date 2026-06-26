@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/default.nix` — `nixpush` alias: `cd ~/Projects/nixie && git push`
 - `home/alberth/default.nix` — `User = "git"` added to `programs.ssh.settings."github.com"`
 - `modules/darwin/sudo.nix` — removed unsupported `mode` option; nix-darwin's
   `environment.etc` does not support `mode` (unlike NixOS)

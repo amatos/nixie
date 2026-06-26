@@ -58,6 +58,7 @@ in
     search = ''rg -p --glob "!node_modules/*" --glob "!vendor/*"'';
     cat = "bat";
     nixpull = "pushd $HOME/Projects/nixie && git pull && popd";
+    nixpush = "pushd $HOME/Projects/nixie && git push && popd";
   };
 
   # nixbuild — build the nixie flake for the current host.
