@@ -12,6 +12,7 @@
 {
   pkgs,
   lib,
+  modulesPath,
   ephemeraltronSystem,
   ...
 }:
@@ -92,7 +93,7 @@ let
 in
 {
   imports = [
-    "${pkgs.path}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+    (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
   ];
 
   # Pull the pre-built ephemeraltron system closure into the ISO's Nix store.
