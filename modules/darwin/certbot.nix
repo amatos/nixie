@@ -55,6 +55,7 @@ let
         --agree-tos \
         --non-interactive \
         --keep-until-expiring \
+        --expand \
         ${lib.optionalString cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"} \
         ${lib.concatMapStringsSep " " (d: "-d '${d}'") domains}
     '') cfg.domains
