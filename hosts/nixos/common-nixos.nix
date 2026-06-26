@@ -25,12 +25,16 @@ in
     ../../modules/common/age-host-key.nix
     ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
+    ../../modules/common/tailscale-secrets.nix
   ];
 
   networking.useDHCP = true;
   networking.nftables.enable = true;
 
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    authKeyFile = config.age.secrets.tailscale-authkey.path;
+  };
 
   # Latest stable kernel — override per-host if hardware requires a specific version
   boot.kernelPackages = pkgs.linuxPackages_latest;
