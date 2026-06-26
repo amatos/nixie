@@ -1,3 +1,7 @@
+ignores:
+  - ".direnv/**"
+  - "node_modules/**"
+
 config:
   MD013:
     line_length: 160

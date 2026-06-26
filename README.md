@@ -5,7 +5,7 @@ Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, a
 ## Hosts
 
 | Hostname | OS | Architecture | Physical / Virtual | Function |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | Development & Testing VM |
 | `nixostron` | NixOS | aarch64-linux | Virtual | Development & Testing VM |
@@ -15,7 +15,7 @@ Hosts whose names end in `tron` are virtual machines.
 
 ## Repository layout
 
-```
+```text
 flake.nix                        # inputs, sharedSpecialArgs, host wiring
 users.nix                        # single source of truth for users (primaryUser, email, GPG key)
 secrets/
@@ -87,7 +87,10 @@ nixos-rebuild switch --flake .#<hostname>
 
 ## Secrets (ragenix + YubiKey)
 
-Secrets are encrypted with [ragenix](https://github.com/yaxitech/ragenix) using an age identity backed by a YubiKey via `age-plugin-yubikey`. Encrypted `.age` files and the YubiKey identity stub live in the [nix-secrets](https://github.com/amatos/nix-secrets) repository, pulled in as a non-flake flake input (`flake = false`).
+Secrets are encrypted with [ragenix](https://github.com/yaxitech/ragenix) using an age identity backed
+by a YubiKey via `age-plugin-yubikey`. Encrypted `.age` files live in the
+[nix-secrets](https://github.com/amatos/nix-secrets) repository, pulled in as a non-flake flake input
+(`flake = false`).
 
 ### Prerequisites
 
@@ -129,7 +132,7 @@ Each host auto-generates its own age key at `/etc/age/host-key` on first activat
 
 1. Deploy with the YubiKey plugged in — the activation script prints the new host's public key:
 
-   ```
+   ```text
    Host age public key (add this to nix-secrets/secrets.nix and rekey):
    age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
    ```
@@ -154,7 +157,8 @@ nix run github:yaxitech/ragenix -- --rekey
 
 Certificates renew automatically — weekly via a systemd timer (NixOS, with 1h randomized delay) or launchd job (darwin, Sunday 03:00). Both use `--keep-until-expiring`.
 
-The LuaDNS API credentials are decrypted from `nix-secrets/luadns.ini.age` at boot and placed at `/run/agenix/luadns.ini`.
+The LuaDNS API credentials are decrypted from `nix-secrets/luadns.ini.age` at boot and placed at
+`/run/agenix/luadns-ini`.
 
 ### Configuring domains
 

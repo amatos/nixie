@@ -124,13 +124,16 @@
             # pre-commit-hooks.nix; they are omitted until a fix is found.
 
             # ── Markdown linting (config: .markdownlint-cli2.yaml) ──────────
+            # pass_filenames = false + always_run = true: lints ALL .md files
+            # in the repo on every commit, not just staged ones.  markdownlint-cli2
+            # handles the **/*.md glob natively (no shell expansion needed).
             markdownlint-cli2 = {
               enable = true;
               name = "markdownlint-cli2";
-              entry = "${pkgs.markdownlint-cli2}/bin/markdownlint-cli2";
+              entry = "${pkgs.markdownlint-cli2}/bin/markdownlint-cli2 **/*.md";
               language = "system";
-              types = [ "markdown" ];
-              excludes = [ "^\\.github/aw/" ];
+              pass_filenames = false;
+              always_run = true;
             };
 
             # ── Markdown link checking (config: .markdown-link-check.json) ──

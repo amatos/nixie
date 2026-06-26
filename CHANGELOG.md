@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (6)
+
+### Fixed
+
+- `.markdownlint-cli2.yaml` — added `ignores` for `.direnv/**` and
+  `node_modules/**` to prevent linting generated/cached files
+
+---
+
+## 2026-06-26 (5)
+
+### Changed
+
+- `flake.nix` — `markdownlint-cli2` pre-commit hook now uses
+  `pass_filenames = false` + `always_run = true` with `**/*.md`; lints every
+  markdown file in the repo on every commit, not just staged files
+
+---
+
+## 2026-06-26 (4)
+
+### Fixed
+
+- `CLAUDE.md` — full markdownlint pass: added blank lines after all `###` headings
+  (MD022/MD032), fixed table separator (MD060), added `text` language to fenced
+  code block (MD040), wrapped all lines over 160 chars (MD013)
+- `README.md` — fixed table separator (MD060), added language to two fenced code
+  blocks (MD040), wrapped long line (MD013), updated stale
+  `/run/agenix/luadns.ini` reference to `/run/agenix/luadns-ini`
+
+---
+
 ## 2026-06-26 (3)
 
 ### Added
