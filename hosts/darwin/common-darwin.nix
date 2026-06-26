@@ -39,10 +39,9 @@ in
   # Zapp — CLI tool for flashing ZSA keyboards
   programs.zapp.enable = true;
 
-  services.tailscale = {
-    enable = true;
-    authKeyFile = config.age.secrets.tailscale-authkey.path;
-  };
+  # authKeyFile is not supported by the nix-darwin Tailscale module;
+  # authenticate darwin hosts manually with: sudo tailscale up --authkey <key>
+  services.tailscale.enable = true;
 
   # SSH daemon — password auth disabled; key-only access
   # macOS manages its own firewall separately; no networking.firewall equivalent in nix-darwin
