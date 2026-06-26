@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (10)
+
+### Added
+
+- `home/alberth/ghostty.nix` (new) — explicit Ghostty defaults sourced from
+  `src/config/Config.zig`; imported by both darwin host overlays so every
+  tunable setting is visible and commented in one place
+
+### Changed
+
+- `home/alberth/codex.nix`, `home/alberth/darwintron.nix` — import
+  `ghostty.nix`; existing `settings.command` and `catppuccin.ghostty.enable`
+  are unchanged and continue to override/extend the shared defaults
+
+---
+
 ## 2026-06-26 (9)
 
 ### Added

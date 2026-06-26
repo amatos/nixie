@@ -17,10 +17,15 @@
     '';
   };
 
+  imports = [
+    ./ghostty.nix
+  ];
+
   # Ghostty — installed via homebrew cask; enable programs.ghostty so
   # home-manager can manage the config and catppuccin can inject the theme.
   # package = null prevents home-manager from installing the nixpkgs build,
   # which has no aarch64-darwin support.
+  # ghostty.nix provides all default settings; override specific keys here.
   programs.ghostty = {
     enable = true;
     package = null;

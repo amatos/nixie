@@ -3,6 +3,10 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./ghostty.nix
+  ];
+
   # GPG agent — use pinentry-mac for native macOS Keychain / Touch ID prompts.
   services.gpg-agent = {
     enable = true;
@@ -11,6 +15,7 @@
     '';
   };
 
+  # ghostty.nix provides all default settings; override specific keys here.
   programs.ghostty = {
     enable = true;
     package = null; # no aarch64-darwin build in nixpkgs; installed via homebrew cask
