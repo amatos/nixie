@@ -59,6 +59,7 @@ in
     cat = "bat";
     nixpull = "pushd $HOME/Projects/nixie && git pull && popd";
     nixpush = "pushd $HOME/Projects/nixie && git push && popd";
+    nixflakeup = "pushd $HOME/Projects/nixie && nix flake update && git add flake.lock && git commit -m 'chore: updated flake.lock' && git push && popd";
   };
 
   # nixbuild — build the nixie flake for the current host.
