@@ -11,6 +11,13 @@
 { ... }:
 
 {
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+    enableZshIntegration = true;
+    enableFishIntegration = true;
+  };
+
   programs.starship.settings = {
     # \n in a Nix regular string is a real newline; home-manager serialises it
     # to TOML as \n which Starship interprets as a line break.
