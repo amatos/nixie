@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/default.nix` — `User = "git"` added to `programs.ssh.settings."github.com"`
 - `modules/darwin/sudo.nix` — removed unsupported `mode` option; nix-darwin's
   `environment.etc` does not support `mode` (unlike NixOS)
 - `.gitignore` — added `result` (nix build symlink) and `.pre-commit-config.yaml`
