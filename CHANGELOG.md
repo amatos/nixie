@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (12)
+
+### Fixed
+
+- `modules/common/certbot-secrets.nix` — removed `path = "/run/agenix/luadns.ini"`;
+  setting a path inside `/run/agenix/` caused agenix to run `mkdir -p /run/agenix`
+  before creating the generation symlink, making the symlink step fail with
+  "cannot overwrite directory". Secret now uses its agenix default path
+  (`/run/agenix/luadns-ini`).
+- `modules/nixos/certbot.nix` — updated `--dns-luadns-credentials` to use
+  `/run/agenix/luadns-ini`
+- `modules/darwin/certbot.nix` — same credential path fix
+
+---
+
 ## 2026-06-25 (11)
 
 ### Fixed
