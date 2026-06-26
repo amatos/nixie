@@ -38,6 +38,8 @@ in
   # Zapp — CLI tool for flashing ZSA keyboards
   programs.zapp.enable = true;
 
+  services.tailscale.enable = true;
+
   # SSH daemon — password auth disabled; key-only access
   # macOS manages its own firewall separately; no networking.firewall equivalent in nix-darwin
   services.openssh = {

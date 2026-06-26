@@ -30,6 +30,8 @@ in
   networking.useDHCP = true;
   networking.nftables.enable = true;
 
+  services.tailscale.enable = true;
+
   # Latest stable kernel — override per-host if hardware requires a specific version
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
