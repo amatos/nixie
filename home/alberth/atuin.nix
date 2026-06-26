@@ -16,9 +16,8 @@
       search_mode = "fuzzy";
       sync_address = "https://api.atuin.sh";
       sync_frequency = "5m";
-      # Use the up-arrow for full history search (not just prefix match)
-      filter_mode_shell_up_key_binding = "session";
-      # Ctrl-R searches all history; up-arrow searches session history
+      # Disable up-arrow binding — use shell native history for ↑; Ctrl-R opens atuin
+      up_key_binding = false;
       filter_mode = "global";
       style = "compact";
     };

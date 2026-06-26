@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (13)
+
+### Changed
+
+- `home/alberth/atuin.nix` — set `up_key_binding = false`; up-arrow now uses
+  shell native history, atuin search accessible via Ctrl-R only
+
+---
+
 ## 2026-06-25 (12)
 
 ### Fixed
