@@ -142,7 +142,7 @@ in
 
   nixie.certbot = {
     enable = true;
-    domains = [ "home.matos.cc" ];
+    domains = [ "codex.home.matos.cc" ];
     syncthingDeploy = true; # copy renewed cert to syncthing and restart on renewal
   };
 }
