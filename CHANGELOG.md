@@ -4,351 +4,88 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## 2026-06-26 (12)
-
-### Changed
-
-- `CLAUDE.md` — added Releases section documenting CalVer `yy.mm.release`
-  scheme, monthly reset rule, and signed tag procedure
-
----
-
-## 2026-06-26 (11)
-
-### Changed
-
-- `home/alberth/ghostty.nix` — replaced generated defaults file with actual
-  config migrated from `~/Library/Application Support/com.mitchellh.ghostty/config`:
-  JetBrainsMono Nerd Font 14pt, `-calt` ligatures off, Dracula adaptive
-  light/dark theme, 90% background opacity with blur, macOS xray icon,
-  secure input, extended shell integration, clipboard improvements,
-  `notify-on-command-finish = unfocused`
-
-### Removed
-
-- `catppuccin.ghostty.enable = true` from `codex.nix` and `darwintron.nix` —
-  superseded by the explicit `theme = "light:dracula,dark:dracula"` setting
-
----
-
-## 2026-06-26 (10)
+## 26.06.01 — 2026-06-26
 
 ### Added
 
-- `home/alberth/ghostty.nix` (new) — explicit Ghostty defaults sourced from
-  `src/config/Config.zig`; imported by both darwin host overlays so every
-  tunable setting is visible and commented in one place
-
-### Changed
-
-- `home/alberth/codex.nix`, `home/alberth/darwintron.nix` — import
-  `ghostty.nix`; existing `settings.command` and `catppuccin.ghostty.enable`
-  are unchanged and continue to override/extend the shared defaults
-
----
-
-## 2026-06-26 (9)
-
-### Added
-
+- `home/alberth/ghostty.nix` (new) — Ghostty settings shared across all darwin
+  hosts, migrated from the live config: JetBrainsMono Nerd Font 14pt, `-calt`
+  ligatures off, Dracula adaptive light/dark theme, 90% opacity with blur,
+  macOS xray icon, secure input, extended shell integration features, clipboard
+  improvements, `notify-on-command-finish = unfocused`
+- `home/alberth/codex.nix`, `home/alberth/darwintron.nix` — import `ghostty.nix`
 - `.github/workflows/flake-update.yml` — weekly scheduled workflow (Sunday
-  02:00 UTC) using `DeterminateSystems/update-flake-lock`; opens a PR rather
-  than committing directly so CI runs before merge and the merge commit can be
-  signed; also triggerable manually via `workflow_dispatch`
-
----
-
-## 2026-06-26 (8)
-
-### Added
-
+  02:00 UTC) using `DeterminateSystems/update-flake-lock`; opens a PR so CI
+  runs before merge; also triggerable manually via `workflow_dispatch`
 - `home/alberth/default.nix` — source `$HOME/.config/op/plugins.sh` in bash,
   zsh, and fish interactive init (guarded by a file-existence check)
-
----
-
-## 2026-06-26 (7)
-
-### Fixed
-
-- `flake.nix` — disabled `markdown-link-check` pre-commit hook; the Nix build
-  sandbox has no network access so all external URLs return Status: 0, causing
-  CI to always fail; run manually when needed
-
----
-
-## 2026-06-26 (6)
-
-### Fixed
-
-- `.markdownlint-cli2.yaml` — added `ignores` for `.direnv/**` and
-  `node_modules/**` to prevent linting generated/cached files
-
----
-
-## 2026-06-26 (5)
-
-### Changed
-
-- `flake.nix` — `markdownlint-cli2` pre-commit hook now uses
-  `pass_filenames = false` + `always_run = true` with `**/*.md`; lints every
-  markdown file in the repo on every commit, not just staged files
-
----
-
-## 2026-06-26 (4)
-
-### Fixed
-
-- `CLAUDE.md` — full markdownlint pass: added blank lines after all `###` headings
-  (MD022/MD032), fixed table separator (MD060), added `text` language to fenced
-  code block (MD040), wrapped all lines over 160 chars (MD013)
-- `README.md` — fixed table separator (MD060), added language to two fenced code
-  blocks (MD040), wrapped long line (MD013), updated stale
-  `/run/agenix/luadns.ini` reference to `/run/agenix/luadns-ini`
-
----
-
-## 2026-06-26 (3)
-
-### Added
-
 - `home/alberth/default.nix` — `ripgrep` added to `home.packages` (all hosts)
-
----
-
-## 2026-06-26 (2)
-
-### Changed
-
-- `home/alberth/default.nix` — `nixswitch` now uses `sudo darwin-rebuild switch --flake`
-  on darwin and `sudo nixos-rebuild switch --flake` on NixOS; `nixbuild` still uses `nh`
-
----
-
-## 2026-06-26
-
-### Fixed
-
-- `home/alberth/codex.nix`, `home/alberth/darwintron.nix` — set
-  `programs.ghostty.settings.command` to `/etc/profiles/per-user/alberth/bin/fish`
-  so Ghostty launches fish directly instead of defaulting to zsh
-
----
-
-## 2026-06-25 (16)
-
-### Added
-
 - `home/alberth/default.nix` — `nixpull` alias: `cd ~/Projects/nixie && git pull`
-
----
-
-## 2026-06-25 (15)
-
-### Fixed
-
-- `home/alberth/atuin.nix` — replaced `up_key_binding = false` (config-file
-  option ignored by shell init scripts) with `flags = [ "--disable-up-arrow" ]`
-  passed to `atuin init`; this correctly prevents atuin from binding ↑ in
-  bash, zsh, and fish
-
----
-
-## 2026-06-25 (14)
-
-### Added
-
 - `home/alberth/default.nix` — `cat` aliased to `bat` across all shells
-
----
-
-## 2026-06-25 (13)
+- `home/alberth/atuin.nix` — atuin shell history with bash/zsh/fish integrations;
+  fuzzy search, auto-sync to api.atuin.sh every 5 minutes, compact style,
+  global filter mode
+- `home/alberth/default.nix` — new `home.packages` entries:
+  tools (`htop`, `imagemagick`, `pandoc`, `ragenix`) and fonts
+  (`font-awesome`, `hack-font`, `nerd-fonts.hack`)
+- `statix` added to the devShell in `flake.nix`
+- `pre-commit-hooks.nix` flake input; `preCommitCheck` in `flake.nix` with
+  `nixfmt`, `markdownlint-cli2`, and `commitlint` hooks; `shellHook` wired into
+  devShell so `nix develop` installs hooks automatically
+- `home/alberth/chezmoi.nix` — installs chezmoi, sets `githubUsername = "amatos"`
+- 1Password app and CLI added to Homebrew casks (`codex`) and `home.packages` (NixOS)
+- `home/alberth/devenv.nix` — devenv package and config
+- `amatos.cachix.org` added as a trusted binary cache in `modules/common/packages.nix`
+- GitHub Actions CI (`.github/workflows/ci.yml`): `lint`, `flake-check`, `eval-darwin`
+- `formatter` output in `flake.nix` wiring `nixfmt` for `nix fmt` support
+- Starship prompt (`home/alberth/starship.nix`) — two-line rainbow prompt
+- Fish set as default shell on all hosts
+- `modules/nixos/agenix-fix.nix` (new) — workaround for ragenix/systemd-tmpfiles
+  ordering race; removes stale `/run/agenix` directory before `agenixInstall`
 
 ### Changed
 
-- `home/alberth/atuin.nix` — set `up_key_binding = false`; up-arrow now uses
-  shell native history, atuin search accessible via Ctrl-R only
-
----
-
-## 2026-06-25 (12)
+- `home/alberth/ghostty.nix` — replaced auto-generated defaults with actual
+  migrated config; removed `catppuccin.ghostty.enable` (superseded by explicit
+  Dracula theme)
+- `home/alberth/default.nix` — `nixswitch` now uses `sudo darwin-rebuild switch
+  --flake` on darwin and `sudo nixos-rebuild switch --flake` on NixOS
+- `home/alberth/atuin.nix` — replaced `up_key_binding = false` with
+  `flags = [ "--disable-up-arrow" ]`; correctly prevents atuin from binding ↑
+- `flake.nix` — `markdownlint-cli2` hook lints all `.md` files on every commit
+  (`pass_filenames = false`, `always_run = true`)
+- `.github/workflows/ci.yml` — removed separate `build-gammu` / `build-nixostron`
+  jobs; NixOS evaluation covered by `nix flake check`
+- `devenv` moved from `environment.systemPackages` to `home.packages`
+- Switched from Powerlevel10k (zsh) to Starship (all shells)
+- `modules/common/secrets.nix` — removed YubiKey identity stub from
+  `age.identityPaths`; host key alone is sufficient for automated activation
+- `CLAUDE.md` — added Releases section (CalVer scheme, changelog grouping convention)
+- `nix-secrets/secrets.nix` — updated gammu host age key
 
 ### Fixed
 
 - `modules/common/certbot-secrets.nix` — removed `path = "/run/agenix/luadns.ini"`;
-  setting a path inside `/run/agenix/` caused agenix to run `mkdir -p /run/agenix`
-  before creating the generation symlink, making the symlink step fail with
-  "cannot overwrite directory". Secret now uses its agenix default path
-  (`/run/agenix/luadns-ini`).
-- `modules/nixos/certbot.nix` — updated `--dns-luadns-credentials` to use
-  `/run/agenix/luadns-ini`
-- `modules/darwin/certbot.nix` — same credential path fix
-
----
-
-## 2026-06-25 (11)
-
-### Fixed
-
-- `modules/nixos/agenix-fix.nix` (new) — workaround for ragenix/systemd-tmpfiles
-  ordering issue: `systemd-tmpfiles` creates `/run/agenix` as a directory during
-  activation; `agenixInstall` then fails because `ln -s` cannot overwrite a
-  directory. The new script removes the directory (if not already a symlink)
-  after `tmpfiles` but before `agenixInstall`.
+  setting a path inside `/run/agenix/` caused agenix to `mkdir -p /run/agenix`
+  before the symlink step, making activation fail
+- `modules/nixos/certbot.nix`, `modules/darwin/certbot.nix` — updated credential
+  path to `/run/agenix/luadns-ini`
+- `home/alberth/codex.nix`, `home/alberth/darwintron.nix` — set
+  `programs.ghostty.settings.command` to nix-managed fish path so Ghostty
+  launches fish instead of zsh
+- `.markdownlint-cli2.yaml` — added `MD060: { style: "compact" }` and `ignores`
+  for `.direnv/**` and `node_modules/**`
+- `brew-nix.md`, `CLAUDE.md`, `README.md` — full markdownlint pass
+- `home/alberth/chezmoi.nix` — replaced unavailable `programs.chezmoi` with
+  `home.packages` + manual config file
+- `pkgs/python/luadns.nix` — replaced comment-only file with `{ }` so `nix fmt` passes
 - `hosts/nixos/common-nixos.nix` — import `agenix-fix.nix`
 
----
-
-## 2026-06-25 (10)
-
-### Fixed
-
-- `.markdownlint-cli2.yaml` — added `MD060: { style: "compact" }` to resolve CI
-  failure; table column style now explicitly set to compact
-- `brew-nix.md` — updated all table separator rows from `|---|---|---|` to
-  `| --- | --- | --- |` to satisfy compact table style
-
----
-
-## 2026-06-25 (9)
-
-### Added
-
-- `home/alberth/default.nix` — new `home.packages` entries:
-  - Tools: `htop`, `imagemagick`, `pandoc`, `ragenix`
-  - Fonts: `font-awesome`, `hack-font`, `nerd-fonts.hack`
-
 ### Removed
 
-- `neovim` from `home.packages` — already provided by `nvf.nix`
-
----
-
-## 2026-06-25 (8)
-
-### Added
-
-- `statix` added to the devShell in `flake.nix` — Nix linter that catches
-  antipatterns and suggests idiomatic fixes
-
----
-
-## 2026-06-25 (7)
-
-### Added
-
-- `home/alberth/atuin.nix` — atuin shell history with bash/zsh/fish integrations;
-  fuzzy search, auto-sync to api.atuin.sh every 5 minutes, compact style,
-  global filter mode, session-scoped up-arrow binding
-
----
-
-## 2026-06-25 (6)
-
-### Fixed
-
-- `home/alberth/chezmoi.nix` — replaced `programs.chezmoi` (not in home-manager 26.05)
-  with `home.packages = [ pkgs.chezmoi ]` and a minimal `~/.config/chezmoi/chezmoi.toml`
-  that sets `githubUsername = "amatos"`
-
----
-
-## 2026-06-25 (5)
-
-### Added
-
-- `pre-commit-hooks.nix` flake input (`github:cachix/pre-commit-hooks.nix`)
-- `preCommitCheck` in `flake.nix` with working hooks:
-  - `nixfmt` — Nix formatting
-  - `markdownlint-cli2` (`pkgs.markdownlint-cli2`) — markdown linting
-  - `markdown-link-check` (`pkgs.markdown-link-check`) — link validation
-  - `commitlint` (`pkgs.commitlint`, commit-msg stage) — conventional commit enforcement
-- `checks` output exposing the pre-commit check so `nix flake check` also validates formatting
-- `shellHook` wired into the devShell — `nix develop` installs hooks into `.git/hooks` automatically
-
-### Removed
-
-- `.pre-commit-config.yaml` — superseded by the Nix-managed hooks above
-- Hooks from `pre-commit/pre-commit-hooks` (`check-yaml`, `trailing-whitespace`, etc.) —
-  no default entry in pre-commit-hooks.nix with nixpkgs 26.05; omitted
-- `check-branch` hook — not available in nixpkgs
-
----
-
-## 2026-06-25 (4)
-
-### Changed
-
-- `.github/workflows/ci.yml` — removed `build-gammu` and `build-nixostron` jobs;
-  NixOS evaluation still covered by `nix flake check` in the `flake-check` job
-
----
-
-## 2026-06-25 (3)
-
-### Added
-
-- `home/alberth/chezmoi.nix` — installs chezmoi and configures `githubUsername = "amatos"`
-  so `chezmoi init` can infer the source repo
-- Imported in `home/alberth/default.nix` (applies to all hosts)
-
----
-
-## 2026-06-25 (2)
-
-### Added
-
-- 1Password app and CLI (`1password`, `1password-cli`) added to Homebrew casks
-  in `hosts/darwin/codex/default.nix`
-- `_1password-gui` and `_1password-cli` added to `home.packages`
-  in `home/alberth/nixos.nix` for NixOS hosts
-
----
-
-## 2026-06-25
-
-### Added
-
-- `home/alberth/devenv.nix` — home-manager module for devenv; installs the package
-  and manages `~/.config/devenv/devenv.yaml`
-- `amatos.cachix.org` added as a trusted binary cache in `modules/common/packages.nix`
-- `home/alberth/default.nix` now imports `devenv.nix` and `starship.nix`
-
-### Changed
-
-- `devenv` moved from `environment.systemPackages` to `home.packages` (via `devenv.nix`) —
-  user-facing tools belong in home-manager per project conventions
-- `pkgs/python/luadns.nix` fixed — was a comment-only file (invalid Nix);
-  replaced with `{ }` so `nix fmt` passes
-
-### Removed
-
-- `secrets/secrets.nix` — redundant duplicate of `nix-secrets/secrets.nix`;
-  the `.age` files and recipient declarations live exclusively in the `nix-secrets` repo
-
----
-
-## 2026-06-24
-
-### Added
-
-- GitHub Actions CI (`.github/workflows/ci.yml`) with jobs:
-  `lint`, `flake-check`, `build-gammu`, `build-nixostron`, `eval-darwin`
-- `formatter` output in `flake.nix` wiring `nixfmt` for `nix fmt` support
-- Starship prompt (`home/alberth/starship.nix`) matching the p10k rainbow layout —
-  two-line prompt with fill, OS icon, git status, language/tool segments
-- Fish set as default shell on all hosts (`programs.fish.enable` +
-  `users.users.*.shell = pkgs.fish` in `common-darwin.nix` and `common-nixos.nix`)
-
-### Changed
-
-- Switched from Powerlevel10k (zsh) to Starship (all shells) — removed p10k plugin,
-  `.p10k.zsh` file reference, and `initContent` source line from `home/alberth/default.nix`
-- `modules/common/secrets.nix` — removed YubiKey identity stub from `age.identityPaths`;
-  age initialises all identity paths before decryption, and the missing plugin binary
-  caused all secrets to fail during automated activation; host key alone is sufficient
-
-### Removed
-
+- `catppuccin.ghostty.enable = true` from `codex.nix` and `darwintron.nix`
+- `flake.nix` — disabled `markdown-link-check` hook (no network in Nix sandbox)
+- `.pre-commit-config.yaml` — superseded by Nix-managed hooks
+- `secrets/secrets.nix` — redundant duplicate; canonical copy lives in `nix-secrets`
 - `.gitea/workflows/ci.yml` — replaced by GitHub Actions
+- `neovim` from `home.packages` — provided by `nvf.nix`

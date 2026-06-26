@@ -154,6 +154,10 @@ Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
 - Tags are GPG-signed: `git tag -s yy.mm.release -m "Release yy.mm.release"`.
 - Before tagging, check the highest existing tag for the month:
   `git tag --list 'yy.mm.*' | sort`
+- When creating a release, combine all changes since the last release into a
+  single entry in `CHANGELOG.md` and note the tagged version.
+- Unreleased changes must be grouped under an `## Unreleased` section at the
+  top of `CHANGELOG.md` until they are included in a release.
 
 ---
 
