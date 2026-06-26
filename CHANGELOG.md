@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
   allowed types, and commitlint rules
 - `hosts/nixos/gammu/default.nix` — `services.syncthing.guiAddress = "[::]:8384"`;
   Syncthing GUI binds to all interfaces on IPv4 and IPv6 via dual-stack wildcard
+- `hosts/nixos/gammu/default.nix` — `overrideDevices = false` and `overrideFolders = false`
+  so nixos-rebuild switch does not wipe Syncthing devices and folders
 - `hosts/nixos/gammu/default.nix` — explicitly set Syncthing sync protocol to
   listen on all interfaces via TCP and QUIC on port 22000
 - `hosts/darwin/codex/default.nix` — Syncthing configured with certbot-issued TLS

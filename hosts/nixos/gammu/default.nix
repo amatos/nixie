@@ -19,6 +19,8 @@ in
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
     guiAddress = "[::]:8384";
+    overrideDevices = false;
+    overrideFolders = false;
     settings.gui.address = "[::]:8384";
     settings.options.listenAddresses = [
       "tcp://0.0.0.0:22000"
