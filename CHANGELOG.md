@@ -14,8 +14,9 @@ All notable changes to this project will be documented in this file.
 - `hosts/darwin/codex/default.nix` — Syncthing configured with certbot-issued TLS
   cert for `codex.home.matos.cc`; GUI bound to all interfaces
 - `hosts/nixos/gammu/default.nix` — firewall enabled; Syncthing GUI (port 8384)
-  restricted to `10.0.4.0/22`; Syncthing sync protocol (port 22000 TCP/UDP)
-  open globally; SSH remains globally accessible
+  restricted to `10.0.4.0/22` on IPv4, open globally on IPv6; Syncthing sync
+  protocol (port 22000 TCP/UDP) open globally on IPv4 and IPv6; SSH remains
+  globally accessible
 - `hosts/nixos/common-nixos.nix` — `networking.nftables.enable = true`; all NixOS
   hosts explicitly use nftables
 - `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — Tailscale
