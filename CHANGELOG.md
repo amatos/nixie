@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (11)
+
+### Fixed
+
+- `modules/nixos/agenix-fix.nix` (new) — workaround for ragenix/systemd-tmpfiles
+  ordering issue: `systemd-tmpfiles` creates `/run/agenix` as a directory during
+  activation; `agenixInstall` then fails because `ln -s` cannot overwrite a
+  directory. The new script removes the directory (if not already a symlink)
+  after `tmpfiles` but before `agenixInstall`.
+- `hosts/nixos/common-nixos.nix` — import `agenix-fix.nix`
+
+---
+
 ## 2026-06-25 (10)
 
 ### Fixed
