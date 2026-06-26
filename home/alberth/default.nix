@@ -51,6 +51,7 @@ in
   # Aliases — applied to all shells
   home.shellAliases = {
     search = ''rg -p --glob "!node_modules/*" --glob "!vendor/*"'';
+    cat = "bat";
   };
 
   # nixbuild — build the nixie flake for the current host.

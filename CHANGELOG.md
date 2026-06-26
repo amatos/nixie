@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (14)
+
+### Added
+
+- `home/alberth/default.nix` — `cat` aliased to `bat` across all shells
+
+---
+
 ## 2026-06-25 (13)
 
 ### Changed
