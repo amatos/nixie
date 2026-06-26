@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.06.03 — 2026-06-26
+
 ### Added
 
 - `home/alberth/modules/` (new) — split `default.nix` into focused modules:
