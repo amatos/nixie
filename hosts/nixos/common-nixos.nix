@@ -20,6 +20,7 @@ in
     ../../modules/nixos/certbot.nix
     ../../modules/nixos/ghostty.nix
     ../../modules/nixos/agenix-fix.nix
+    ../../modules/nixos/sudo.nix
     ../../modules/common/packages.nix
     ../../modules/common/age-host-key.nix
     ../../modules/common/secrets.nix

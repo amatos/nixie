@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- `modules/nixos/sudo.nix` — `/etc/sudoers.d/nix-rebuild-sudoers`; allows
+  `wheel` group members to run `nixos-rebuild` without a password
+- `modules/darwin/sudo.nix` — same file; allows `staff` group members to run
+  `darwin-rebuild` without a password
+- `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — import
+  the respective `sudo.nix` modules
+
 ---
 
 ## 26.06.01 — 2026-06-26

@@ -18,6 +18,7 @@ in
 {
   imports = [
     ../../modules/darwin/users.nix
+    ../../modules/darwin/sudo.nix
     ../../modules/common/packages.nix
     ../../modules/common/age-host-key.nix
     ../../modules/common/secrets.nix
