@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/modules/` (new) — split `default.nix` into focused modules:
+  `git.nix`, `gpg.nix`, `ssh.nix`, `shells.nix`, `tools.nix`, `theming.nix`,
+  `packages.nix`; `default.nix` now contains only core identity and imports
 - `home/alberth/default.nix` — `openssl` added to `home.packages` (all hosts)
 - `CLAUDE.md` — added Commits section documenting Conventional Commits format,
   allowed types, and commitlint rules
@@ -41,6 +44,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `nix-secrets/secrets.nix` — updated codex host age public key; previous key was
+  never generated on disk so agenix activation failed silently on every switch
 - `home/alberth/nixos.nix` — mask syncthing user unit via `home.activation` to
   prevent conflict with the system service managed by `services.syncthing`
 - `hosts/nixos/gammu/default.nix` — corrected certbot domain from `home.matos.cc`
