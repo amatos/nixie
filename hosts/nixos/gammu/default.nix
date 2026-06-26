@@ -18,6 +18,7 @@ in
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
+    guiAddress = "0.0.0.0:8384";
   };
 
   # Certbot — certificates via LuaDNS DNS-01 challenge
