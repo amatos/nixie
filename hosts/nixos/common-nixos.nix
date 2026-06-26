@@ -36,6 +36,9 @@ in
     authKeyFile = config.age.secrets.tailscale-authkey.path;
   };
 
+  # Trust all traffic arriving on the Tailscale interface
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
+
   # Latest stable kernel — override per-host if hardware requires a specific version
   boot.kernelPackages = pkgs.linuxPackages_latest;
 

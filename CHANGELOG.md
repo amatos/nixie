@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — Tailscale
   enabled on all hosts; NixOS hosts auto-authenticate via ragenix secret;
   darwin hosts require one-time manual `sudo tailscale up --authkey <key>`
+- `hosts/nixos/common-nixos.nix` — `networking.firewall.trustedInterfaces = [ "tailscale0" ]`;
+  all traffic on the Tailscale interface is implicitly trusted on NixOS hosts
 - `modules/common/tailscale-secrets.nix` (new) — deploys Tailscale auth key from
   `nix-secrets/tailscale-authkey.age` to `/run/agenix/tailscale-authkey`
 - `nix-secrets/secrets.nix` — added `tailscale-authkey.age` recipient entry
