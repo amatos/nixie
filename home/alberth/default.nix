@@ -81,6 +81,7 @@ in
       # Tools
       htop # interactive process viewer
       imagemagick # image manipulation
+      openssl # cryptographic toolkit
       pandoc # universal document converter
       ragenix # ragenix CLI — rekey secrets, add recipients
       ripgrep # fast recursive search (rg)

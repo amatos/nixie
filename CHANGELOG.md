@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- `home/alberth/default.nix` — `openssl` added to `home.packages` (all hosts)
+
+---
+
 ## 26.06.02 — 2026-06-26
 
 ### Added
