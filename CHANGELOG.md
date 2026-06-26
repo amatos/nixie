@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (12)
+
+### Changed
+
+- `CLAUDE.md` — added Releases section documenting CalVer `yy.mm.release`
+  scheme, monthly reset rule, and signed tag procedure
+
+---
+
 ## 2026-06-26 (11)
 
 ### Changed

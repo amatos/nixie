@@ -145,6 +145,18 @@ home/alberth/
 
 ---
 
+## Releases
+
+Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
+
+- The release counter resets to `01` at the start of each new month.
+- Each subsequent release within the same month increments by 1: `26.06.01`, `26.06.02`, etc.
+- Tags are GPG-signed: `git tag -s yy.mm.release -m "Release yy.mm.release"`.
+- Before tagging, check the highest existing tag for the month:
+  `git tag --list 'yy.mm.*' | sort`
+
+---
+
 ## Before making changes
 
 1. Check `users.nix` before adding any user-related config — the field you need may already exist.
