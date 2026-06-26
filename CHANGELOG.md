@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - `home/alberth/default.nix` — `openssl` added to `home.packages` (all hosts)
+- `CLAUDE.md` — added Commits section documenting Conventional Commits format,
+  allowed types, and commitlint rules
 
 ---
 

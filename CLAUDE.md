@@ -145,6 +145,43 @@ home/alberth/
 
 ---
 
+## Commits
+
+All commits must be GPG-signed (`git commit -S`) and follow the
+[Conventional Commits](https://www.conventionalcommits.org/) format enforced
+by commitlint (`.commitlintrc.yaml`):
+
+```text
+<type>[optional scope]: <subject>
+
+[optional body]
+
+[optional footer]
+```
+
+Allowed types (breaking change markers `!` are not used — use `breaking` instead):
+
+| Type | Use for |
+| --- | --- |
+| `feat` | New functionality |
+| `fix` | Bug or breakage fix |
+| `docs` | Documentation only |
+| `chore` | Maintenance, deps, tooling |
+| `ci` | CI / GitHub Actions changes |
+| `test` | Adding or updating tests |
+| `refactor` | Code restructuring without behaviour change |
+| `perf` | Performance improvements |
+| `breaking` | Backwards-incompatible changes |
+
+Rules enforced by commitlint:
+
+- Body and footer must be preceded by a blank line.
+- Body lines should be ≤ 100 characters (warning, not error; URLs are exempt).
+- Scope is optional; use it to identify the affected file or subsystem
+  (e.g. `feat(atuin): …`).
+
+---
+
 ## Releases
 
 Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
