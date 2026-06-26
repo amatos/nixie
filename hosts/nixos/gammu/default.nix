@@ -29,7 +29,7 @@ in
     allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
       ip  saddr 10.0.4.0/22 tcp dport 8384 accept
-      ip6 tcp dport 8384 accept
+      ip6 nexthdr tcp tcp dport 8384 accept
     '';
   };
 
