@@ -15,11 +15,10 @@
     '';
   };
 
-  # ghostty.nix provides all default settings; override specific keys here.
+  # ghostty.nix provides shared settings; command overrides the default shell lookup.
   programs.ghostty = {
     enable = true;
     package = null; # no aarch64-darwin build in nixpkgs; installed via homebrew cask
     settings.command = "/etc/profiles/per-user/alberth/bin/fish";
   };
-  catppuccin.ghostty.enable = true;
 }

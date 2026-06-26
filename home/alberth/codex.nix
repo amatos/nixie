@@ -25,13 +25,12 @@
   # home-manager can manage the config and catppuccin can inject the theme.
   # package = null prevents home-manager from installing the nixpkgs build,
   # which has no aarch64-darwin support.
-  # ghostty.nix provides all default settings; override specific keys here.
+  # ghostty.nix provides shared settings; command overrides the default shell lookup.
   programs.ghostty = {
     enable = true;
     package = null;
     settings.command = "/etc/profiles/per-user/alberth/bin/fish";
   };
-  catppuccin.ghostty.enable = true;
 
   programs.ssh.settings = {
     "*" = {

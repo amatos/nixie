@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (11)
+
+### Changed
+
+- `home/alberth/ghostty.nix` — replaced generated defaults file with actual
+  config migrated from `~/Library/Application Support/com.mitchellh.ghostty/config`:
+  JetBrainsMono Nerd Font 14pt, `-calt` ligatures off, Dracula adaptive
+  light/dark theme, 90% background opacity with blur, macOS xray icon,
+  secure input, extended shell integration, clipboard improvements,
+  `notify-on-command-finish = unfocused`
+
+### Removed
+
+- `catppuccin.ghostty.enable = true` from `codex.nix` and `darwintron.nix` —
+  superseded by the explicit `theme = "light:dracula,dark:dracula"` setting
+
+---
+
 ## 2026-06-26 (10)
 
 ### Added
