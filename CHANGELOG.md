@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (2)
+
+### Changed
+
+- `home/alberth/default.nix` — `nixswitch` now uses `sudo darwin-rebuild switch --flake`
+  on darwin and `sudo nixos-rebuild switch --flake` on NixOS; `nixbuild` still uses `nh`
+
+---
+
 ## 2026-06-26
 
 ### Fixed

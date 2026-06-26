@@ -13,6 +13,11 @@ let
   primaryUser = userDefs.primaryUser;
   user = userDefs.${primaryUser};
   rebuildCmd = if pkgs.stdenv.isDarwin then "nh darwin" else "nh os";
+  switchCmd =
+    if pkgs.stdenv.isDarwin then
+      "sudo darwin-rebuild switch --flake"
+    else
+      "sudo nixos-rebuild switch --flake";
 in
 {
   imports = [
@@ -61,9 +66,9 @@ in
   programs.zsh.shellAliases.nixbuild = "pushd $HOME/Projects/nixie && ${rebuildCmd} build .#$(hostname) && popd";
   programs.fish.shellAliases.nixbuild = "pushd $HOME/Projects/nixie && ${rebuildCmd} build .#(hostname) && popd";
 
-  programs.bash.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${rebuildCmd} switch .#$(hostname) && popd";
-  programs.zsh.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${rebuildCmd} switch .#$(hostname) && popd";
-  programs.fish.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${rebuildCmd} switch .#(hostname) && popd";
+  programs.bash.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#$(hostname) && popd";
+  programs.zsh.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#$(hostname) && popd";
+  programs.fish.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#(hostname) && popd";
 
   # User packages not managed via programs.* options
   home.packages =
