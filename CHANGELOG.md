@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (15)
+
+### Fixed
+
+- `home/alberth/atuin.nix` — replaced `up_key_binding = false` (config-file
+  option ignored by shell init scripts) with `flags = [ "--disable-up-arrow" ]`
+  passed to `atuin init`; this correctly prevents atuin from binding ↑ in
+  bash, zsh, and fish
+
+---
+
 ## 2026-06-25 (14)
 
 ### Added
