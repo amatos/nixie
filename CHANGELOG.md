@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (3)
+
+### Added
+
+- `home/alberth/default.nix` — `ripgrep` added to `home.packages` (all hosts)
+
+---
+
 ## 2026-06-26 (2)
 
 ### Changed

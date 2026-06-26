@@ -82,6 +82,7 @@ in
       imagemagick # image manipulation
       pandoc # universal document converter
       ragenix # ragenix CLI — rekey secrets, add recipients
+      ripgrep # fast recursive search (rg)
 
       # Fonts — those without nixpkgs equivalents stay as homebrew casks
       anonymousPro
