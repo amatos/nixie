@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26
+
+### Fixed
+
+- `home/alberth/codex.nix`, `home/alberth/darwintron.nix` — set
+  `programs.ghostty.settings.command` to `/etc/profiles/per-user/alberth/bin/fish`
+  so Ghostty launches fish directly instead of defaulting to zsh
+
+---
+
 ## 2026-06-25 (16)
 
 ### Added

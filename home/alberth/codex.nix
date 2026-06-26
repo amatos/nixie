@@ -24,6 +24,7 @@
   programs.ghostty = {
     enable = true;
     package = null;
+    settings.command = "/etc/profiles/per-user/alberth/bin/fish";
   };
   catppuccin.ghostty.enable = true;
 

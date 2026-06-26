@@ -14,6 +14,7 @@
   programs.ghostty = {
     enable = true;
     package = null; # no aarch64-darwin build in nixpkgs; installed via homebrew cask
+    settings.command = "/etc/profiles/per-user/alberth/bin/fish";
   };
   catppuccin.ghostty.enable = true;
 }
