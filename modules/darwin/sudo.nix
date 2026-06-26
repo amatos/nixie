@@ -6,6 +6,5 @@
     text = ''
       %staff ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
     '';
-    mode = "0440";
   };
 }
