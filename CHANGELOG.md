@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
   allowed types, and commitlint rules
 - `hosts/nixos/gammu/default.nix` — `services.syncthing.guiAddress = "0.0.0.0:8384"`;
   Syncthing GUI now binds to all interfaces instead of localhost only
+- `hosts/nixos/gammu/default.nix` — explicitly set Syncthing sync protocol to
+  listen on all interfaces via TCP and QUIC on port 22000
 - `hosts/darwin/codex/default.nix` — Syncthing configured with certbot-issued TLS
   cert for `codex.home.matos.cc`; GUI bound to all interfaces
 - `hosts/nixos/gammu/default.nix` — firewall enabled; Syncthing GUI (port 8384)

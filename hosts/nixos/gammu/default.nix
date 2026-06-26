@@ -19,6 +19,10 @@ in
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
     guiAddress = "0.0.0.0:8384";
+    settings.options.listenAddresses = [
+      "tcp://0.0.0.0:22000"
+      "quic://0.0.0.0:22000"
+    ];
   };
 
   # Firewall — restrict SSH and Syncthing GUI to the local subnet;
