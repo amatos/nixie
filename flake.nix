@@ -136,9 +136,13 @@
               always_run = true;
             };
 
-            # ── Markdown link checking (config: .markdown-link-check.json) ──
+            # ── Markdown link checking ───────────────────────────────────────
+            # Disabled: the Nix build sandbox has no network access, so every
+            # external URL returns Status: 0 (connection refused) and the hook
+            # always fails in `nix flake check` / CI.  Run manually with:
+            #   markdown-link-check --config .markdown-link-check.json <file>
             markdown-link-check = {
-              enable = true;
+              enable = false;
               name = "markdown-link-check";
               entry = "${pkgs.markdown-link-check}/bin/markdown-link-check --config .markdown-link-check.json";
               language = "system";

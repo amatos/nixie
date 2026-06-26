@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (7)
+
+### Fixed
+
+- `flake.nix` — disabled `markdown-link-check` pre-commit hook; the Nix build
+  sandbox has no network access so all external URLs return Status: 0, causing
+  CI to always fail; run manually when needed
+
+---
+
 ## 2026-06-26 (6)
 
 ### Fixed
