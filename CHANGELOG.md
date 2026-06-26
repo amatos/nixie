@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (9)
+
+### Added
+
+- `.github/workflows/flake-update.yml` — weekly scheduled workflow (Sunday
+  02:00 UTC) using `DeterminateSystems/update-flake-lock`; opens a PR rather
+  than committing directly so CI runs before merge and the merge commit can be
+  signed; also triggerable manually via `workflow_dispatch`
+
+---
+
 ## 2026-06-26 (8)
 
 ### Added

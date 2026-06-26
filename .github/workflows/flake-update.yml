@@ -1,0 +1,35 @@
+name: Weekly flake update
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC
+    - cron: "0 2 * * 0"
+  # Allow triggering manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-flake-lock:
+    name: nix flake update
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      # Fine-grained PAT with contents:read on amatos/nix-secrets.
+      # Reuses the same secret already present for CI.
+      NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v14
+
+      - uses: DeterminateSystems/update-flake-lock@v24
+        with:
+          # Open a PR instead of committing directly to main.
+          # Merge the PR after CI passes to get a signed merge commit.
+          pr-title: "chore: weekly flake update"
+          pr-labels: |
+            flake-update
+            automated
+          commit-msg: "chore: weekly flake update"
+          token: ${{ secrets.GITHUB_TOKEN }}
