@@ -9,8 +9,8 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/default.nix` — `openssl` added to `home.packages` (all hosts)
 - `CLAUDE.md` — added Commits section documenting Conventional Commits format,
   allowed types, and commitlint rules
-- `hosts/nixos/gammu/default.nix` — `services.syncthing.guiAddress = "0.0.0.0:8384"`;
-  Syncthing GUI now binds to all interfaces instead of localhost only
+- `hosts/nixos/gammu/default.nix` — `services.syncthing.guiAddress = "[::]:8384"`;
+  Syncthing GUI binds to all interfaces on IPv4 and IPv6 via dual-stack wildcard
 - `hosts/nixos/gammu/default.nix` — explicitly set Syncthing sync protocol to
   listen on all interfaces via TCP and QUIC on port 22000
 - `hosts/darwin/codex/default.nix` — Syncthing configured with certbot-issued TLS

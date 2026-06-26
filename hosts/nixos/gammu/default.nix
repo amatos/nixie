@@ -18,7 +18,7 @@ in
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
-    guiAddress = "0.0.0.0:8384";
+    guiAddress = "[::]:8384";
     settings.options.listenAddresses = [
       "tcp://0.0.0.0:22000"
       "quic://0.0.0.0:22000"
