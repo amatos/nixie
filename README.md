@@ -38,6 +38,7 @@ modules/
     age-host-key.nix             # generates /etc/age/host-key on first activation
     github-secrets.nix           # deploys GitHub SSH keys via ragenix
     certbot-secrets.nix          # deploys LuaDNS credentials via ragenix
+    tailscale-secrets.nix        # deploys Tailscale auth key via ragenix (NixOS only)
   nixos/
     users.nix                    # NixOS user declarations
     home-manager.nix             # shared NixOS home-manager block
@@ -152,6 +153,19 @@ Each host auto-generates its own age key at `/etc/age/host-key` on first activat
 ```bash
 nix run github:yaxitech/ragenix -- --rekey
 ```
+
+## Tailscale
+
+Tailscale is enabled on all hosts. NixOS hosts authenticate automatically at activation using the
+auth key decrypted from `nix-secrets/tailscale-authkey.age`. Darwin hosts do not support
+`authKeyFile` via nix-darwin and must be authenticated once manually after the first deploy:
+
+```bash
+sudo tailscale up --authkey <key>
+```
+
+The auth key is stored in 1Password and in `nix-secrets`. Use a **reusable, non-ephemeral** key so
+nodes persist across reboots and re-deploys.
 
 ## Certbot (LuaDNS DNS-01)
 
