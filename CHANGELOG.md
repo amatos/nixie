@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-26 (8)
+
+### Added
+
+- `home/alberth/default.nix` — source `$HOME/.config/op/plugins.sh` in bash,
+  zsh, and fish interactive init (guarded by a file-existence check)
+
+---
+
 ## 2026-06-26 (7)
 
 ### Fixed

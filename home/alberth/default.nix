@@ -275,6 +275,9 @@ in
       # Architecture flags
       export ARCHFLAGS="-arch $(uname -m)"
 
+      # 1Password shell plugins
+      [ -f "$HOME/.config/op/plugins.sh" ] && source "$HOME/.config/op/plugins.sh"
+
       # ls → eza wrapper; rewrites -t (standalone or combined) to --sort=newest
       ls() {
         local args=()
@@ -323,6 +326,9 @@ in
     # Architecture flags
     export ARCHFLAGS="-arch $(uname -m)"
 
+    # 1Password shell plugins
+    [ -f "$HOME/.config/op/plugins.sh" ] && source "$HOME/.config/op/plugins.sh"
+
     function ls {
       local args=()
       for arg in "$@"; do
@@ -344,6 +350,11 @@ in
 
     # Architecture flags
     set -gx ARCHFLAGS "-arch "(uname -m)
+
+    # 1Password shell plugins
+    if test -f "$HOME/.config/op/plugins.sh"
+      source "$HOME/.config/op/plugins.sh"
+    end
   '';
 
   programs.fish.shellInit = ''
