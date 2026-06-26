@@ -23,7 +23,7 @@ in
   # Certbot — certificates via LuaDNS DNS-01 challenge
   nixie.certbot = {
     enable = true;
-    domains = [ "home.matos.cc" ];
+    domains = [ "gammu.home.matos.cc" ];
     syncthingDeploy = true;
   };
 }
