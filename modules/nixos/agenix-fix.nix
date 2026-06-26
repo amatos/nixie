@@ -17,7 +17,7 @@
         rm -rf /run/agenix
       fi
     '';
-    deps = [ "tmpfiles" ];
+    deps = [ ];
   };
 
   # Ensure our cleanup runs before agenixInstall attempts the symlink.
