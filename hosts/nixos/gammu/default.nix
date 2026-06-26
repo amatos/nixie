@@ -21,9 +21,12 @@ in
     guiAddress = "0.0.0.0:8384";
   };
 
-  # Firewall — restrict SSH and Syncthing GUI to the local subnet
+  # Firewall — restrict SSH and Syncthing GUI to the local subnet;
+  # Syncthing sync protocol (22000) open globally for peer connectivity
   networking.firewall = {
     enable = true;
+    allowedTCPPorts = [ 22000 ];
+    allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
       ip saddr 10.0.4.0/22 tcp dport 8384 accept
     '';

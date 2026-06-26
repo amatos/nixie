@@ -12,7 +12,8 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/gammu/default.nix` — `services.syncthing.guiAddress = "0.0.0.0:8384"`;
   Syncthing GUI now binds to all interfaces instead of localhost only
 - `hosts/nixos/gammu/default.nix` — firewall enabled; Syncthing GUI (port 8384)
-  restricted to `10.0.4.0/22`; SSH remains globally accessible
+  restricted to `10.0.4.0/22`; Syncthing sync protocol (port 22000 TCP/UDP)
+  open globally; SSH remains globally accessible
 - `hosts/nixos/common-nixos.nix` — `networking.nftables.enable = true`; all NixOS
   hosts explicitly use nftables
 - `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — Tailscale
