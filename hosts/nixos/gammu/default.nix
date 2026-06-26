@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -19,6 +19,16 @@ in
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
     guiAddress = "0.0.0.0:8384";
+  };
+
+  # Firewall — restrict SSH and Syncthing GUI to the local subnet
+  networking.firewall = {
+    enable = true;
+    # Override the global SSH rule from common-nixos.nix; access is subnet-restricted below
+    allowedTCPPorts = lib.mkForce [ ];
+    extraInputRules = ''
+      ip saddr 10.0.4.0/22 tcp dport { 22, 8384 } accept
+    '';
   };
 
   # Certbot — certificates via LuaDNS DNS-01 challenge
