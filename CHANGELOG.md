@@ -53,6 +53,8 @@ All notable changes to this project will be documented in this file.
   `--expand` added so certbot replaces existing certs when SANs change
 - `hosts/nixos/gammu/default.nix` — issue single cert covering both
   `gammu.home.matos.cc` and `gammu.ts.matos.cc` as SANs
+- `hosts/darwin/codex/default.nix` — issue single cert covering both
+  `codex.home.matos.cc` and `codex.ts.matos.cc` as SANs
 
 ---
 
