@@ -34,9 +34,9 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - `hosts/nixos/gammu/default.nix` — corrected certbot domain from `home.matos.cc`
-  to `gammu.home.matos.cc`; renewed certificate now matches the host FQDN
+  to `gammu.home.matos.cc` and `gammu.ts.matos.cc`; renewed certificate now matches the host FQDN
 - `hosts/darwin/codex/default.nix` — corrected certbot domain from `home.matos.cc`
-  to `codex.home.matos.cc`; renewed certificate now matches the host FQDN
+  to `codex.home.matos.cc` and `codex.ts.matos.cc`; renewed certificate now matches the host FQDN
 
 ---
 

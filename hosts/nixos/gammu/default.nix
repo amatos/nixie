@@ -35,7 +35,10 @@ in
   # Certbot — certificates via LuaDNS DNS-01 challenge
   nixie.certbot = {
     enable = true;
-    domains = [ "gammu.home.matos.cc" ];
+    domains = [
+      "gammu.home.matos.cc"
+      "gammu.ts.matos.cc"
+    ];
     syncthingDeploy = true;
   };
 }
