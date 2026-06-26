@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 2026-06-25 (16)
+
+### Added
+
+- `home/alberth/default.nix` — `nixpull` alias: `cd ~/Projects/nixie && git pull`
+
+---
+
 ## 2026-06-25 (15)
 
 ### Fixed
