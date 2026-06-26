@@ -9,6 +9,27 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/default.nix` — `openssl` added to `home.packages` (all hosts)
 - `CLAUDE.md` — added Commits section documenting Conventional Commits format,
   allowed types, and commitlint rules
+- `hosts/nixos/gammu/default.nix` — `services.syncthing.guiAddress = "0.0.0.0:8384"`;
+  Syncthing GUI now binds to all interfaces instead of localhost only
+- `hosts/nixos/gammu/default.nix` — firewall enabled; Syncthing GUI (port 8384)
+  restricted to `10.0.4.0/22`; SSH remains globally accessible
+- `hosts/nixos/common-nixos.nix` — `networking.nftables.enable = true`; all NixOS
+  hosts explicitly use nftables
+- `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — Tailscale
+  enabled on all hosts; NixOS hosts auto-authenticate via ragenix secret;
+  darwin hosts require one-time manual `sudo tailscale up --authkey <key>`
+- `modules/common/tailscale-secrets.nix` (new) — deploys Tailscale auth key from
+  `nix-secrets/tailscale-authkey.age` to `/run/agenix/tailscale-authkey`
+- `nix-secrets/secrets.nix` — added `tailscale-authkey.age` recipient entry
+- `README.md` — added Tailscale section documenting auto-auth on NixOS and
+  manual auth on darwin
+- `home/alberth/default.nix` — `nixflakeup` alias: update flake inputs, commit
+  `flake.lock`, and push
+
+### Fixed
+
+- `hosts/nixos/gammu/default.nix` — corrected certbot domain from `home.matos.cc`
+  to `gammu.home.matos.cc`; renewed certificate now matches the host FQDN
 
 ---
 
