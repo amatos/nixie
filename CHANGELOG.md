@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
   listen on all interfaces via TCP and QUIC on port 22000
 - `hosts/darwin/codex/default.nix` — Syncthing configured with certbot-issued TLS
   cert for `codex.home.matos.cc`; GUI bound to all interfaces
+- `home/alberth/codex.nix` — `home.activation.syncthingConfig` patches Syncthing's
+  config.xml on each activation to enforce `tls="true"` and `[::]:8384` GUI address;
+  syncthing-app remains homebrew-managed
 - `hosts/nixos/gammu/default.nix` — firewall enabled; Syncthing GUI (port 8384)
   restricted to `10.0.4.0/22` on IPv4, open globally on IPv6; Syncthing sync
   protocol (port 22000 TCP/UDP) open globally on IPv4 and IPv6; SSH remains

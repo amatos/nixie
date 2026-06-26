@@ -43,6 +43,31 @@
     };
   };
 
+  # Syncthing — patch GUI settings in config.xml on each activation.
+  # syncthing-app is managed by homebrew; we only touch the settings we care about.
+  home.activation.syncthingConfig =
+    let
+      script = pkgs.writeText "syncthing-patch.py" ''
+        import sys, xml.etree.ElementTree as ET
+        path = sys.argv[1]
+        tree = ET.parse(path)
+        root = tree.getroot()
+        gui = root.find('gui')
+        if gui is not None:
+            gui.set('tls', 'true')
+            addr = gui.find('address')
+            if addr is not None:
+                addr.text = '[::]:8384'
+        tree.write(path, encoding='unicode', xml_declaration=True)
+      '';
+    in
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      config_xml="${config.home.homeDirectory}/Library/Application Support/Syncthing/config.xml"
+      if [ -f "$config_xml" ]; then
+        ${pkgs.python3}/bin/python3 ${script} "$config_xml"
+      fi
+    '';
+
   # Prepend `Include 1Password/config` to the top of ~/.ssh/config after
   # home-manager writes it. extraConfig appends to the end, so we use an
   # activation script instead to ensure SSH processes the include first.
