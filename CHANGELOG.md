@@ -17,7 +17,8 @@ All notable changes to this project will be documented in this file.
   `postfix.service`; multiple deploy hooks now composed via repeated `--deploy-hook` flags
 - `hosts/nixos/porkchop/default.nix` — enable `nixie.smtpRelay` relaying through
   `smtp.fastmail.com:587`; SMTPS on port 465 with certbot cert; accept from localhost,
-  `10.0.4.0/22`, and Tailscale; nftables rules opening ports 25 and 465 to the local subnet
+  `10.0.4.0/22`, and Tailscale; nftables rules opening ports 25 and 465 to the local subnet;
+  add `mail.home.matos.cc` and `mail.ts.matos.cc` as SANs on the porkchop certificate
 
 - `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
   `by-label` device names

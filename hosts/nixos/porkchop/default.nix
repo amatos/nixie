@@ -71,6 +71,8 @@ in
       [
         "porkchop.home.matos.cc"
         "porkchop.ts.matos.cc"
+        "mail.home.matos.cc"
+        "mail.ts.matos.cc"
       ]
     ];
     syncthingDeploy = true;
