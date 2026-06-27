@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.06.05 — 2026-06-26
+
 ### Added
 
 - `.github/workflows/ci.yml` — added `build-ephemeraltron` job; builds
