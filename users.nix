@@ -5,6 +5,14 @@
   # The primary interactive user — referenced by modules that need a username.
   primaryUser = "alberth";
 
+  # Local admin account — NixOS hosts only; used for initial setup and emergency access.
+  nixos = {
+    isNormalUser = true;
+    description = "NixOS Admin";
+    extraGroups = [ "wheel" ];
+    hashedPassword = "$6$pbdwv928UBf0VUg9$8SynowEhl7/EEA54qZR/qA.pracfeTr2gG6TzCPDnkK9JPDSW69RDxxibZKH7BjdbZtRjFnuCZXZ5eeJKzD9E0";
+  };
+
   alberth = {
     isNormalUser = true;
     description = "Alberth Matos";

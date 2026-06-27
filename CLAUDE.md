@@ -147,6 +147,13 @@ home/alberth/
 
 ---
 
+## Formatting
+
+`.nix` files are formatted automatically by a git pre-commit hook — do not run
+`nix fmt` manually before committing. Never include `nix fmt` in commit instructions.
+
+---
+
 ## Commits
 
 All commits must be GPG-signed (`git commit -S`) and follow the
