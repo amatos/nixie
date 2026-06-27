@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - `users.nix` — add `nixos` local admin account (wheel group) for NixOS hosts;
   password set via `hashedPassword`
+- `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
+  `by-label` device names
 - `modules/common/cachix-secrets.nix` (new) — deploys `cachix-authtoken.age`
   from nix-secrets to `/run/agenix/cachix-authtoken`, owned by the primary user
 - `home/alberth/modules/cachix.nix` (new) — `home.activation.cachixConfig` writes
