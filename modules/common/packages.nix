@@ -16,6 +16,7 @@
     [
       age # age encryption
       age-plugin-yubikey
+      cachix # Nix binary cache hosting — push and use build artifacts
       rage # Rust implementation of age
       git
       inkscape # Vector graphics editor

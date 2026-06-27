@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `modules/common/packages.nix` — `cachix` added to `environment.systemPackages`
+  (all hosts); enables `cachix push amatos` from any machine
+
 ---
 
 ## 26.06.05 — 2026-06-26
