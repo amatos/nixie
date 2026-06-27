@@ -8,12 +8,16 @@ All notable changes to this project will be documented in this file.
 
 - `modules/nixos/smtp-relay.nix` (new) — `nixie.smtpRelay` option module; configures
   Postfix as a smarthost relay with SASL auth and STARTTLS; accepts from configurable
-  `myNetworks` (loopback by default)
+  `myNetworks` (loopback by default); `nixie.smtpRelay.smtps.enable` adds a port-465
+  implicit-TLS listener using the certbot-managed cert in `smtps.certDir`
 - `modules/common/smtp-relay-secrets.nix` (new) — deploys `smtp-relay-sasl.age`
   from nix-secrets to `/run/agenix/smtp-relay-sasl` (Postfix SASL passwd map)
+- `modules/nixos/certbot.nix` — add `nixie.certbot.postfixDeploy` option; deploy hook
+  installs renewed cert+key into `/etc/postfix/ssl/` (`root:postfix 640`) and reloads
+  `postfix.service`; multiple deploy hooks now composed via repeated `--deploy-hook` flags
 - `hosts/nixos/porkchop/default.nix` — enable `nixie.smtpRelay` relaying through
-  `smtp.fastmail.com:587`; accept from localhost, `10.0.4.0/22`, and Tailscale;
-  add nftables rule opening port 25 to the local subnet
+  `smtp.fastmail.com:587`; SMTPS on port 465 with certbot cert; accept from localhost,
+  `10.0.4.0/22`, and Tailscale; nftables rules opening ports 25 and 465 to the local subnet
 
 - `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
   `by-label` device names

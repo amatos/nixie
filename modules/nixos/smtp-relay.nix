@@ -67,46 +67,89 @@ in
         so no postmap run is required.
       '';
     };
-  };
 
-  config = lib.mkIf cfg.enable {
-    # Postfix must start after agenix has decrypted the SASL credentials.
-    systemd.services.postfix = {
-      after = [ "agenix.service" ];
-      wants = [ "agenix.service" ];
-    };
+    smtps = {
+      enable = lib.mkEnableOption "SMTPS listener on port 465 (implicit TLS)";
 
-    services.postfix = {
-      enable = true;
-
-      settings.main = {
-        # Listen on all interfaces so LAN / Tailscale hosts can relay.
-        # Access is controlled by mynetworks below — not by interface binding.
-        inet_interfaces = "all";
-        inet_protocols = "all";
-
-        # Networks Postfix will relay for without authentication
-        mynetworks = cfg.myNetworks;
-
-        # Relay all mail through the smarthost
-        relayhost = [ relayTarget ];
-
-        # Disable local mail delivery — this host is relay-only
-        mydestination = "";
-        local_transport = "error:local delivery disabled";
-
-        # SASL authentication to the upstream smarthost.
-        # texthash: reads the plain-text file directly — no postmap needed.
-        smtp_sasl_auth_enable = true;
-        smtp_sasl_password_maps = "texthash:${cfg.saslSecretPath}";
-        smtp_sasl_security_options = "noanonymous";
-        # nixpkgs builds Postfix with --with-cyrus-sasl by default
-        smtp_sasl_type = "cyrus";
-
-        # Require STARTTLS to the upstream relay
-        smtp_tls_security_level = "encrypt";
-        smtp_tls_loglevel = "1";
+      certDir = lib.mkOption {
+        type = lib.types.str;
+        default = "/etc/postfix/ssl";
+        description = ''
+          Directory containing fullchain.pem and privkey.pem for the smtpd TLS listener.
+          Must be readable by the postfix group. Use nixie.certbot.postfixDeploy = true
+          to have certbot deploy renewed certs here automatically.
+        '';
       };
     };
   };
+
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        # Postfix must start after agenix has decrypted the SASL credentials.
+        systemd.services.postfix = {
+          after = [ "agenix.service" ];
+          wants = [ "agenix.service" ];
+        };
+
+        services.postfix = {
+          enable = true;
+
+          settings.main = {
+            # Listen on all interfaces so LAN / Tailscale hosts can relay.
+            # Access is controlled by mynetworks below — not by interface binding.
+            inet_interfaces = "all";
+            inet_protocols = "all";
+
+            # Networks Postfix will relay for without authentication
+            mynetworks = cfg.myNetworks;
+
+            # Relay all mail through the smarthost
+            relayhost = [ relayTarget ];
+
+            # Disable local mail delivery — this host is relay-only
+            mydestination = "";
+            local_transport = "error:local delivery disabled";
+
+            # SASL authentication to the upstream smarthost.
+            # texthash: reads the plain-text file directly — no postmap needed.
+            smtp_sasl_auth_enable = true;
+            smtp_sasl_password_maps = "texthash:${cfg.saslSecretPath}";
+            smtp_sasl_security_options = "noanonymous";
+            # nixpkgs builds Postfix with --with-cyrus-sasl by default
+            smtp_sasl_type = "cyrus";
+
+            # Require STARTTLS to the upstream relay
+            smtp_tls_security_level = "encrypt";
+            smtp_tls_loglevel = "1";
+          };
+        };
+      }
+
+      (lib.mkIf cfg.smtps.enable {
+        services.postfix = {
+          # smtpd TLS — inbound connections from relay clients
+          settings.main = {
+            smtpd_tls_cert_file = "${cfg.smtps.certDir}/fullchain.pem";
+            smtpd_tls_key_file = "${cfg.smtps.certDir}/privkey.pem";
+            # "may" — offer TLS but don't require it on port 25; smtps wrapper enforces TLS implicitly
+            smtpd_tls_security_level = "may";
+            smtpd_tls_loglevel = "1";
+          };
+
+          # Enable the smtps (port 465) service in master.cf.
+          # smtpd_tls_wrappermode=yes means the connection is TLS from the first byte (no STARTTLS).
+          masterConfig.smtps = {
+            type = "inet";
+            private = false;
+            command = "smtpd";
+            args = [
+              "-o"
+              "smtpd_tls_wrappermode=yes"
+            ];
+          };
+        };
+      })
+    ]
+  );
 }

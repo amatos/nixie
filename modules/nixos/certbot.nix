@@ -8,6 +8,7 @@
 #   nixie.certbot.domains = [ [ "example.com" "www.example.com" ] ];  # one cert, two SANs
 #   nixie.certbot.domains = [ "example.com" ];                        # single-domain shorthand
 #   nixie.certbot.syncthingDeploy = true;  # copy renewed cert to syncthing + restart
+#   nixie.certbot.postfixDeploy = true;   # copy renewed cert to /etc/postfix/ssl/ + reload postfix
 {
   config,
   pkgs,
@@ -34,9 +35,11 @@ let
   ]);
 
   syncthingConfigDir = "/home/${primaryUser}/.config/syncthing";
+  postfixSslDir = "/etc/postfix/ssl";
 
-  # Runs only when a certificate is actually renewed (certbot --deploy-hook semantics).
+  # Deploy hooks — run only when a certificate is actually renewed.
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
+
   syncthingDeployHook = pkgs.writeShellScript "certbot-syncthing-deploy" ''
     set -euo pipefail
     mkdir -p "${syncthingConfigDir}"
@@ -44,6 +47,21 @@ let
     install -o ${primaryUser} -m 600 "$RENEWED_LINEAGE/privkey.pem"   "${syncthingConfigDir}/https-key.pem"
     systemctl restart syncthing.service
   '';
+
+  # Installs cert+key into /etc/postfix/ssl/ with root:postfix 640 so smtpd can read the key.
+  # Reloads (not restarts) postfix so in-flight connections are not dropped.
+  postfixDeployHook = pkgs.writeShellScript "certbot-postfix-deploy" ''
+    set -euo pipefail
+    install -o root -g postfix -m 640 "$RENEWED_LINEAGE/fullchain.pem" "${postfixSslDir}/fullchain.pem"
+    install -o root -g postfix -m 640 "$RENEWED_LINEAGE/privkey.pem"   "${postfixSslDir}/privkey.pem"
+    systemctl reload postfix.service
+  '';
+
+  # Collect whichever deploy hooks are enabled; certbot accepts multiple --deploy-hook flags.
+  deployHookFlags = lib.concatStringsSep " " (
+    lib.optional cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"
+    ++ lib.optional cfg.postfixDeploy "--deploy-hook ${postfixDeployHook}"
+  );
 
   # Each entry in cfg.domains is a list of domain names for a single cert.
   # Multiple entries produce multiple certs; multiple names within one entry become SANs.
@@ -56,7 +74,7 @@ let
       --non-interactive \
       --keep-until-expiring \
       --expand \
-      ${lib.optionalString cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"} \
+      ${deployHookFlags} \
       ${lib.concatMapStringsSep " " (d: "-d '${d}'") domains}
   '';
 in
@@ -90,6 +108,8 @@ in
     };
 
     syncthingDeploy = lib.mkEnableOption "copy renewed cert to syncthing https-cert/key and restart syncthing.service";
+
+    postfixDeploy = lib.mkEnableOption "copy renewed cert to /etc/postfix/ssl/ (root:postfix 640) and reload postfix.service";
   };
 
   config = lib.mkIf cfg.enable {
@@ -97,9 +117,13 @@ in
     # ProtectSystem = "strict" bind-mounts ReadWritePaths into the namespace,
     # which fails with ENOENT if the directories don't exist yet (first run).
     systemd.tmpfiles.rules = [
-      "d /etc/letsencrypt      0755 root root -"
-      "d /var/lib/letsencrypt  0755 root root -"
-      "d /var/log/letsencrypt  0755 root root -"
+      "d /etc/letsencrypt      0755 root root    -"
+      "d /var/lib/letsencrypt  0755 root root    -"
+      "d /var/log/letsencrypt  0755 root root    -"
+    ]
+    ++ lib.optionals cfg.postfixDeploy [
+      # root:postfix 0750 — postfix group can traverse into ssl/ to read cert+key
+      "d /etc/postfix/ssl  0750 root postfix -"
     ];
 
     environment.systemPackages = [ certbotWithLuadns ];
@@ -124,7 +148,8 @@ in
           "/var/lib/letsencrypt"
           "/var/log/letsencrypt"
         ]
-        ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ];
+        ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
+        ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ];
       };
     };
 

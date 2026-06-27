@@ -35,7 +35,7 @@ in
 
   # Firewall — Syncthing GUI restricted to local subnet on IPv4, open on IPv6;
   # Syncthing sync protocol (22000) open globally for peer connectivity.
-  # SMTP relay (port 25) restricted to local subnet on IPv4; Tailscale is
+  # SMTP (25) and SMTPS (465) restricted to local subnet on IPv4; Tailscale is
   # already covered by trustedInterfaces = ["tailscale0"] in common-nixos.nix.
   networking.firewall = {
     enable = true;
@@ -44,12 +44,14 @@ in
     extraInputRules = ''
       ip  saddr 10.0.4.0/22 tcp dport 8384 accept
       ip6 nexthdr tcp tcp dport 8384 accept
-      ip  saddr 10.0.4.0/22 tcp dport 25  accept
+      ip  saddr 10.0.4.0/22 tcp dport 25   accept
+      ip  saddr 10.0.4.0/22 tcp dport 465  accept
     '';
   };
 
   # SMTP relay — Postfix smarthost via Fastmail; accepts from localhost, LAN,
-  # and Tailscale (tailscale0 is trusted at the firewall level in common-nixos.nix)
+  # and Tailscale (tailscale0 is trusted at the firewall level in common-nixos.nix).
+  # SMTPS (port 465) uses the certbot-managed cert from /etc/postfix/ssl/.
   nixie.smtpRelay = {
     enable = true;
     myNetworks = [
@@ -57,9 +59,12 @@ in
       "[::1]/128"
       "10.0.4.0/22"
     ];
+    smtps.enable = true;
   };
 
-  # Certbot — certificates via LuaDNS DNS-01 challenge
+  # Certbot — certificates via LuaDNS DNS-01 challenge.
+  # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
+  # and reloads postfix so SMTPS picks up the new cert without dropping connections.
   nixie.certbot = {
     enable = true;
     domains = [
@@ -69,5 +74,6 @@ in
       ]
     ];
     syncthingDeploy = true;
+    postfixDeploy = true;
   };
 }
