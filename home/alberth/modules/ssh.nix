@@ -7,6 +7,9 @@
     settings = {
       "*" = {
         AddKeysToAgent = "yes";
+        IdentityFile = [
+          "~/.ssh/id_rsa"
+        ];
       };
       "github.com" = {
         User = "git";

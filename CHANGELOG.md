@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/modules/ssh.nix` - added single `IdentityFile` entry for `id_rsa`
 - `.github/workflows/ci.yml` — added `build-ephemeraltron` job; builds
   `nixosConfigurations.ephemeraltron` on every push to main and on PRs
 
