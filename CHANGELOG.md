@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/nixos/smtp-relay.nix` (new) — `nixie.smtpRelay` option module; configures
+  Postfix as a smarthost relay with SASL auth and STARTTLS; accepts from configurable
+  `myNetworks` (loopback by default)
+- `modules/common/smtp-relay-secrets.nix` (new) — deploys `smtp-relay-sasl.age`
+  from nix-secrets to `/run/agenix/smtp-relay-sasl` (Postfix SASL passwd map)
+- `hosts/nixos/porkchop/default.nix` — enable `nixie.smtpRelay` relaying through
+  `smtp.fastmail.com:587`; accept from localhost, `10.0.4.0/22`, and Tailscale;
+  add nftables rule opening port 25 to the local subnet
+
 - `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
   `by-label` device names
 - `modules/nixos/syncthing-password.nix` (new) — deploys `syncthing-gui-password.age`
