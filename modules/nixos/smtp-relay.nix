@@ -12,7 +12,6 @@
 # ragenix secret is deployed before Postfix starts.
 {
   config,
-  pkgs,
   lib,
   ...
 }:
@@ -102,14 +101,12 @@ in
         smtp_tls_loglevel = "1";
 
         # Postfix SASL support via Cyrus SASL
+        # (nixpkgs builds Postfix with --with-cyrus-sasl by default; no extra package needed)
         smtp_sasl_type = "cyrus";
 
         # Mask sender envelope address for forwarded mail
         masquerade_domains = "";
       };
-
-      # Provide the Cyrus SASL library
-      extraPackages = [ pkgs.cyrus_sasl ];
     };
   };
 }
