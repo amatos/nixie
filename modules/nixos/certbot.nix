@@ -93,6 +93,15 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Ensure certbot's working directories exist before the service starts.
+    # ProtectSystem = "strict" bind-mounts ReadWritePaths into the namespace,
+    # which fails with ENOENT if the directories don't exist yet (first run).
+    systemd.tmpfiles.rules = [
+      "d /etc/letsencrypt      0755 root root -"
+      "d /var/lib/letsencrypt  0755 root root -"
+      "d /var/log/letsencrypt  0755 root root -"
+    ];
+
     environment.systemPackages = [ certbotWithLuadns ];
 
     systemd.services.certbot = {

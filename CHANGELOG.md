@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 
 - `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
   `by-label` device names
+- `modules/nixos/certbot.nix` — pre-create `/etc/letsencrypt`, `/var/lib/letsencrypt`,
+  and `/var/log/letsencrypt` via `systemd.tmpfiles.rules` so the first run doesn't fail
+  with ENOENT when `ProtectSystem = "strict"` tries to bind-mount them
 - `modules/nixos/default-password.nix` (new) — deploys `default-nixos-user-password.age`
   from nix-secrets; sets `hashedPasswordFile` for `root`, `nixos`, and `alberth` on all NixOS hosts
 - `users.nix` — add `nixos` local admin account (wheel group) for NixOS hosts
