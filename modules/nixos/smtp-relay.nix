@@ -5,6 +5,9 @@
 # The SASL credentials file must be an age-encrypted Postfix passwd map in the format:
 #   [smtp.fastmail.com]:587 user@example.com:app-password
 #
+# Uses texthash: lookup so no postmap run is required — the ragenix-decrypted
+# plain-text file is read directly by Postfix.
+#
 # Usage — in a host's default.nix:
 #   nixie.smtpRelay.enable = true;
 #
@@ -60,7 +63,8 @@ in
       defaultText = "config.age.secrets.smtp-relay-sasl.path";
       description = ''
         Path to the age-decrypted Postfix SASL passwd map file.
-        Defaults to the ragenix-managed secret path.
+        Defaults to the ragenix-managed secret path. Uses texthash: lookup
+        so no postmap run is required.
       '';
     };
   };
@@ -75,37 +79,33 @@ in
     services.postfix = {
       enable = true;
 
-      # Accept connections on all interfaces so LAN / Tailscale hosts can relay.
-      # Access is controlled by myNetworks below — not by interface binding.
-      networks = lib.concatStringsSep " " cfg.myNetworks;
-
-      # Relay all mail through the smarthost
-      relayHost = relayTarget;
-
-      config = {
-        # Listen on all interfaces
+      settings.main = {
+        # Listen on all interfaces so LAN / Tailscale hosts can relay.
+        # Access is controlled by mynetworks below — not by interface binding.
         inet_interfaces = "all";
         inet_protocols = "all";
+
+        # Networks Postfix will relay for without authentication
+        mynetworks = cfg.myNetworks;
+
+        # Relay all mail through the smarthost
+        relayhost = [ relayTarget ];
 
         # Disable local mail delivery — this host is relay-only
         mydestination = "";
         local_transport = "error:local delivery disabled";
 
-        # SASL authentication to the upstream smarthost
-        smtp_sasl_auth_enable = "yes";
-        smtp_sasl_password_maps = "hash:${cfg.saslSecretPath}";
+        # SASL authentication to the upstream smarthost.
+        # texthash: reads the plain-text file directly — no postmap needed.
+        smtp_sasl_auth_enable = true;
+        smtp_sasl_password_maps = "texthash:${cfg.saslSecretPath}";
         smtp_sasl_security_options = "noanonymous";
+        # nixpkgs builds Postfix with --with-cyrus-sasl by default
+        smtp_sasl_type = "cyrus";
 
         # Require STARTTLS to the upstream relay
         smtp_tls_security_level = "encrypt";
         smtp_tls_loglevel = "1";
-
-        # Postfix SASL support via Cyrus SASL
-        # (nixpkgs builds Postfix with --with-cyrus-sasl by default; no extra package needed)
-        smtp_sasl_type = "cyrus";
-
-        # Mask sender envelope address for forwarded mail
-        masquerade_domains = "";
       };
     };
   };
