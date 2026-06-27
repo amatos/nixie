@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/nixos/porkchop/` (new) — NixOS host mirroring gammu: Syncthing with
+  TLS and dual-stack GUI, nftables firewall, certbot for `porkchop.home.matos.cc`
+  and `porkchop.ts.matos.cc`; `hardware-configuration.nix` is a stub pending
+  `nixos-generate-config` on the actual machine
+- `flake.nix` — `nixosConfigurations.porkchop`
+- `CLAUDE.md` — added porkchop and ephemeraltron to hosts table
 - `hosts/nixos/ephemeraltron/` (new) — minimal template NixOS host; provisions at
   `10.0.6.66/22` with static IP, SSH key access, passwordless sudo, and Nix flakes
   enabled so a real config can be applied immediately via `nixos-rebuild --flake`

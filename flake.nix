@@ -224,6 +224,18 @@
           ];
         };
 
+        porkchop = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = sharedSpecialArgs;
+          modules = [
+            determinate.nixosModules.default
+            home-manager.nixosModules.home-manager
+            ragenix.nixosModules.default
+            zapp.nixosModules.default
+            ./hosts/nixos/porkchop
+          ];
+        };
+
         # Minimal template host — provisions at 10.0.6.66/22 so a real config
         # can be applied immediately after booting.  Built and installed via
         # the ephemeraltron-iso package below.
