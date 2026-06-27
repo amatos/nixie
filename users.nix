@@ -10,7 +10,6 @@
     isNormalUser = true;
     description = "NixOS Admin";
     extraGroups = [ "wheel" ];
-    hashedPassword = "$6$pbdwv928UBf0VUg9$8SynowEhl7/EEA54qZR/qA.pracfeTr2gG6TzCPDnkK9JPDSW69RDxxibZKH7BjdbZtRjFnuCZXZ5eeJKzD9E0";
   };
 
   alberth = {
