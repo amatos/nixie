@@ -73,11 +73,13 @@ in
 
       certDir = lib.mkOption {
         type = lib.types.str;
-        default = "/etc/postfix/ssl";
+        default = "/var/lib/postfix-tls";
         description = ''
           Directory containing fullchain.pem and privkey.pem for the smtpd TLS listener.
-          Must be readable by the postfix group. Use nixie.certbot.postfixDeploy = true
-          to have certbot deploy renewed certs here automatically.
+          Must be readable by the postfix group. Intentionally outside /etc/postfix/ to
+          avoid the Postfix chroot bind-mount (/etc/postfix → /var/lib/postfix/conf)
+          causing systemd namespace failures with ProtectSystem=strict.
+          Use nixie.certbot.postfixDeploy = true to deploy renewed certs here automatically.
         '';
       };
     };
@@ -127,6 +129,13 @@ in
       }
 
       (lib.mkIf cfg.smtps.enable {
+        # The NixOS Postfix module references /var/lib/postfix/conf/ssl (its chroot TLS path)
+        # when smtpd TLS is configured. That directory is created by the postfix service at
+        # runtime, but systemd's ProtectSystem=strict namespace setup for certbot.service
+        # encounters the path during mount tree traversal before postfix has created it.
+        # Pre-creating it via tmpfiles ensures it exists at namespace setup time.
+        systemd.tmpfiles.rules = [ "d /var/lib/postfix/conf/ssl 0755 root root -" ];
+
         services.postfix = {
           # smtpd TLS — inbound connections from relay clients
           settings.main = {
