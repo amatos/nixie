@@ -18,6 +18,7 @@ in
     nixpull = "pushd $HOME/Projects/nixie && git pull && popd";
     nixpush = "pushd $HOME/Projects/nixie && git push && popd";
     nixflakeup = "pushd $HOME/Projects/nixie && nix flake update && git add flake.lock && git commit -m 'chore: updated flake.lock' && git push && popd";
+    npbs = "nixpull && nixbuild && nixswitch";
   };
 
   # nixbuild / nixswitch — per-shell because fish uses (hostname) not $(hostname)
