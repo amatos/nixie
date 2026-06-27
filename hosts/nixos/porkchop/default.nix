@@ -9,12 +9,15 @@ in
     ./hardware-configuration.nix
     ../common-nixos.nix
     ../../../modules/common/certbot-secrets.nix
+    ../../../modules/nixos/syncthing-password.nix
   ];
 
   networking.hostName = "porkchop";
 
-  # Syncthing — runs as a systemd service, syncs to the primary user's home
+  # Syncthing — runs as a systemd service, syncs to the primary user's home.
+  # GUI password is managed via syncthing-password.nix (ragenix secret).
   services.syncthing = {
+    settings.gui.user = primaryUser;
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";

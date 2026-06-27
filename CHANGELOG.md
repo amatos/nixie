@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 
 - `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
   `by-label` device names
+- `modules/nixos/syncthing-password.nix` (new) — deploys `syncthing-gui-password.age`
+  from nix-secrets; oneshot systemd service sets the Syncthing GUI password via
+  `syncthing cli` at runtime, keeping the password out of the Nix store
+- `hosts/nixos/{porkchop,gammu}/default.nix` — import `syncthing-password.nix` and
+  set `services.syncthing.settings.gui.user` declaratively
 - `modules/nixos/certbot.nix` — pre-create `/etc/letsencrypt`, `/var/lib/letsencrypt`,
   and `/var/log/letsencrypt` via `systemd.tmpfiles.rules` so the first run doesn't fail
   with ENOENT when `ProtectSystem = "strict"` tries to bind-mount them
