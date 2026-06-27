@@ -26,6 +26,7 @@ in
     ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
     ../../modules/common/tailscale-secrets.nix
+    ../../modules/common/cachix-secrets.nix
   ];
 
   networking.useDHCP = true;

@@ -24,6 +24,7 @@ in
     ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
     ../../modules/common/tailscale-secrets.nix
+    ../../modules/common/cachix-secrets.nix
   ];
 
   # Primary user — required by options that run under the user context (e.g. homebrew)

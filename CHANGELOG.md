@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/common/cachix-secrets.nix` (new) — deploys `cachix-authtoken.age`
+  from nix-secrets to `/run/agenix/cachix-authtoken`, owned by the primary user
+- `home/alberth/modules/cachix.nix` (new) — `home.activation.cachixConfig` writes
+  `~/.config/cachix/cachix.dhall` from the ragenix secret on every switch
+- `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — import
+  `cachix-secrets.nix`
+- `home/alberth/default.nix` — import `modules/cachix.nix`
 - `modules/common/packages.nix` — `cachix` added to `environment.systemPackages`
   (all hosts); enables `cachix push amatos` from any machine
 

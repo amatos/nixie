@@ -13,6 +13,7 @@ in
     ./chezmoi.nix
     ./devenv.nix
     ./starship.nix
+    ./modules/cachix.nix
     ./modules/git.nix
     ./modules/gpg.nix
     ./modules/packages.nix
