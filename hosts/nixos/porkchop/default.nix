@@ -17,7 +17,7 @@ in
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
   # GUI password is managed via syncthing-password.nix (ragenix secret).
   services.syncthing = {
-    settings.gui.user = primaryUser;
+    settings.gui.user = "syncthing";
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";

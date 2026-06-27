@@ -11,8 +11,12 @@ All notable changes to this project will be documented in this file.
 - `modules/nixos/syncthing-password.nix` (new) — deploys `syncthing-gui-password.age`
   from nix-secrets; oneshot systemd service sets the Syncthing GUI password via
   `syncthing cli` at runtime, keeping the password out of the Nix store
-- `hosts/nixos/{porkchop,gammu}/default.nix` — import `syncthing-password.nix` and
-  set `services.syncthing.settings.gui.user` declaratively
+- `modules/darwin/syncthing-password.nix` (new) — same secret, launchd user agent
+  sets GUI user and password via `syncthing cli` on login (darwin cask has no
+  declarative settings API)
+- `hosts/nixos/{porkchop,gammu}/default.nix` — import `syncthing-password.nix`;
+  set `services.syncthing.settings.gui.user = "syncthing"` declaratively
+- `hosts/darwin/codex/default.nix` — import `syncthing-password.nix`
 - `modules/nixos/certbot.nix` — pre-create `/etc/letsencrypt`, `/var/lib/letsencrypt`,
   and `/var/log/letsencrypt` via `systemd.tmpfiles.rules` so the first run doesn't fail
   with ENOENT when `ProtectSystem = "strict"` tries to bind-mount them
