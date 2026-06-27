@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `.github/workflows/ci.yml` — added `build-ephemeraltron` job; builds
+  `nixosConfigurations.ephemeraltron` on every push to main and on PRs
+
 ---
 
 ## 26.06.04 — 2026-06-26

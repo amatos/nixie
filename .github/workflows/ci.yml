@@ -40,6 +40,25 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: nix flake check
 
+  # ── NixOS builds ─────────────────────────────────────────────────────────
+  # Build NixOS hosts on Linux runners. Only x86_64 hosts are built here;
+  # aarch64 hosts are covered by nix flake check evaluation.
+  build-ephemeraltron:
+    name: Build ephemeraltron
+    runs-on: ubuntu-latest
+    needs: flake-check
+    env:
+      NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: cachix/cachix-action@v15
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build ephemeraltron
+        run: nix build .#nixosConfigurations.ephemeraltron.config.system.build.toplevel
+
   # ── Darwin evaluation ─────────────────────────────────────────────────────
   # Darwin configs can't be built on Linux; we verify they evaluate cleanly
   # by resolving the derivation path (evaluation only, no build).
