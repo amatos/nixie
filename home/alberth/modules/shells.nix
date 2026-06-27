@@ -19,6 +19,7 @@ in
     nixpush = "pushd $HOME/Projects/nixie && git push && popd";
     nixflakeup = "pushd $HOME/Projects/nixie && nix flake update && git add flake.lock && git commit -m 'chore: updated flake.lock' && git push && popd";
     npbs = "nixpull && nixbuild && nixswitch";
+    ragenix = "ragenix -i ~/.config/age/yubikey-identity.txt";
   };
 
   # nixbuild / nixswitch — per-shell because fish uses (hostname) not $(hostname)

@@ -1,5 +1,6 @@
 {
   pkgs,
+  nix-secrets,
   ...
 }:
 
@@ -38,6 +39,11 @@ in
 
   # XDG base directories — moves config, cache, and data out of ~
   xdg.enable = true;
+
+  # age identity — symlinked to the canonical location so ragenix and age tools
+  # find it without requiring an explicit -i flag (via the shell alias in shells.nix).
+  home.file.".config/age/yubikey-identity.txt".source =
+    "${nix-secrets}/age-yubikey-identity-9ca1fbf9.txt";
 
   # Environment variables applied to all shells
   home.sessionVariables = {
