@@ -35,7 +35,7 @@ let
   ]);
 
   syncthingConfigDir = "/home/${primaryUser}/.config/syncthing";
-  postfixSslDir = "/etc/postfix/ssl";
+  postfixSslDir = "/var/lib/postfix-tls";
 
   # Deploy hooks — run only when a certificate is actually renewed.
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
@@ -122,8 +122,9 @@ in
       "d /var/log/letsencrypt  0755 root root    -"
     ]
     ++ lib.optionals cfg.postfixDeploy [
-      # root:postfix 0750 — postfix group can traverse into ssl/ to read cert+key
-      "d /etc/postfix/ssl  0750 root postfix -"
+      # root:postfix 0750 — outside the Postfix chroot bind-mount tree (/etc/postfix →
+      # /var/lib/postfix/conf) to avoid systemd namespace setup failures with ProtectSystem=strict
+      "d /var/lib/postfix-tls  0750 root postfix -"
     ];
 
     environment.systemPackages = [ certbotWithLuadns ];
