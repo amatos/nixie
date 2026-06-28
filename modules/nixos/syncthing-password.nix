@@ -48,15 +48,17 @@ in
       TimeoutStartSec = "120";
       ExecStart = pkgs.writeShellScript "syncthing-set-gui-password" ''
         set -euo pipefail
+        # Syncthing listens on [::]:8384 (IPv6 wildcard), which is not a valid
+        # client destination. Override with localhost so the CLI connects correctly.
+        ST_CLI="${pkgs.syncthing}/bin/syncthing cli --gui-address=http://localhost:8384"
         # Wait for the Syncthing API to become available before setting credentials.
         # Each attempt is wrapped with timeout(1) so a hanging TCP connection attempt
         # doesn't block the loop indefinitely.
-        until timeout 2 ${pkgs.syncthing}/bin/syncthing cli config gui address get > /dev/null 2>&1; do
+        until timeout 2 $ST_CLI config gui address get > /dev/null 2>&1; do
           sleep 1
         done
-        ${pkgs.syncthing}/bin/syncthing cli config gui user set "syncthing"
-        ${pkgs.syncthing}/bin/syncthing cli config gui password set \
-          "$(cat /run/agenix/syncthing-gui-password)"
+        $ST_CLI config gui user set "syncthing"
+        $ST_CLI config gui password set "$(cat /run/agenix/syncthing-gui-password)"
       '';
     };
   };
