@@ -55,5 +55,5 @@ in
     CLICOLOR = "1";
   };
 
-  home.stateVersion = "25.05";
+  home.stateVersion = "26.05";
 }
