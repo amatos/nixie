@@ -35,18 +35,23 @@ in
       "syncthing.service"
       "agenix.service"
     ];
-    # bindsTo (not requires): propagates restarts so this service re-runs every
-    # time syncthing restarts, not just on first boot.
-    bindsTo = [ "syncthing.service" ];
+    # partOf: propagates stop AND restart from syncthing.service to this unit,
+    # so credentials are re-applied every time syncthing restarts (e.g. after
+    # nixos-rebuild switch), not just on first boot.
+    partOf = [ "syncthing.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
       User = primaryUser;
       # No RemainAfterExit — the service must be able to re-run after becoming inactive.
+      # Give the wait loop a hard ceiling so a non-starting syncthing can't block forever.
+      TimeoutStartSec = "120";
       ExecStart = pkgs.writeShellScript "syncthing-set-gui-password" ''
         set -euo pipefail
         # Wait for the Syncthing API to become available before setting credentials.
-        until ${pkgs.syncthing}/bin/syncthing cli config gui address get > /dev/null 2>&1; do
+        # Each attempt is wrapped with timeout(1) so a hanging TCP connection attempt
+        # doesn't block the loop indefinitely.
+        until timeout 2 ${pkgs.syncthing}/bin/syncthing cli config gui address get > /dev/null 2>&1; do
           sleep 1
         done
         ${pkgs.syncthing}/bin/syncthing cli config gui user set "syncthing"
