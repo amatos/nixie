@@ -8,10 +8,8 @@
     pkgs.nerdctl # Docker-compatible CLI for containerd
   ];
 
-  # nerdctl — point at the system containerd socket; use systemd cgroup driver
-  xdg.configFile."nerdctl/nerdctl.toml".text = ''
-    address        = "unix:///run/containerd/containerd.sock"
-    namespace      = "default"
-    cgroup_manager = "systemd"
-  '';
+  # nerdctl — transparent sudo so rootful containerd works as non-root
+  programs.fish.shellAliases = {
+    nerdctl = "sudo nerdctl";
+  };
 }

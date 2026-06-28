@@ -10,8 +10,9 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/gammu.nix` — new gammu-specific home overlay; adds `pkgs.act`
 - `home/alberth/codex.nix` — added `pkgs.act` (codex- and gammu-only)
 - `home/alberth/gammu.nix` — added `pkgs.nerdctl` (Docker-compatible CLI for containerd)
-- `hosts/nixos/gammu/default.nix` — enabled `virtualisation.containerd`; `containerd` group + systemd ExecStartPost to expose socket to group members
-- `home/alberth/gammu.nix` — nerdctl.toml wired to containerd socket (`systemd` cgroup manager)
+- `hosts/nixos/gammu/default.nix` — enabled `virtualisation.containerd`;
+  NOPASSWD sudoers rule for nerdctl
+- `home/alberth/gammu.nix` — fish alias `nerdctl` → `sudo nerdctl`
 
 ### Fixed
 
