@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/codex.nix` — added `pkgs.act` (codex- and gammu-only)
 - `home/alberth/gammu.nix` — added `pkgs.nerdctl` (Docker-compatible CLI for containerd)
 - `hosts/nixos/gammu/default.nix` — enabled `virtualisation.containerd`;
+  `virtualisation.docker` (overlay2, containerd backend) for `act`;
   NOPASSWD sudoers rule for nerdctl
 - `home/alberth/gammu.nix` — fish alias `nerdctl` → `sudo nerdctl`
 

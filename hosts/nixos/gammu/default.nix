@@ -17,6 +17,14 @@ in
   # containerd — container runtime; starts automatically via systemd
   virtualisation.containerd.enable = true;
 
+  # Docker — uses containerd as backend; provides the Docker API socket
+  # that act requires. User added to docker group for socket access.
+  virtualisation.docker = {
+    enable = true;
+    storageDriver = "overlay2";
+  };
+  users.users.${primaryUser}.extraGroups = [ "docker" ];
+
   # Allow primaryUser to run nerdctl as root without a password prompt.
   # nerdctl v2 requires root for rootful containerd regardless of socket perms.
   environment.etc."sudoers.d/nerdctl" = {
