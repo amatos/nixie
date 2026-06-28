@@ -2,15 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 26.06.07
+
+### Added
+
+- `hosts/nixos/porkchop/default.nix` — NTP/NTS server via `services.chrony`; serves
+  NTP (UDP 123) and NTS-KE (TCP 4460) to `10.0.4.0/22` and Tailscale CGNAT
+  (`100.64.0.0/10`); upstreams to Cloudflare and Google via NTS for authenticated
+  time; firewall rules added for both ports restricted to the LAN subnet (Tailscale
+  covered by `trustedInterfaces`)
+- `modules/nixos/certbot.nix` — `nixie.certbot.chronyDeploy` option; deploy hook
+  installs renewed cert+key to `/var/lib/chrony-tls/` (root:chrony 640) and restarts
+  `chronyd.service`; `tmpfiles` rule creates the directory; `ReadWritePaths` entry
+  added so the certbot service can write into it under `ProtectSystem = "strict"`
+
+## 26.06.06
 
 ### Fixed
 
-- `modules/nixos/syncthing-password.nix` — service now uses `bindsTo` instead of
-  `requires` and drops `RemainAfterExit`; the NixOS Syncthing module re-applies
-  declarative GUI settings on each restart (clearing the password), so the service
-  must re-run on every syncthing restart, not just on first boot; also adds
-  `syncthing cli config gui user set` to mirror the darwin launchd agent
+- `modules/nixos/syncthing-password.nix` — rewrote credential service to use the
+  Syncthing REST API via `curl` instead of `syncthing cli`; `--home` is a flag for
+  `syncthing serve` (not `syncthing cli`) so the CLI was silently ignoring it, failing
+  to find the API key, and aborting before making any connection; the new approach
+  reads the API key directly from `config.xml` with grep and PATCHes `/rest/config/gui`;
+  switches from `requires`/`RemainAfterExit` to `partOf` (no `RemainAfterExit`) so
+  credentials are re-applied on every syncthing restart; detects HTTP vs HTTPS from
+  presence of `https-cert.pem` in the syncthing config dir
 
 ### Added
 

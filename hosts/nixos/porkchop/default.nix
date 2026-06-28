@@ -35,8 +35,9 @@ in
 
   # Firewall — Syncthing GUI restricted to local subnet on IPv4, open on IPv6;
   # Syncthing sync protocol (22000) open globally for peer connectivity.
-  # SMTP (25) and SMTPS (465) restricted to local subnet on IPv4; Tailscale is
-  # already covered by trustedInterfaces = ["tailscale0"] in common-nixos.nix.
+  # SMTP (25) and SMTPS (465) restricted to local subnet on IPv4.
+  # NTP (123 UDP) and NTS-KE (4460 TCP) restricted to local subnet on IPv4.
+  # Tailscale is already covered by trustedInterfaces = ["tailscale0"] in common-nixos.nix.
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22000 ];
@@ -46,6 +47,8 @@ in
       ip6 nexthdr tcp tcp dport 8384 accept
       ip  saddr 10.0.4.0/22 tcp dport 25   accept
       ip  saddr 10.0.4.0/22 tcp dport 465  accept
+      ip  saddr 10.0.4.0/22 udp dport 123  accept
+      ip  saddr 10.0.4.0/22 tcp dport 4460 accept
     '';
   };
 
@@ -62,9 +65,39 @@ in
     smtps.enable = true;
   };
 
+  # NTP/NTS server — chrony serves NTP (UDP 123) and NTS (TCP 4460) to LAN and
+  # Tailscale clients. Upstream syncs to Cloudflare and Google via NTS for
+  # authenticated time. NTS server cert is deployed by certbot's chronyDeploy hook
+  # into /var/lib/chrony-tls/ (root:chrony 640).
+  # chrony's allow directive is application-level access control independent of
+  # the firewall; both LAN (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10) are
+  # permitted so Tailscale clients can reach the server over the VPN tunnel.
+  services.chrony = {
+    enable = true;
+    servers = [ ];
+    extraConfig = ''
+      # Upstream time sources — NTS-authenticated for cryptographic integrity.
+      server time.cloudflare.com iburst nts
+      server time1.google.com    iburst nts
+      server time2.google.com    iburst nts
+      server time3.google.com    iburst nts
+
+      # NTS server — certificate deployed by certbot's chronyDeploy hook.
+      ntsServerCertFile /var/lib/chrony-tls/fullchain.pem
+      ntsServerKeyFile  /var/lib/chrony-tls/privkey.pem
+      ntsdumpdir /var/lib/chrony
+
+      # Allow NTP/NTS clients on LAN and Tailscale CGNAT range.
+      allow 10.0.4.0/22
+      allow 100.64.0.0/10
+    '';
+  };
+
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
   # and reloads postfix so SMTPS picks up the new cert without dropping connections.
+  # chronyDeploy copies renewed cert+key to /var/lib/chrony-tls/ (root:chrony 640)
+  # and restarts chronyd so the NTS server picks up the new cert.
   nixie.certbot = {
     enable = true;
     domains = [
@@ -77,5 +110,6 @@ in
     ];
     syncthingDeploy = true;
     postfixDeploy = true;
+    chronyDeploy = true;
   };
 }

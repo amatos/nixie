@@ -9,6 +9,7 @@
 #   nixie.certbot.domains = [ "example.com" ];                        # single-domain shorthand
 #   nixie.certbot.syncthingDeploy = true;  # copy renewed cert to syncthing + restart
 #   nixie.certbot.postfixDeploy = true;   # copy renewed cert to /etc/postfix/ssl/ + reload postfix
+#   nixie.certbot.chronyDeploy = true;    # copy renewed cert to /var/lib/chrony-tls/ + restart chronyd
 {
   config,
   pkgs,
@@ -36,6 +37,7 @@ let
 
   syncthingConfigDir = "/home/${primaryUser}/.config/syncthing";
   postfixSslDir = "/var/lib/postfix-tls";
+  chronyTlsDir = "/var/lib/chrony-tls";
 
   # Deploy hooks — run only when a certificate is actually renewed.
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
@@ -57,10 +59,20 @@ let
     systemctl reload postfix.service
   '';
 
+  # Installs cert+key into /var/lib/chrony-tls/ with root:chrony 640 so chronyd can read the key.
+  # Restarts (not reloads) chronyd — chrony re-reads cert files only on startup.
+  chronyDeployHook = pkgs.writeShellScript "certbot-chrony-deploy" ''
+    set -euo pipefail
+    install -o root -g chrony -m 640 "$RENEWED_LINEAGE/fullchain.pem" "${chronyTlsDir}/fullchain.pem"
+    install -o root -g chrony -m 640 "$RENEWED_LINEAGE/privkey.pem"   "${chronyTlsDir}/privkey.pem"
+    systemctl restart chronyd.service
+  '';
+
   # Collect whichever deploy hooks are enabled; certbot accepts multiple --deploy-hook flags.
   deployHookFlags = lib.concatStringsSep " " (
     lib.optional cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"
     ++ lib.optional cfg.postfixDeploy "--deploy-hook ${postfixDeployHook}"
+    ++ lib.optional cfg.chronyDeploy "--deploy-hook ${chronyDeployHook}"
   );
 
   # Each entry in cfg.domains is a list of domain names for a single cert.
@@ -110,6 +122,8 @@ in
     syncthingDeploy = lib.mkEnableOption "copy renewed cert to syncthing https-cert/key and restart syncthing.service";
 
     postfixDeploy = lib.mkEnableOption "copy renewed cert to /etc/postfix/ssl/ (root:postfix 640) and reload postfix.service";
+
+    chronyDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/chrony-tls/ (root:chrony 640) and restart chronyd.service";
   };
 
   config = lib.mkIf cfg.enable {
@@ -125,6 +139,10 @@ in
       # root:postfix 0750 — outside the Postfix chroot bind-mount tree (/etc/postfix →
       # /var/lib/postfix/conf) to avoid systemd namespace setup failures with ProtectSystem=strict
       "d /var/lib/postfix-tls  0750 root postfix -"
+    ]
+    ++ lib.optionals cfg.chronyDeploy [
+      # root:chrony 0750 — holds the NTS server cert+key; group-readable by chronyd
+      "d /var/lib/chrony-tls   0750 root chrony  -"
     ];
 
     environment.systemPackages = [ certbotWithLuadns ];
@@ -150,7 +168,8 @@ in
           "/var/log/letsencrypt"
         ]
         ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
-        ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ];
+        ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ]
+        ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ];
       };
     };
 
