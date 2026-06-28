@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- `modules/nixos/syncthing-password.nix` — service now uses `bindsTo` instead of
+  `requires` and drops `RemainAfterExit`; the NixOS Syncthing module re-applies
+  declarative GUI settings on each restart (clearing the password), so the service
+  must re-run on every syncthing restart, not just on first boot; also adds
+  `syncthing cli config gui user set` to mirror the darwin launchd agent
+
 ### Added
 
 - `modules/nixos/smtp-relay.nix` (new) — `nixie.smtpRelay` option module; configures
