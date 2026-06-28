@@ -16,6 +16,12 @@ All notable changes to this project will be documented in this file.
   `chronyd.service`; `tmpfiles` rule creates the directory; `ReadWritePaths` entry
   added so the certbot service can write into it under `ProtectSystem = "strict"`
 
+### Fixed
+
+- `hosts/nixos/porkchop/default.nix` — corrected NTS server directives from
+  `ntsServerCertFile`/`ntsServerKeyFile` to `ntsservercert`/`ntsserverkey` (chrony
+  4.8 uses lowercase, no camelCase)
+
 ## 26.06.06
 
 ### Fixed

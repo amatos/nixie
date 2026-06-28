@@ -83,8 +83,8 @@ in
       server time3.google.com    iburst nts
 
       # NTS server — certificate deployed by certbot's chronyDeploy hook.
-      ntsServerCertFile /var/lib/chrony-tls/fullchain.pem
-      ntsServerKeyFile  /var/lib/chrony-tls/privkey.pem
+      ntsservercert /var/lib/chrony-tls/fullchain.pem
+      ntsserverkey  /var/lib/chrony-tls/privkey.pem
       ntsdumpdir /var/lib/chrony
 
       # Allow NTP/NTS clients on LAN and Tailscale CGNAT range.
