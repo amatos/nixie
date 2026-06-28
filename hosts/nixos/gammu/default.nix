@@ -21,7 +21,7 @@ in
   # nerdctl v2 requires root for rootful containerd regardless of socket perms.
   environment.etc."sudoers.d/nerdctl" = {
     text = ''
-      ${primaryUser} ALL=(ALL:ALL) NOPASSWD: /run/current-system/sw/bin/nerdctl
+      ${primaryUser} ALL=(ALL:ALL) NOPASSWD: /etc/profiles/per-user/${primaryUser}/bin/nerdctl
     '';
     mode = "0440";
   };
