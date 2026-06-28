@@ -45,9 +45,13 @@ in
   # authenticate darwin hosts manually with: sudo tailscale up --authkey <key>
   services.tailscale.enable = true;
 
-  # NTP — sync from porkchop over Tailscale. macOS timed does not support NTS,
+  # NTP — sync from porkchop via LAN and Tailscale. macOS timed does not support NTS,
   # so this is plain NTP; porkchop still provides authenticated upstream sync.
-  networking.timeServers = [ "porkchop.ts.matos.cc" ];
+  # Two entries give timed a fallback if one path is unreachable.
+  networking.timeServers = [
+    "porkchop.home.matos.cc"
+    "porkchop.ts.matos.cc"
+  ];
 
   # SSH daemon — password auth disabled; key-only access
   # macOS manages its own firewall separately; no networking.firewall equivalent in nix-darwin
