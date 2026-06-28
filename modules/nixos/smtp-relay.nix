@@ -148,7 +148,7 @@ in
 
           # Enable the smtps (port 465) service in master.cf.
           # smtpd_tls_wrappermode=yes means the connection is TLS from the first byte (no STARTTLS).
-          masterConfig.smtps = {
+          settings.master.smtps = {
             type = "inet";
             private = false;
             command = "smtpd";
