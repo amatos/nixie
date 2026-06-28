@@ -53,7 +53,7 @@ in
       "lm-studio"
       "hex-fiend" # Hex editor focussing on speed
       "jetbrains-toolbox" # JetBrains tools manager
-      "orbstack" # Fast, light Docker and Linux VM manager
+      # "orbstack" — moved to pkgs.orbstack in home/alberth/codex.nix
       "plistedit-pro" # Property list and JSON editor
       "vmlx"
       # Communication Tools

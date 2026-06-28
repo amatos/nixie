@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2026-06-28
+
+### Changed
+
+- `hosts/darwin/codex/default.nix` — removed `orbstack` homebrew cask
+- `home/alberth/codex.nix` — added `pkgs.orbstack` to `home.packages` (codex-only)
+
 ## 26.06.06
 
 ### Added

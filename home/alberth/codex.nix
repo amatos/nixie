@@ -7,6 +7,11 @@
 }:
 
 {
+  # Codex-only packages
+  home.packages = [
+    pkgs.orbstack # Fast, light Docker and Linux VM manager
+  ];
+
   # GPG agent — use pinentry-mac for native macOS Keychain / Touch ID prompts.
   # pinentry-mac is also in homebrew.brews so it's available system-wide;
   # we point gpg-agent at the nixpkgs derivation for a deterministic path.
