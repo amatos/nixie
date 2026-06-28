@@ -14,6 +14,11 @@ in
 
   networking.hostName = "gammu";
 
+  # Merge gammu home overlay on top of the base imported by common-nixos.nix
+  home-manager.users.${primaryUser} = {
+    imports = [ ../../../home/alberth/gammu.nix ];
+  };
+
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
   # GUI password is managed via syncthing-password.nix (ragenix secret).
   services.syncthing = {

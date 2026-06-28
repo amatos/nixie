@@ -10,6 +10,7 @@
   # Codex-only packages
   home.packages = [
     pkgs.orbstack # Fast, light Docker and Linux VM manager
+    pkgs.act # Run GitHub Actions locally
   ];
 
   # GPG agent — use pinentry-mac for native macOS Keychain / Touch ID prompts.
