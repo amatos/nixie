@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `.zed/settings.json` — exclude `.git`, `.direnv`, and `result` from Zed's file scanner
+
 ### Fixed
 
 - `home/alberth/nvf.nix` — renamed `vim.languages.ts` to `vim.languages.typescript` to match nvf's updated option name
