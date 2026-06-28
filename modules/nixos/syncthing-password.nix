@@ -58,7 +58,10 @@ in
         # directory, fails to authenticate, and never makes a network connection.
         # --gui-address overrides the wildcard [::]:8384 from config with the
         # IPv6 loopback so the CLI can actually connect.
-        ST_CLI="${pkgs.syncthing}/bin/syncthing cli --home=${stConfigDir} --gui-address=http://[::1]:8384"
+        # https:// — Syncthing enables TLS when https-cert.pem/https-key.pem exist in
+        # the config dir (placed there by the certbot syncthingDeploy hook).
+        # syncthing cli skips TLS verification for local GUI connections by default.
+        ST_CLI="${pkgs.syncthing}/bin/syncthing cli --home=${stConfigDir} --gui-address=https://[::1]:8384"
         # Wait for the Syncthing API to become available before setting credentials.
         # Each attempt is wrapped with timeout(1) so a hanging TCP connection attempt
         # doesn't block the loop indefinitely.
