@@ -37,7 +37,9 @@ in
   # Syncthing sync protocol (22000) open globally for peer connectivity.
   # SMTP (25) and SMTPS (465) restricted to local subnet on IPv4.
   # NTP (123 UDP) and NTS-KE (4460 TCP) restricted to local subnet on IPv4.
-  # Tailscale is already covered by trustedInterfaces = ["tailscale0"] in common-nixos.nix.
+  # SMB (445/139 TCP, 137/138 UDP) and wsdd (3702 UDP) LAN-only.
+  # Tailscale is already covered by trustedInterfaces = ["tailscale0"]
+  # in common-nixos.nix.
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22000 ];
@@ -49,6 +51,11 @@ in
       ip  saddr 10.0.4.0/22 tcp dport 465  accept
       ip  saddr 10.0.4.0/22 udp dport 123  accept
       ip  saddr 10.0.4.0/22 tcp dport 4460 accept
+      ip  saddr 10.0.4.0/22 tcp dport 445  accept
+      ip  saddr 10.0.4.0/22 tcp dport 139  accept
+      ip  saddr 10.0.4.0/22 udp dport 137  accept
+      ip  saddr 10.0.4.0/22 udp dport 138  accept
+      ip  saddr 10.0.4.0/22 udp dport 3702 accept
     '';
   };
 
@@ -92,6 +99,34 @@ in
       allow 100.64.0.0/10
     '';
   };
+
+  # Samba — expose each user's home directory to that user only.
+  # Restricted to LAN (10.0.4.0/22) and Tailscale (trusted via tailscale0).
+  # After first deploy, set Samba passwords with:
+  #   sudo smbpasswd -a alberth
+  services.samba = {
+    enable = true;
+    settings = {
+      global = {
+        workgroup = "WORKGROUP";
+        "server string" = "porkchop";
+        security = "user";
+        "map to guest" = "never";
+        "hosts allow" = "10.0.4.0/22 100.64.0.0/10 127.0.0.1";
+        "hosts deny" = "0.0.0.0/0";
+      };
+      "${primaryUser}" = {
+        path = "/home/${primaryUser}";
+        "valid users" = primaryUser;
+        "read only" = "no";
+        "guest ok" = "no";
+        browseable = "yes";
+      };
+    };
+  };
+
+  # wsdd — makes porkchop discoverable in Windows/macOS network browsers
+  services.samba-wsdd.enable = true;
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)

@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/nixos/porkchop/default.nix` — Samba + wsdd; per-user home shares,
+  LAN/Tailscale only; SMB firewall rules
 - `.zed/settings.json` — exclude `.git`, `.direnv`, and `result` from Zed's file scanner
 - `home/alberth/gammu.nix` — new gammu-specific home overlay; adds `pkgs.act`
 - `home/alberth/codex.nix` — added `pkgs.act` (codex- and gammu-only)
