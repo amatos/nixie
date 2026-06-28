@@ -13,7 +13,7 @@
       # UI
       options = {
         number = true;
-        relativenumber = true;
+        relativenumber = false;
         tabstop = 2;
         shiftwidth = 2;
         expandtab = true;
@@ -25,8 +25,9 @@
 
       theme = {
         enable = true;
-        name = "catppuccin";
-        style = "mocha";
+        name = "dracula";
+        # style = "mocha";
+        transparent = true;
       };
 
       # Syntax / Treesitter
@@ -45,6 +46,10 @@
         nix.enable = true;
         bash.enable = true;
         markdown.enable = true;
+        fish.enable = true;
+        python.enable = true;
+        ts.enable = true;
+        rust.enable = true;
       };
 
       # Completion
@@ -59,7 +64,7 @@
 
       # File tree
       filetree.nvimTree = {
-        enable = true;
+        enable = false;
       };
 
       # Telescope

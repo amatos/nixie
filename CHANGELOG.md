@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/nvf.nix` - NVF settings update
+- `home/alberth/default.nix` - Disable man.generateCaches
 - `hosts/nixos/porkchop/default.nix` — NTP/NTS server via `services.chrony`; serves
   NTP (UDP 123) and NTS-KE (TCP 4460) to `10.0.4.0/22` and Tailscale CGNAT
   (`100.64.0.0/10`); upstreams to Cloudflare and Google via NTS for authenticated

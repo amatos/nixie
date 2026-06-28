@@ -34,7 +34,7 @@ in
   # Man pages with pre-built cache for fast `man -k` lookups
   programs.man = {
     enable = true;
-    generateCaches = true;
+    generateCaches = false;
   };
 
   # XDG base directories — moves config, cache, and data out of ~
