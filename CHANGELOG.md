@@ -20,8 +20,8 @@ All notable changes to this project will be documented in this file.
   client enabled via `mkIf (hostName != "porkchop")` so porkchop's own server config
   is unaffected
 - `hosts/darwin/common-darwin.nix` — darwin hosts sync time from porkchop via
-  `networking.timeServers` (plain NTP; macOS timed does not support NTS); two entries
-  (`porkchop.home.matos.cc`, `porkchop.ts.matos.cc`) for LAN/Tailscale fallback
+  activation script (`systemsetup -setnetworktimeserver porkchop.ts.matos.cc`); plain
+  NTP only (macOS timed does not support NTS or multiple servers)
 
 ### Fixed
 
