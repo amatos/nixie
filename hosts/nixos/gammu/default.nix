@@ -14,6 +14,9 @@ in
 
   networking.hostName = "gammu";
 
+  # containerd — container runtime; starts automatically via systemd
+  virtualisation.containerd.enable = true;
+
   # Merge gammu home overlay on top of the base imported by common-nixos.nix
   home-manager.users.${primaryUser} = {
     imports = [ ../../../home/alberth/gammu.nix ];
