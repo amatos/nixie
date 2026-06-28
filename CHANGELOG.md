@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- `home/alberth/nvf.nix` — renamed `vim.languages.ts` to `vim.languages.typescript` to match nvf's updated option name
+
 ## 2026-06-28
 
 ### Changed

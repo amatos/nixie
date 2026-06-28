@@ -48,7 +48,7 @@
         markdown.enable = true;
         fish.enable = true;
         python.enable = true;
-        ts.enable = true;
+        typescript.enable = true;
         rust.enable = true;
       };
 
