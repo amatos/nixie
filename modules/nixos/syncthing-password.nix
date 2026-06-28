@@ -13,6 +13,7 @@
 # settings on each start (which can clear the password), and RemainAfterExit
 # would prevent the service from re-running to restore it.
 {
+  config,
   pkgs,
   nix-secrets,
   ...
@@ -21,6 +22,10 @@
 let
   userDefs = import ../../users.nix;
   primaryUser = userDefs.primaryUser;
+  # The NixOS Syncthing service starts with --home pointing to this directory.
+  # syncthing cli must use the same path to find the API key; without --home it
+  # defaults to a different location and can't authenticate.
+  stConfigDir = config.services.syncthing.configDir;
 in
 {
   age.secrets.syncthing-gui-password = {
@@ -48,10 +53,12 @@ in
       TimeoutStartSec = "120";
       ExecStart = pkgs.writeShellScript "syncthing-set-gui-password" ''
         set -euo pipefail
-        # Syncthing listens on [::]:8384 (IPv6-only wildcard). localhost resolves to
-        # 127.0.0.1 (IPv4) which Syncthing is not bound to — use the IPv6 loopback
-        # [::1] so the CLI reaches the correct socket.
-        ST_CLI="${pkgs.syncthing}/bin/syncthing cli --gui-address=http://[::1]:8384"
+        # --home must match the path the NixOS syncthing service uses so the CLI
+        # can find the API key. Without it, syncthing cli looks in the wrong
+        # directory, fails to authenticate, and never makes a network connection.
+        # --gui-address overrides the wildcard [::]:8384 from config with the
+        # IPv6 loopback so the CLI can actually connect.
+        ST_CLI="${pkgs.syncthing}/bin/syncthing cli --home=${stConfigDir} --gui-address=http://[::1]:8384"
         # Wait for the Syncthing API to become available before setting credentials.
         # Each attempt is wrapped with timeout(1) so a hanging TCP connection attempt
         # doesn't block the loop indefinitely.
