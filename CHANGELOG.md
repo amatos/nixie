@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 26.06.07
+## 26.06.06
 
 ### Added
 
@@ -24,28 +24,6 @@ All notable changes to this project will be documented in this file.
 - `hosts/darwin/common-darwin.nix` — darwin hosts sync time from porkchop via
   activation script (`systemsetup -setnetworktimeserver porkchop.ts.matos.cc`); plain
   NTP only (macOS timed does not support NTS or multiple servers)
-
-### Fixed
-
-- `hosts/nixos/porkchop/default.nix` — corrected NTS server directives from
-  `ntsServerCertFile`/`ntsServerKeyFile` to `ntsservercert`/`ntsserverkey` (chrony
-  4.8 uses lowercase, no camelCase)
-
-## 26.06.06
-
-### Fixed
-
-- `modules/nixos/syncthing-password.nix` — rewrote credential service to use the
-  Syncthing REST API via `curl` instead of `syncthing cli`; `--home` is a flag for
-  `syncthing serve` (not `syncthing cli`) so the CLI was silently ignoring it, failing
-  to find the API key, and aborting before making any connection; the new approach
-  reads the API key directly from `config.xml` with grep and PATCHes `/rest/config/gui`;
-  switches from `requires`/`RemainAfterExit` to `partOf` (no `RemainAfterExit`) so
-  credentials are re-applied on every syncthing restart; detects HTTP vs HTTPS from
-  presence of `https-cert.pem` in the syncthing config dir
-
-### Added
-
 - `modules/nixos/smtp-relay.nix` (new) — `nixie.smtpRelay` option module; configures
   Postfix as a smarthost relay with SASL auth and STARTTLS; accepts from configurable
   `myNetworks` (loopback by default); `nixie.smtpRelay.smtps.enable` adds a port-465
@@ -59,7 +37,6 @@ All notable changes to this project will be documented in this file.
   `smtp.fastmail.com:587`; SMTPS on port 465 with certbot cert; accept from localhost,
   `10.0.4.0/22`, and Tailscale; nftables rules opening ports 25 and 465 to the local subnet;
   add `mail.home.matos.cc` and `mail.ts.matos.cc` as SANs on the porkchop certificate
-
 - `hosts/nixos/*/hardware-configuration.nix` - changed device paths to use
   `by-label` device names
 - `modules/nixos/syncthing-password.nix` (new) — deploys `syncthing-gui-password.age`
@@ -67,25 +44,20 @@ All notable changes to this project will be documented in this file.
   `syncthing cli` at runtime, keeping the password out of the Nix store
 - `modules/darwin/syncthing-password.nix` (new) — same secret, launchd user agent
   sets GUI user and password via `syncthing cli` on login (darwin cask has no
-  declarative settings API)
-- `hosts/nixos/{porkchop,gammu}/default.nix` — import `syncthing-password.nix`;
-  set `services.syncthing.settings.gui.user = "syncthing"` declaratively
-- `hosts/darwin/codex/default.nix` — import `syncthing-password.nix`
-- `modules/nixos/certbot.nix` — pre-create `/etc/letsencrypt`, `/var/lib/letsencrypt`,
-  and `/var/log/letsencrypt` via `systemd.tmpfiles.rules` so the first run doesn't fail
-  with ENOENT when `ProtectSystem = "strict"` tries to bind-mount them
-- `modules/nixos/default-password.nix` (new) — deploys `default-nixos-user-password.age`
-  from nix-secrets; sets `hashedPasswordFile` for `root`, `nixos`, and `alberth` on all NixOS hosts
-- `users.nix` — add `nixos` local admin account (wheel group) for NixOS hosts
-- `modules/common/cachix-secrets.nix` (new) — deploys `cachix-authtoken.age`
-  from nix-secrets to `/run/agenix/cachix-authtoken`, owned by the primary user
-- `home/alberth/modules/cachix.nix` (new) — `home.activation.cachixConfig` writes
-  `~/.config/cachix/cachix.dhall` from the ragenix secret on every switch
-- `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix` — import
-  `cachix-secrets.nix`
-- `home/alberth/default.nix` — import `modules/cachix.nix`
-- `modules/common/packages.nix` — `cachix` added to `environment.systemPackages`
-  (all hosts); enables `cachix push amatos` from any machine
+
+### Fixed
+
+- `hosts/nixos/porkchop/default.nix` — corrected NTS server directives from
+  `ntsServerCertFile`/`ntsServerKeyFile` to `ntsservercert`/`ntsserverkey` (chrony
+  4.8 uses lowercase, no camelCase)
+- `modules/nixos/syncthing-password.nix` — rewrote credential service to use the
+  Syncthing REST API via `curl` instead of `syncthing cli`; `--home` is a flag for
+  `syncthing serve` (not `syncthing cli`) so the CLI was silently ignoring it, failing
+  to find the API key, and aborting before making any connection; the new approach
+  reads the API key directly from `config.xml` with grep and PATCHes `/rest/config/gui`;
+  switches from `requires`/`RemainAfterExit` to `partOf` (no `RemainAfterExit`) so
+  credentials are re-applied on every syncthing restart; detects HTTP vs HTTPS from
+  presence of `https-cert.pem` in the syncthing config dir
 
 ---
 
