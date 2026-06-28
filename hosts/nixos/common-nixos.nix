@@ -68,6 +68,17 @@ in
     };
   };
 
+  # NTP — all hosts except porkchop sync from porkchop via NTS over Tailscale.
+  # porkchop runs its own chrony server (configured in hosts/nixos/porkchop/default.nix)
+  # and upstreams to Cloudflare/Google, so this block is skipped there.
+  services.chrony = lib.mkIf (config.networking.hostName != "porkchop") {
+    enable = true;
+    servers = [ ];
+    extraConfig = ''
+      server porkchop.ts.matos.cc iburst nts
+    '';
+  };
+
   # Allow SSH through the firewall only when the firewall is active
   networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [ 22 ];
 

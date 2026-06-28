@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
   installs renewed cert+key to `/var/lib/chrony-tls/` (root:chrony 640) and restarts
   `chronyd.service`; `tmpfiles` rule creates the directory; `ReadWritePaths` entry
   added so the certbot service can write into it under `ProtectSystem = "strict"`
+- `hosts/nixos/common-nixos.nix` — all non-porkchop NixOS hosts now sync time from
+  porkchop via NTS over Tailscale (`server porkchop.ts.matos.cc iburst nts`); chrony
+  client enabled via `mkIf (hostName != "porkchop")` so porkchop's own server config
+  is unaffected
 
 ### Fixed
 
