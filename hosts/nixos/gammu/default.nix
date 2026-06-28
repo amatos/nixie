@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -16,6 +16,14 @@ in
 
   # containerd — container runtime; starts automatically via systemd
   virtualisation.containerd.enable = true;
+
+  # Allow the primary user to reach the containerd socket without sudo
+  users.groups.containerd = { };
+  users.users.${primaryUser}.extraGroups = [ "containerd" ];
+  systemd.services.containerd.serviceConfig.ExecStartPost = [
+    "+${pkgs.coreutils}/bin/chgrp containerd /run/containerd/containerd.sock"
+    "+${pkgs.coreutils}/bin/chmod 660 /run/containerd/containerd.sock"
+  ];
 
   # Merge gammu home overlay on top of the base imported by common-nixos.nix
   home-manager.users.${primaryUser} = {
