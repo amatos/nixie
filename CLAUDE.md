@@ -204,6 +204,7 @@ Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
   single entry in `CHANGELOG.md` and note the tagged version.
 - Unreleased changes must be grouped under an `## Unreleased` section at the
   top of `CHANGELOG.md` until they are included in a release.
+- `CHANGELOG.md` lines must be ≤ 80 characters; never exceed 100.
 
 ---
 
