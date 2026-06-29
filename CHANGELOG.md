@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/packages.nix` — `@admin` added to `trusted-users`; on
+  macOS admin users are in the `admin` group, not `wheel`, so `@wheel`
+  alone does not trust them and flake `nixConfig` substituters are ignored
 - `hosts/nixos/common-nixos.nix` — `services.openssh.package` set to
   `pkgs.openssh_gssapi`; `pkgs.openssh` no longer includes GSSAPI support
   (it is a separate Debian patch only in the `openssh_gssapi` derivation);
