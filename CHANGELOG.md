@@ -25,6 +25,19 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/krb5-client.nix` — `rdns = false` and
+  `dns_canonicalize_hostname = false` added to `[libdefaults]`; without
+  these libkrb5 resolves the Tailscale IP back to the short hostname
+  and constructs the wrong service principal
+- `hosts/nixos/common-nixos.nix` — `SASL_NOCANON on` in
+  `/etc/openldap/ldap.conf`; Cyrus SASL's GSSAPI plugin does its own
+  hostname canonicalization (independent of libkrb5 rdns settings) and
+  reverse-resolves to the Tailscale-internal domain
+  (`porkchop.tail<id>.ts.net`), triggering a cross-realm referral to a
+  non-existent realm; `SASL_NOCANON` disables this and uses the URL
+  hostname literally
+- `hosts/darwin/common-darwin.nix` — same `SASL_NOCANON on` in
+  `/etc/ldap.conf` (macOS ldap tools read this path)
 - `modules/common/packages.nix` — `nix.settings.trusted-users` now
   includes `root` and `@wheel`; without this the Nix daemon ignores
   substituters and `trusted-public-keys` proposed by flake `nixConfig`

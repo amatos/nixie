@@ -82,6 +82,18 @@ in
     '';
   };
 
+  # LDAP client — disable SASL hostname canonicalization.
+  # The SASL GSSAPI plugin resolves the server hostname via reverse DNS
+  # before constructing the service principal.  On Tailscale this yields
+  # the tailnet-internal domain (e.g. porkchop.tail<id>.ts.net) instead
+  # of the FQDN in the URL, causing a cross-realm referral to a
+  # non-existent realm.  SASL_NOCANON tells libldap to use the URL
+  # hostname literally so the correct ldap/porkchop.ts.matos.cc@MATOS.CC
+  # principal is requested.
+  environment.etc."openldap/ldap.conf".text = ''
+    SASL_NOCANON on
+  '';
+
   # Allow SSH through the firewall only when the firewall is active
   networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [ 22 ];
 

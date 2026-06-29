@@ -56,6 +56,12 @@ in
     systemsetup -setusingnetworktime on 2>/dev/null || true
   '';
 
+  # LDAP client — disable SASL hostname canonicalization (same reason as
+  # NixOS; see common-nixos.nix).  macOS ldap tools read /etc/ldap.conf.
+  environment.etc."ldap.conf".text = ''
+    SASL_NOCANON on
+  '';
+
   # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.
   # macOS manages its own firewall separately; no networking.firewall equivalent in nix-darwin.
   services.openssh = {

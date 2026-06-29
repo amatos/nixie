@@ -26,6 +26,8 @@
           default_realm = MATOS.CC
           dns_lookup_realm = false
           dns_lookup_kdc = false
+          dns_canonicalize_hostname = false
+          rdns = false
 
         [realms]
           MATOS.CC = {
