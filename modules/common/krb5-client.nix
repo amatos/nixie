@@ -29,8 +29,8 @@
 
         [realms]
           MATOS.CC = {
-            kdc = porkchop.matos.cc
-            admin_server = porkchop.matos.cc
+            kdc = porkchop.ts.matos.cc
+            admin_server = porkchop.ts.matos.cc
           }
 
         [domain_realm]

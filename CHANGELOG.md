@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- `modules/common/krb5-client.nix` — KDC and admin_server set to
+  `porkchop.ts.matos.cc` (Tailscale); reachable from all hosts and
+  external clients regardless of LAN adjacency
+- `hosts/nixos/common-nixos.nix` — sshd: `GSSAPIAuthentication` and
+  `GSSAPICleanupCredentials` enabled fleet-wide
+- `hosts/darwin/common-darwin.nix` — sshd: same via `extraConfig`
+
 ### Added
 
 - `hosts/nixos/porkchop/default.nix` — Samba Kerberos auth via
@@ -14,12 +23,6 @@ All notable changes to this project will be documented in this file.
   `GSSAPIDelegateCredentials` enabled on all SSH client connections;
   attempts Kerberos auth before falling back to keys; requires a valid
   TGT (`kinit`) and a `host/` principal in the KDC
-
-### Changed
-
-- `hosts/nixos/common-nixos.nix` — sshd: `GSSAPIAuthentication` and
-  `GSSAPICleanupCredentials` enabled fleet-wide
-- `hosts/darwin/common-darwin.nix` — sshd: same via `extraConfig`
 
 ## 26.06.07
 
