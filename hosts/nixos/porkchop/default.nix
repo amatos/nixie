@@ -1,8 +1,20 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 let
   userDefs = import ../../../users.nix;
   primaryUser = userDefs.primaryUser;
+
+  # Build krb5 with LDAP backend support in a clean nixpkgs instantiation,
+  # completely separate from the system pkgs set.  Overlaying krb5 system-wide
+  # causes an unavoidable cycle: krb5(LDAP) → openldap → cyrus-sasl → libkrb5
+  # → (overlay) krb5(LDAP) …  Using pkgs.path gives us the same nixpkgs
+  # source without any overlays, breaking the cycle.
+  krb5WithLdap =
+    (import pkgs.path {
+      inherit (pkgs) system;
+      config.allowUnfree = true;
+    }).krb5.override
+      { withLdap = true; };
 in
 {
   imports = [
@@ -151,15 +163,14 @@ in
     realm = "MATOS.CC";
   };
 
-  # nixpkgs' krb5 lacks LDAP support by default. Override it using prev
-  # (the pre-overlay package set) to avoid infinite recursion — nixpkgs
-  # internally defines libkrb5 as buildPackages.krb5.override{...}, which
-  # would loop if krb5 were defined in terms of the already-overlaid pkgs.
-  # With prev, the kerberos module's pkgs.krb5 resolves to the LDAP-enabled
-  # build, providing both kdb5_ldap_util and the kldap db_library.
-  nixpkgs.overlays = [
-    (_final: prev: { krb5 = prev.krb5.override { withLdap = true; }; })
-  ];
+  # Point the module's KDC and admin-server services at the LDAP-enabled
+  # build, and expose kdb5_ldap_util (bootstrap tool) via systemPackages.
+  # mkForce is required because the nix-kerberos-ldap module sets ExecStart
+  # without a priority, so a plain assignment would conflict.
+  systemd.services.kdc.serviceConfig.ExecStart = lib.mkForce "${krb5WithLdap}/bin/krb5kdc -n";
+  systemd.services.kadmind.serviceConfig.ExecStart =
+    lib.mkForce "${krb5WithLdap}/bin/kadmind -nofork";
+  environment.systemPackages = [ krb5WithLdap ];
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
