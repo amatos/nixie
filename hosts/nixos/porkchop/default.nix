@@ -1,11 +1,8 @@
-{ lib, pkgs, ... }:
+{ lib, ... }:
 
 let
   userDefs = import ../../../users.nix;
   primaryUser = userDefs.primaryUser;
-
-  # nixpkgs' krb5 is not built with LDAP support; override to enable it.
-  krb5WithLdap = pkgs.krb5.override { withLdap = true; };
 in
 {
   imports = [
@@ -154,11 +151,14 @@ in
     realm = "MATOS.CC";
   };
 
-  # Replace the module's pkgs.krb5 with the LDAP-enabled build so that
-  # kdb5_ldap_util and the kldap db_library are available.
-  environment.systemPackages = lib.mkAfter [ krb5WithLdap ];
+  # nixpkgs' krb5 lacks LDAP support by default. Override it using prev
+  # (the pre-overlay package set) to avoid infinite recursion — nixpkgs
+  # internally defines libkrb5 as buildPackages.krb5.override{...}, which
+  # would loop if krb5 were defined in terms of the already-overlaid pkgs.
+  # With prev, the kerberos module's pkgs.krb5 resolves to the LDAP-enabled
+  # build, providing both kdb5_ldap_util and the kldap db_library.
   nixpkgs.overlays = [
-    (_final: _prev: { krb5 = krb5WithLdap; })
+    (_final: prev: { krb5 = prev.krb5.override { withLdap = true; }; })
   ];
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.

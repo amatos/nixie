@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - `flake.nix` — added `nix-kerberos-ldap` input (follows `nixpkgs` and
   `nix-secrets`)
+- `hosts/nixos/porkchop/default.nix` — `nixpkgs.overlays` override for
+  `krb5` using `prev` to enable LDAP support without infinite recursion
 - `hosts/nixos/porkchop/default.nix` — Kerberos KDC + OpenLDAP backend via
   `services.kerberosLdap`; realm `MATOS.CC`, base DN `dc=matos,dc=cc`;
   firewall rules for KDC (88 TCP/UDP), kpasswd (464 TCP/UDP), kadmind
