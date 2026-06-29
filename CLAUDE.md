@@ -24,6 +24,8 @@ and are referenced as `nix-secrets` in specialArgs.
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
 | `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
 | `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | installer template |
+| `template-darwin` | nix-darwin | aarch64-darwin | `hosts/darwin/template-darwin/` | new host template |
+| `template-nixos` | NixOS | x86_64-linux | `hosts/nixos/template-nixos/` | new host template |
 
 Hosts whose names end in `tron` are virtual machines.
 

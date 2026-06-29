@@ -202,6 +202,19 @@
             ./hosts/darwin/darwintron
           ];
         };
+
+        template-darwin = nix-darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          specialArgs = sharedSpecialArgs;
+          modules = [
+            determinate.darwinModules.default
+            home-manager.darwinModules.home-manager
+            ragenix.nixosModules.default
+            nix-homebrew.darwinModules.nix-homebrew
+            zapp.darwinModules.default
+            ./hosts/darwin/template-darwin
+          ];
+        };
       };
 
       # NixOS configurations (Linux)
@@ -241,6 +254,18 @@
             zapp.nixosModules.default
             nix-kerberos-ldap.nixosModules.default
             ./hosts/nixos/porkchop
+          ];
+        };
+
+        template-nixos = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = sharedSpecialArgs;
+          modules = [
+            determinate.nixosModules.default
+            home-manager.nixosModules.home-manager
+            ragenix.nixosModules.default
+            zapp.nixosModules.default
+            ./hosts/nixos/template-nixos
           ];
         };
 

@@ -21,6 +21,14 @@ All notable changes to this project will be documented in this file.
   kept out of shared home packages because porkchop has `krb5WithLdap` in
   system packages and home packages shadow system packages in user PATH,
   which causes `kadmin.local` to resolve to the non-LDAP build
+- `hosts/darwin/template-darwin/` — new darwin host template based on
+  codex; includes nix-homebrew, pinentry-mac GPG agent, ghostty home
+  overlay, and inline provisioning instructions
+- `hosts/nixos/template-nixos/` — new NixOS host template based on gammu;
+  includes placeholder `hardware-configuration.nix` and inline
+  provisioning instructions
+- `home/alberth/template-darwin.nix` — darwin home overlay for the template
+- `flake.nix` — `template-darwin` and `template-nixos` entries
 - `flake.nix` — added `nix-kerberos-ldap` input (follows `nixpkgs` and
   `nix-secrets`)
 - `hosts/nixos/porkchop/default.nix` — use
