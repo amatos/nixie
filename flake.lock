@@ -561,11 +561,11 @@
         "ragenix": "ragenix"
       },
       "locked": {
-        "lastModified": 1782738918,
-        "narHash": "sha256-HSy58QJzdt5HJPNJBvVOwrCbr/Cr7ZeToLYDGXSZDlU=",
+        "lastModified": 1782756933,
+        "narHash": "sha256-0iUjfh9kO1txjXoTrSEQSduz5TDvwUUOzszfKWCK2Pg=",
         "owner": "amatos",
         "repo": "nix-kerberos-ldap",
-        "rev": "995a3d31b5de72dbd1ecbcb72970e464f529acf4",
+        "rev": "794e2ce6755c987815924b45cc841395186c6b8a",
         "type": "github"
       },
       "original": {
@@ -577,11 +577,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1782741711,
-        "narHash": "sha256-tuThoYmdIqdG4hVWFchYMhqhlCS6VXKzJYGBe1I+LTs=",
+        "lastModified": 1782756762,
+        "narHash": "sha256-DZFa+InYgHY++WT7eZceIfhQGMKDSVURB4M+ymF/5dI=",
         "owner": "amatos",
         "repo": "nix-secrets",
-        "rev": "d7dd8757803dc9ab744704249c16429d418b82f9",
+        "rev": "17eb52d8e83121910724c3173d90b41f2d9a2cdc",
         "type": "github"
       },
       "original": {
