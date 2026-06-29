@@ -25,6 +25,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/packages.nix` — `nix.settings.trusted-users` now
+  includes `root` and `@wheel`; without this the Nix daemon ignores
+  substituters and `trusted-public-keys` proposed by flake `nixConfig`
+  blocks (nix-community, zed, garnix, amatos caches) with "not a
+  trusted user" warnings
 - `home/alberth/modules/ssh.nix` — `GSSAPIAuthentication` and
   `GSSAPIDelegateCredentials` now Linux-only via `lib.optionalAttrs`;
   Apple's OpenSSH has GSSAPI removed and emits "Unsupported option"

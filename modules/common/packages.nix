@@ -5,10 +5,17 @@
   # Allow unfree packages fleet-wide (slack, spotify, zoom-us, discord, etc.)
   nixpkgs.config.allowUnfree = true;
 
-  # Binary caches — amatos.cachix.org for devenv and personal builds
+  # Binary caches — amatos.cachix.org for devenv and personal builds.
+  # trusted-users: wheel-group members are trusted so that flake inputs
+  # that declare extra substituters via nixConfig (nix-community, zed,
+  # garnix, etc.) are actually used rather than silently ignored.
   nix.settings = {
     substituters = [ "https://amatos.cachix.org" ];
     trusted-public-keys = [ "amatos.cachix.org-1:f8dGcsYmNVdex+prgb03Pu5yCIDkzrB8dp2lmpBfNT4=" ];
+    trusted-users = [
+      "root"
+      "@wheel"
+    ];
   };
 
   environment.systemPackages =
