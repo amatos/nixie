@@ -5,6 +5,9 @@
   home.packages = with pkgs; [
     _1password-gui # 1Password desktop app
     _1password-cli # 1Password CLI (op)
+    # SSH client with GSSAPI support for Kerberos authentication.
+    # pkgs.openssh does not include GSSAPI; this shadows it in the user PATH.
+    openssh_gssapi
   ];
 
   home.shellAliases = {

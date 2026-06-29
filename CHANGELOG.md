@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- `hosts/nixos/common-nixos.nix` — `services.openssh.package` set to
+  `pkgs.openssh_gssapi`; `pkgs.openssh` no longer includes GSSAPI support
+  (it is a separate Debian patch only in the `openssh_gssapi` derivation);
+  without this `GSSAPIAuthentication`/`GSSAPICleanupCredentials` in sshd
+  settings are unrecognised and Kerberos SSH login does not work
+- `home/alberth/nixos.nix` — `pkgs.openssh_gssapi` added to `home.packages`
+  on NixOS; shadows `pkgs.openssh` in the user PATH so the SSH client binary
+  supports `GSSAPIAuthentication`/`GSSAPIDelegateCredentials` in
+  `~/.ssh/config`; without this those options produce "Unsupported option"
+  warnings on every SSH invocation
+
 ## 26.06.08
 
 ### Added

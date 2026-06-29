@@ -61,8 +61,11 @@ in
   programs.zapp.enable = true;
 
   # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.
+  # openssh_gssapi is required: pkgs.openssh no longer includes GSSAPI support;
+  # the option is a separate Debian patch applied only in the _gssapi derivation.
   services.openssh = {
     enable = true;
+    package = pkgs.openssh_gssapi;
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "no";
