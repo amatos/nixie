@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  nix-secrets,
   ...
 }:
 
@@ -167,6 +168,8 @@ in
     realm = "MATOS.CC";
     krb5Package = krb5WithLdap;
   };
+
+  nixie.krb5.keytabFile = "${nix-secrets}/keytab-porkchop.age";
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)

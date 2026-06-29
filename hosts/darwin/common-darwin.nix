@@ -26,6 +26,7 @@ in
     ../../modules/common/github-secrets.nix
     ../../modules/common/tailscale-secrets.nix
     ../../modules/common/cachix-secrets.nix
+    ../../modules/common/krb5-client.nix
   ];
 
   # Primary user — required by options that run under the user context (e.g. homebrew)

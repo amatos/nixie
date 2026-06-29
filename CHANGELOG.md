@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/common/krb5-client.nix` — Kerberos client config for all hosts;
+  sets `/etc/krb5.conf` pointing at `porkchop.matos.cc` as KDC and admin
+  server; uses `lib.mkDefault` so porkchop's full KDC krb5.conf (written
+  by `nix-kerberos-ldap` at normal priority) wins without conflict;
+  `nixie.krb5.keytabFile` option deploys an age-encrypted host keytab to
+  `/etc/krb5.keytab` on activation when set
+- `hosts/nixos/common-nixos.nix` — import `krb5-client.nix`
+- `hosts/darwin/common-darwin.nix` — import `krb5-client.nix`
+- `hosts/darwin/codex/default.nix` — set `nixie.krb5.keytabFile`
+- `hosts/nixos/gammu/default.nix` — set `nixie.krb5.keytabFile`
+- `hosts/nixos/porkchop/default.nix` — set `nixie.krb5.keytabFile`
 - `flake.nix` — added `nix-kerberos-ldap` input (follows `nixpkgs` and
   `nix-secrets`)
 - `hosts/nixos/porkchop/default.nix` — use
