@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/nixos/picanha/` — `home/alberth/picanha.nix` added
+- `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
+- `home/alberth/picanha.nix` — Gammu-specific home-manager settings for alberth
+  on the picanha host
+- `home/alberth/sirloin.nix` — Gammu-specific home-manager settings for alberth
+  on the sirloin host
+
 ### Fixed
 
 - `modules/common/packages.nix` — `@admin` added to `trusted-users`; on
