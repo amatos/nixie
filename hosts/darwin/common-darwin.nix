@@ -56,13 +56,15 @@ in
     systemsetup -setusingnetworktime on 2>/dev/null || true
   '';
 
-  # SSH daemon — password auth disabled; key-only access
-  # macOS manages its own firewall separately; no networking.firewall equivalent in nix-darwin
+  # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.
+  # macOS manages its own firewall separately; no networking.firewall equivalent in nix-darwin.
   services.openssh = {
     enable = true;
     extraConfig = ''
       PasswordAuthentication no
       PermitRootLogin no
+      GSSAPIAuthentication yes
+      GSSAPICleanupCredentials yes
     '';
   };
 

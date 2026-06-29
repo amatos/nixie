@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `home/alberth/modules/ssh.nix` — `GSSAPIAuthentication` and
+  `GSSAPIDelegateCredentials` enabled on all SSH client connections;
+  attempts Kerberos auth before falling back to keys; requires a valid
+  TGT (`kinit`) and a `host/` principal in the KDC
+
+### Changed
+
+- `hosts/nixos/common-nixos.nix` — sshd: `GSSAPIAuthentication` and
+  `GSSAPICleanupCredentials` enabled fleet-wide
+- `hosts/darwin/common-darwin.nix` — sshd: same via `extraConfig`
+
 ## 26.06.07
 
 ### Added

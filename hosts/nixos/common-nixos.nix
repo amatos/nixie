@@ -60,12 +60,14 @@ in
   # Zapp — CLI tool for flashing ZSA keyboards; also installs udev rules
   programs.zapp.enable = true;
 
-  # SSH daemon — password auth disabled; key-only access
+  # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.
   services.openssh = {
     enable = true;
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "no";
+      GSSAPIAuthentication = true;
+      GSSAPICleanupCredentials = true;
     };
   };
 

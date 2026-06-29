@@ -10,6 +10,10 @@
         IdentityFile = [
           "~/.ssh/id_rsa"
         ];
+        # Kerberos — attempt GSSAPI auth before falling back to keys.
+        # Requires a valid TGT (kinit) and a host/... principal in the KDC.
+        GSSAPIAuthentication = "yes";
+        GSSAPIDelegateCredentials = "yes";
       };
       "github.com" = {
         User = "git";
