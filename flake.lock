@@ -561,11 +561,11 @@
         "ragenix": "ragenix"
       },
       "locked": {
-        "lastModified": 1782706427,
-        "narHash": "sha256-P9kILhLmgoX1KXohdw+WT39CsWntndMagLvOTsN2c44=",
+        "lastModified": 1782736645,
+        "narHash": "sha256-Yt+65rMbuXKWq1KRML/FCTnRVk8ic90xrsLavWEWP00=",
         "owner": "amatos",
         "repo": "nix-kerberos-ldap",
-        "rev": "08bc8dd6ea073cad13535d806a6b6e75d774361e",
+        "rev": "95548a7e41b7dbfd6eeae1e798ff28857948aa7b",
         "type": "github"
       },
       "original": {
