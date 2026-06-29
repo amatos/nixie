@@ -113,6 +113,9 @@ in
         ../../home/alberth
         ../../home/alberth/nvf.nix
       ];
+      # openssh_gssapi shadows pkgs.openssh (added to PATH by nix-darwin's
+      # services.openssh) so the SSH client supports GSSAPIAuthentication.
+      home.packages = [ pkgs.openssh_gssapi ];
     };
   };
 

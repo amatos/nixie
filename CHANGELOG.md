@@ -16,6 +16,11 @@ All notable changes to this project will be documented in this file.
   supports `GSSAPIAuthentication`/`GSSAPIDelegateCredentials` in
   `~/.ssh/config`; without this those options produce "Unsupported option"
   warnings on every SSH invocation
+- `hosts/darwin/common-darwin.nix` — `pkgs.openssh_gssapi` added to darwin
+  home packages for the same reason; macOS system SSH supports GSSAPI but
+  `services.openssh` adds `pkgs.openssh` (no GSSAPI) to PATH, shadowing it
+- `home/alberth/modules/ssh.nix` — GSSAPI options enabled on all platforms
+  (was Linux-only); `lib`/`pkgs` args removed as no longer needed
 
 ## 26.06.08
 

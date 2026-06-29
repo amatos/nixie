@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ ... }:
 
 {
   programs.ssh = {
@@ -10,12 +10,9 @@
         IdentityFile = [
           "~/.ssh/id_rsa"
         ];
-        # GSSAPI — Linux only. Apple's OpenSSH has GSSAPI removed; the
-        # options cause "Unsupported option" warnings on darwin and do
-        # nothing. Re-enable on darwin once pkgs.openssh replaces the
-        # system SSH or the macOS Kerberos/DNS issue is resolved.
-      }
-      // lib.optionalAttrs pkgs.stdenv.isLinux {
+        # GSSAPI — Kerberos ticket forwarding.  Both platforms use
+        # pkgs.openssh_gssapi (added to home.packages) which shadows
+        # the nix-installed pkgs.openssh that lacks GSSAPI support.
         GSSAPIAuthentication = "yes";
         GSSAPIDelegateCredentials = "yes";
       };
