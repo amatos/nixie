@@ -6,6 +6,22 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `flake.nix` — added `nix-kerberos-ldap` input (follows `nixpkgs` and
+  `nix-secrets`)
+- `hosts/nixos/porkchop/default.nix` — Kerberos KDC + OpenLDAP backend via
+  `services.kerberosLdap`; realm `MATOS.CC`, base DN `dc=matos,dc=cc`;
+  firewall rules for KDC (88 TCP/UDP), kpasswd (464 TCP/UDP), kadmind
+  (749 TCP), all LAN-restricted; `krb5` overridden with `withLdap = true`
+  to provide `kdb5_ldap_util` and the `kldap` db_library
+- `home/alberth/codex.nix` — added `pkgs.vlc` (codex-only)
+
+### Changed
+
+- `home/alberth/modules/packages.nix` — removed `vlc` from shared
+  Linux-only packages block
+- `hosts/darwin/codex/default.nix` — updated VLC homebrew comment to
+  point to `home/alberth/codex.nix`
+
 - `hosts/nixos/porkchop/default.nix` — Samba + wsdd; per-user home shares,
   LAN/Tailscale only; SMB firewall rules
 - `.zed/settings.json` — exclude `.git`, `.direnv`, and `result` from Zed's file scanner

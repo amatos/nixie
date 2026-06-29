@@ -57,6 +57,12 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-kerberos-ldap = {
+      url = "github:amatos/nix-kerberos-ldap";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nix-secrets.follows = "nix-secrets";
+    };
   };
 
   outputs =
@@ -74,6 +80,7 @@
       nix-homebrew,
       zapp,
       pre-commit-hooks,
+      nix-kerberos-ldap,
       ...
     }:
     let
@@ -232,6 +239,7 @@
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
             zapp.nixosModules.default
+            nix-kerberos-ldap.nixosModules.default
             ./hosts/nixos/porkchop
           ];
         };

@@ -1,8 +1,11 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 let
   userDefs = import ../../../users.nix;
   primaryUser = userDefs.primaryUser;
+
+  # nixpkgs' krb5 is not built with LDAP support; override to enable it.
+  krb5WithLdap = pkgs.krb5.override { withLdap = true; };
 in
 {
   imports = [
@@ -56,6 +59,11 @@ in
       ip  saddr 10.0.4.0/22 udp dport 137  accept
       ip  saddr 10.0.4.0/22 udp dport 138  accept
       ip  saddr 10.0.4.0/22 udp dport 3702 accept
+      ip  saddr 10.0.4.0/22 tcp dport 88   accept
+      ip  saddr 10.0.4.0/22 udp dport 88   accept
+      ip  saddr 10.0.4.0/22 tcp dport 464  accept
+      ip  saddr 10.0.4.0/22 udp dport 464  accept
+      ip  saddr 10.0.4.0/22 tcp dport 749  accept
     '';
   };
 
@@ -127,6 +135,31 @@ in
 
   # wsdd — makes porkchop discoverable in Windows/macOS network browsers
   services.samba-wsdd.enable = true;
+
+  # Kerberos + LDAP — KDC backed by OpenLDAP.
+  # OpenLDAP listens on 127.0.0.1 only; Kerberos ports (88, 464, 749) are
+  # restricted to LAN on IPv4. Tailscale is covered by trustedInterfaces.
+  # Bootstrap after first deploy:
+  #   1. kdb5_ldap_util stashsrvpw -f /var/lib/krb5kdc/service.keyfile cn=kdc,dc=matos,dc=cc
+  #   2. kdb5_util create -s -r MATOS.CC
+  #   3. kadmin.local addprinc <user>
+  services.kerberosLdap.ldap = {
+    enable = true;
+    domain = "matos.cc";
+    baseDN = "dc=matos,dc=cc";
+  };
+
+  services.kerberosLdap.kerberos = {
+    enable = true;
+    realm = "MATOS.CC";
+  };
+
+  # Replace the module's pkgs.krb5 with the LDAP-enabled build so that
+  # kdb5_ldap_util and the kldap db_library are available.
+  environment.systemPackages = lib.mkAfter [ krb5WithLdap ];
+  nixpkgs.overlays = [
+    (_final: _prev: { krb5 = krb5WithLdap; })
+  ];
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)

@@ -27,13 +27,6 @@
       nerd-fonts.inconsolata-go
       nerd-fonts.jetbrains-mono
     ]
-    # Linux-only packages (no Darwin build in nixpkgs)
-    ++ lib.optionals pkgs.stdenv.isLinux (
-      with pkgs;
-      [
-        vlc
-      ]
-    )
     # x86_64-Linux-only packages (no aarch64-linux or Darwin build in nixpkgs)
     ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 (
       with pkgs;

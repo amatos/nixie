@@ -99,7 +99,7 @@ in
       "winbox" # Administration tool for MikroTik RouterOS
       # Entertainment Tools
       "steam" # Video game digital distribution service
-      # "vlc"     — moved to pkgs.vlc in home/alberth/default.nix
+      # "vlc"     — moved to pkgs.vlc in home/alberth/codex.nix
       "iina" # Free and open-source media player
       # "spotify" — moved to pkgs.spotify in home/alberth/default.nix
       # Productivity Tools
