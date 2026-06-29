@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, lib, ... }:
 
 {
   programs.ssh = {
@@ -10,8 +10,12 @@
         IdentityFile = [
           "~/.ssh/id_rsa"
         ];
-        # Kerberos — attempt GSSAPI auth before falling back to keys.
-        # Requires a valid TGT (kinit) and a host/... principal in the KDC.
+        # GSSAPI — Linux only. Apple's OpenSSH has GSSAPI removed; the
+        # options cause "Unsupported option" warnings on darwin and do
+        # nothing. Re-enable on darwin once pkgs.openssh replaces the
+        # system SSH or the macOS Kerberos/DNS issue is resolved.
+      }
+      // lib.optionalAttrs pkgs.stdenv.isLinux {
         GSSAPIAuthentication = "yes";
         GSSAPIDelegateCredentials = "yes";
       };

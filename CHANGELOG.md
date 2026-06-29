@@ -4,17 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### Changed
-
-- `modules/common/krb5-client.nix` — KDC and admin_server set to
-  `porkchop.ts.matos.cc` (Tailscale); reachable from all hosts and
-  external clients regardless of LAN adjacency
-- `hosts/nixos/common-nixos.nix` — sshd: `GSSAPIAuthentication` and
-  `GSSAPICleanupCredentials` enabled fleet-wide
-- `hosts/darwin/common-darwin.nix` — sshd: same via `extraConfig`
-
 ### Added
 
+- `hosts/nixos/porkchop/default.nix` — OpenLDAP SASL/GSSAPI enabled via
+  `nix-kerberos-ldap` ldap module options: `saslKeytabFile` deploys a
+  dedicated age-encrypted `ldap/` service-principal keytab with openldap
+  ownership; `saslHost = porkchop.ts.matos.cc` sets `olcSaslHost`;
+  `saslAuthzRegexp` maps `alberth@MATOS.CC` to `cn=admin,dc=matos,dc=cc`
+  so `ldapsearch`/`ldapmodify` work with a valid TGT instead of the
+  LDAP admin password; `listenAddresses = [ "ldap://0.0.0.0:389/" ]`
+  exposes slapd on all interfaces so GSSAPI clients can reach it via FQDN
 - `hosts/nixos/porkchop/default.nix` — Samba Kerberos auth via
   `kerberos method = dedicated keytab`; clients with a valid TGT get
   transparent SMB access; keytab must contain both
@@ -23,6 +22,22 @@ All notable changes to this project will be documented in this file.
   `GSSAPIDelegateCredentials` enabled on all SSH client connections;
   attempts Kerberos auth before falling back to keys; requires a valid
   TGT (`kinit`) and a `host/` principal in the KDC
+
+### Fixed
+
+- `home/alberth/modules/ssh.nix` — `GSSAPIAuthentication` and
+  `GSSAPIDelegateCredentials` now Linux-only via `lib.optionalAttrs`;
+  Apple's OpenSSH has GSSAPI removed and emits "Unsupported option"
+  warnings for these keys in `~/.ssh/config`
+
+### Changed
+
+- `modules/common/krb5-client.nix` — KDC and admin_server set to
+  `porkchop.ts.matos.cc` (Tailscale); reachable from all hosts and
+  external clients regardless of LAN adjacency
+- `hosts/nixos/common-nixos.nix` — sshd: `GSSAPIAuthentication` and
+  `GSSAPICleanupCredentials` enabled fleet-wide
+- `hosts/darwin/common-darwin.nix` — sshd: same via `extraConfig`
 
 ## 26.06.07
 
