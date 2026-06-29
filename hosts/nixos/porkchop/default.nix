@@ -16,7 +16,7 @@ let
   # source without any overlays, breaking the cycle.
   krb5WithLdap =
     (import pkgs.path {
-      inherit (pkgs) system;
+      system = pkgs.stdenv.hostPlatform.system;
       config.allowUnfree = true;
     }).krb5.override
       { withLdap = true; };

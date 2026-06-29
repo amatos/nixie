@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 
 - `flake.nix` — added `nix-kerberos-ldap` input (follows `nixpkgs` and
   `nix-secrets`)
+- `hosts/nixos/porkchop/default.nix` — use
+  `pkgs.stdenv.hostPlatform.system` in fresh pkgs import (fixes
+  `'system' has been renamed` evaluation warning)
 - `hosts/nixos/porkchop/default.nix` — build LDAP-enabled `krb5` via
   fresh `pkgs.path` instantiation (no system-wide overlay) to avoid
   the `krb5→openldap→cyrus-sasl→libkrb5→krb5` evaluation cycle;
