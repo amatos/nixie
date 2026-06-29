@@ -124,6 +124,9 @@ in
 
   # Samba — expose each user's home directory to that user only.
   # Restricted to LAN (10.0.4.0/22) and Tailscale (trusted via tailscale0).
+  # Kerberos auth uses the host keytab (/etc/krb5.keytab); clients with a
+  # valid TGT get transparent access. The keytab must contain both
+  # host/porkchop.matos.cc and cifs/porkchop.matos.cc principals.
   # After first deploy, set Samba passwords with:
   #   sudo smbpasswd -a alberth
   services.samba = {
@@ -136,6 +139,10 @@ in
         "map to guest" = "never";
         "hosts allow" = "10.0.4.0/22 100.64.0.0/10 127.0.0.1";
         "hosts deny" = "0.0.0.0/0";
+        # Kerberos — clients authenticate with a TGT; Samba verifies via keytab.
+        realm = "MATOS.CC";
+        "kerberos method" = "dedicated keytab";
+        "dedicated keytab file" = "/etc/krb5.keytab";
       };
       "${primaryUser}" = {
         path = "/home/${primaryUser}";

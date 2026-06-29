@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/nixos/porkchop/default.nix` — Samba Kerberos auth via
+  `kerberos method = dedicated keytab`; clients with a valid TGT get
+  transparent SMB access; keytab must contain both
+  `host/porkchop.matos.cc` and `cifs/porkchop.matos.cc` principals
 - `home/alberth/modules/ssh.nix` — `GSSAPIAuthentication` and
   `GSSAPIDelegateCredentials` enabled on all SSH client connections;
   attempts Kerberos auth before falling back to keys; requires a valid
