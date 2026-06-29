@@ -182,7 +182,15 @@ in
     # Listen on all interfaces so remote hosts and GSSAPI clients can
     # reach slapd via the FQDN.  The firewall restricts LDAP (389) to
     # LAN (10.0.4.0/22); Tailscale is covered by trustedInterfaces.
-    listenAddresses = [ "ldap://0.0.0.0:389/" ];
+    # ldaps:/// enables LDAPS on port 636; cert+key deployed by certbot.
+    listenAddresses = [
+      "ldap://0.0.0.0:389/"
+      "ldaps:///"
+    ];
+    # TLS — cert+key deployed by certbot's ldapDeploy hook into
+    # /var/lib/openldap-tls/ with root:openldap 640 ownership.
+    tlsCertFile = "/var/lib/openldap-tls/fullchain.pem";
+    tlsKeyFile = "/var/lib/openldap-tls/privkey.pem";
   };
 
   services.kerberosLdap.kerberos = {
@@ -211,5 +219,6 @@ in
     syncthingDeploy = true;
     postfixDeploy = true;
     chronyDeploy = true;
+    ldapDeploy = true;
   };
 }

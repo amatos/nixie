@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/nixos/certbot.nix` — `ldapDeploy` option: deploy hook installs
+  renewed cert+key to `/var/lib/openldap-tls/` (root:openldap 640) and
+  restarts `openldap.service`; `tmpfiles` rule creates the directory
+- `hosts/nixos/porkchop/default.nix` — LDAPS enabled: `ldaps:///` added
+  to slapd `listenAddresses`; `tlsCertFile`/`tlsKeyFile` set to paths
+  under `/var/lib/openldap-tls/`; `ldapDeploy = true` in certbot config
 - `hosts/nixos/porkchop/default.nix` — OpenLDAP SASL/GSSAPI enabled via
   `nix-kerberos-ldap` ldap module options: `saslKeytabFile` deploys a
   dedicated age-encrypted `ldap/` service-principal keytab with openldap

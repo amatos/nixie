@@ -38,6 +38,7 @@ let
   syncthingConfigDir = "/home/${primaryUser}/.config/syncthing";
   postfixSslDir = "/var/lib/postfix-tls";
   chronyTlsDir = "/var/lib/chrony-tls";
+  openldapTlsDir = "/var/lib/openldap-tls";
 
   # Deploy hooks — run only when a certificate is actually renewed.
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
@@ -68,11 +69,21 @@ let
     systemctl restart chronyd.service
   '';
 
+  # Installs cert+key into /var/lib/openldap-tls/ with root:openldap 640 so slapd can read the
+  # key.  Restarts openldap — slapd re-reads TLS files only on startup.
+  openldapDeployHook = pkgs.writeShellScript "certbot-openldap-deploy" ''
+    set -euo pipefail
+    install -o root -g openldap -m 640 "$RENEWED_LINEAGE/fullchain.pem" "${openldapTlsDir}/fullchain.pem"
+    install -o root -g openldap -m 640 "$RENEWED_LINEAGE/privkey.pem"   "${openldapTlsDir}/privkey.pem"
+    systemctl restart openldap.service
+  '';
+
   # Collect whichever deploy hooks are enabled; certbot accepts multiple --deploy-hook flags.
   deployHookFlags = lib.concatStringsSep " " (
     lib.optional cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"
     ++ lib.optional cfg.postfixDeploy "--deploy-hook ${postfixDeployHook}"
     ++ lib.optional cfg.chronyDeploy "--deploy-hook ${chronyDeployHook}"
+    ++ lib.optional cfg.ldapDeploy "--deploy-hook ${openldapDeployHook}"
   );
 
   # Each entry in cfg.domains is a list of domain names for a single cert.
@@ -124,6 +135,8 @@ in
     postfixDeploy = lib.mkEnableOption "copy renewed cert to /etc/postfix/ssl/ (root:postfix 640) and reload postfix.service";
 
     chronyDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/chrony-tls/ (root:chrony 640) and restart chronyd.service";
+
+    ldapDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/openldap-tls/ (root:openldap 640) and restart openldap.service";
   };
 
   config = lib.mkIf cfg.enable {
@@ -142,7 +155,11 @@ in
     ]
     ++ lib.optionals cfg.chronyDeploy [
       # root:chrony 0750 — holds the NTS server cert+key; group-readable by chronyd
-      "d /var/lib/chrony-tls   0750 root chrony  -"
+      "d /var/lib/chrony-tls   0750 root chrony   -"
+    ]
+    ++ lib.optionals cfg.ldapDeploy [
+      # root:openldap 0750 — holds the LDAPS cert+key; group-readable by slapd
+      "d /var/lib/openldap-tls 0750 root openldap -"
     ];
 
     environment.systemPackages = [ certbotWithLuadns ];
@@ -169,7 +186,8 @@ in
         ]
         ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
         ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ]
-        ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ];
+        ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ]
+        ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ];
       };
     };
 
