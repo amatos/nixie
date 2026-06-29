@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.06.07
+
 ### Added
 
 - `modules/common/krb5-client.nix` — Kerberos client config for all hosts;
