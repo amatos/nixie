@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   userDefs = import ../../../users.nix;
@@ -161,6 +166,13 @@ in
   services.kerberosLdap.kerberos = {
     enable = true;
     realm = "MATOS.CC";
+  };
+
+  # Upstream nix-kerberos-ldap uses { _secret = path } for olcRootPW, which
+  # is not a valid services.openldap.settings value type.  The correct form
+  # is { path = ... }, which slapd reads at activation time.
+  services.openldap.settings.children."olcDatabase={1}mdb".attrs.olcRootPW = lib.mkForce {
+    path = config.age.secrets.ldapAdminPassword.path;
   };
 
   # Point the module's KDC and admin-server services at the LDAP-enabled
