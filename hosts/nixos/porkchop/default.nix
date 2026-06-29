@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   ...
@@ -161,28 +160,14 @@ in
     enable = true;
     domain = "matos.cc";
     baseDN = "dc=matos,dc=cc";
+    krb5Package = krb5WithLdap;
   };
 
   services.kerberosLdap.kerberos = {
     enable = true;
     realm = "MATOS.CC";
+    krb5Package = krb5WithLdap;
   };
-
-  # Upstream nix-kerberos-ldap uses { _secret = path } for olcRootPW, which
-  # is not a valid services.openldap.settings value type.  The correct form
-  # is { path = ... }, which slapd reads at activation time.
-  services.openldap.settings.children."olcDatabase={1}mdb".attrs.olcRootPW = lib.mkForce {
-    path = config.age.secrets.ldapAdminPassword.path;
-  };
-
-  # Point the module's KDC and admin-server services at the LDAP-enabled
-  # build, and expose kdb5_ldap_util (bootstrap tool) via systemPackages.
-  # mkForce is required because the nix-kerberos-ldap module sets ExecStart
-  # without a priority, so a plain assignment would conflict.
-  systemd.services.kdc.serviceConfig.ExecStart = lib.mkForce "${krb5WithLdap}/bin/krb5kdc -n";
-  systemd.services.kadmind.serviceConfig.ExecStart =
-    lib.mkForce "${krb5WithLdap}/bin/kadmind -nofork";
-  environment.systemPackages = [ krb5WithLdap ];
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)

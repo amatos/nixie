@@ -14,8 +14,8 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/porkchop/default.nix` — build LDAP-enabled `krb5` via
   fresh `pkgs.path` instantiation (no system-wide overlay) to avoid
   the `krb5→openldap→cyrus-sasl→libkrb5→krb5` evaluation cycle;
-  override `kdc`/`kadmind` `ExecStart` with `lib.mkForce`; remove
-  path overrides now fixed upstream in `nix-kerberos-ldap`
+  pass via new `krb5Package` option on `kerberosLdap.ldap` and
+  `kerberosLdap.kerberos` (replaces prior `lib.mkForce` workarounds)
 - `hosts/nixos/porkchop/default.nix` — Kerberos KDC + OpenLDAP backend via
   `services.kerberosLdap`; realm `MATOS.CC`, base DN `dc=matos,dc=cc`;
   firewall rules for KDC (88 TCP/UDP), kpasswd (464 TCP/UDP), kadmind
