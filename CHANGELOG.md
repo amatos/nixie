@@ -23,10 +23,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `home/alberth/modules/packages.nix` — removed `vlc` from shared
-  Linux-only packages block
-- `hosts/darwin/codex/default.nix` — updated VLC homebrew comment to
-  point to `home/alberth/codex.nix`
+- `home/alberth/modules/packages.nix` — removed `vlc` and
+  `telegram-desktop` from shared packages; both are codex-only
+- `home/alberth/codex.nix` — added `pkgs.telegram-desktop` (codex-only)
+- `hosts/darwin/codex/default.nix` — updated homebrew comments for
+  `vlc` and `telegram` to point to `home/alberth/codex.nix`
 
 - `hosts/nixos/porkchop/default.nix` — Samba + wsdd; per-user home shares,
   LAN/Tailscale only; SMB firewall rules

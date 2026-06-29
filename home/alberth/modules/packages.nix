@@ -4,9 +4,6 @@
   home.packages =
     with pkgs;
     [
-      # Communication
-      telegram-desktop
-
       # Tools
       htop # interactive process viewer
       imagemagick # image manipulation

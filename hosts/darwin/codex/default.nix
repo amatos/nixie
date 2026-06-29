@@ -59,7 +59,7 @@ in
       # Communication Tools
       "discord" # Voice and text chat software
       # "slack"    — moved to pkgs.slack in home/alberth/default.nix
-      # "telegram" — moved to pkgs.telegram-desktop in home/alberth/default.nix
+      # "telegram" — moved to pkgs.telegram-desktop in home/alberth/codex.nix
       # "zoom"     — moved to pkgs.zoom-us in home/alberth/default.nix
       # Utility Tools
       "syncthing-app" # Real time file synchronisation software
