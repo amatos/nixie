@@ -11,7 +11,6 @@
   home.packages = [
     pkgs.orbstack # Fast, light Docker and Linux VM manager
     pkgs.act # Run GitHub Actions locally
-    pkgs.vlc # Media player
     pkgs.telegram-desktop # Messaging
   ];
 

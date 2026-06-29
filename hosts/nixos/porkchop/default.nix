@@ -160,7 +160,6 @@ in
     enable = true;
     domain = "matos.cc";
     baseDN = "dc=matos,dc=cc";
-    krb5Package = krb5WithLdap;
   };
 
   services.kerberosLdap.kerberos = {

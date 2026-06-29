@@ -21,15 +21,18 @@ All notable changes to this project will be documented in this file.
   firewall rules for KDC (88 TCP/UDP), kpasswd (464 TCP/UDP), kadmind
   (749 TCP), all LAN-restricted; `krb5` overridden with `withLdap = true`
   to provide `kdb5_ldap_util` and the `kldap` db_library
-- `home/alberth/codex.nix` — added `pkgs.vlc` (codex-only)
 
 ### Changed
 
 - `home/alberth/modules/packages.nix` — removed `vlc` and
   `telegram-desktop` from shared packages; both are codex-only
 - `home/alberth/codex.nix` — added `pkgs.telegram-desktop` (codex-only)
-- `hosts/darwin/codex/default.nix` — updated homebrew comments for
-  `vlc` and `telegram` to point to `home/alberth/codex.nix`
+- `home/alberth/codex.nix` — removed `pkgs.vlc`; not available for
+  aarch64-darwin; use `iina` homebrew cask instead
+- `hosts/darwin/codex/default.nix` — removed stale vlc homebrew comment
+- `hosts/nixos/porkchop/default.nix` — removed `krb5Package` from
+  `kerberosLdap.ldap` block; option was removed upstream (schema now
+  bundled in `nix-kerberos-ldap`)
 
 - `hosts/nixos/porkchop/default.nix` — Samba + wsdd; per-user home shares,
   LAN/Tailscale only; SMB firewall rules
