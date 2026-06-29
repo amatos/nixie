@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file.
 - `hosts/darwin/codex/default.nix` — set `nixie.krb5.keytabFile`
 - `hosts/nixos/gammu/default.nix` — set `nixie.krb5.keytabFile`
 - `hosts/nixos/porkchop/default.nix` — set `nixie.krb5.keytabFile`
+- `home/alberth/modules/packages.nix` — add `pkgs.krb5` for Linux hosts;
+  macOS ships Heimdal Kerberos in `/usr/bin` and needs no additional package
 - `flake.nix` — added `nix-kerberos-ldap` input (follows `nixpkgs` and
   `nix-secrets`)
 - `hosts/nixos/porkchop/default.nix` — use
