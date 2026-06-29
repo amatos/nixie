@@ -24,13 +24,6 @@
       nerd-fonts.inconsolata-go
       nerd-fonts.jetbrains-mono
     ]
-    # Linux-only packages — macOS ships Heimdal Kerberos in /usr/bin
-    ++ lib.optionals pkgs.stdenv.isLinux (
-      with pkgs;
-      [
-        krb5 # kinit / klist / kdestroy for MATOS.CC realm
-      ]
-    )
     # x86_64-Linux-only packages (no aarch64-linux or Darwin build in nixpkgs)
     ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 (
       with pkgs;
