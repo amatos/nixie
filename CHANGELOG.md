@@ -50,6 +50,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/github-secrets.nix` — add `systemd.tmpfiles.rules` to
+  pre-create `~/.ssh` as the primary user on NixOS; agenix (running as
+  root) was creating the directory as root, blocking home-manager from
+  writing `~/.ssh/config`
 - `hosts/darwin/common-darwin.nix` — darwin's `nix.settings.trusted-users`
   (set in `modules/common/packages.nix`) never actually took effect; under
   Determinate Nix, `nix.enable` is forced `false` on darwin so nix-darwin
