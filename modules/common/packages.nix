@@ -14,6 +14,7 @@
     trusted-public-keys = [ "amatos.cachix.org-1:f8dGcsYmNVdex+prgb03Pu5yCIDkzrB8dp2lmpBfNT4=" ];
     trusted-users = [
       "root"
+      "alberth"
       "@wheel" # Linux (NixOS)
       "@admin" # macOS — admin users are in 'admin', not 'wheel'
     ];

@@ -6,16 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/huginn.nix` — home-manager settings for alberth on the huginn host
+- `home/alberth/picanha.nix` — home-manager settings for alberth on the picanha host
+- `home/alberth/sirloin.nix` — home-manager settings for alberth on the sirloin host
 - `hosts/darwin/codex/default.nix` - added claude-code cask
-- `hosts/nixos/picanha/` — `home/alberth/picanha.nix` added
-- `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
 - `hosts/nixos/huginn/` — `home/alberth/huginn.nix` added
-- `home/alberth/picanha.nix` — home-manager settings for alberth
-  on the picanha host
-- `home/alberth/sirloin.nix` — home-manager settings for alberth
-  on the sirloin host
-- `home/alberth/huginn.nix` — home-manager settings for alberth
-  on the huginn host
+- `hosts/nixos/picanha/` — `home/alberth/picanha.nix` added
+- `hosts/nixos/porkchop/` — `home/alberth/porkchop.nix` added
+- `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
+- `modules/common/packages.nix` — `alberth` added to `trusted-users`
 
 ### Fixed
 
