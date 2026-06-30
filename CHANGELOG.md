@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `.gitignore` - added .claude to gitignore
 - `hosts/nixos/huginn/default.nix` — Added `services.syncthing`, firewall, and kerberos configs for the huginn host
 - `home/alberth/huginn.nix` — home-manager settings for alberth on the huginn host
 - `home/alberth/picanha.nix` — home-manager settings for alberth on the picanha host
