@@ -4,7 +4,7 @@
 # Shell integrations for bash, zsh, and fish are enabled automatically.
 # --disable-up-arrow is passed to `atuin init` so up-arrow uses native shell
 # history; atuin search is accessible via Ctrl-R only.
-{ ... }:
+_:
 
 {
   programs.atuin = {

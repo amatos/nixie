@@ -4,7 +4,6 @@
 #   nixos-generate-config --show-hardware-config
 #
 # Copy the result here before running nixos-rebuild switch.
-{ ... }:
-{
+_: {
   # Placeholder — no hardware configuration yet.
 }

@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 let
   userDefs = import ../../../users.nix;
@@ -19,7 +19,7 @@ in
     settings = {
       user = {
         name = "Alberth Matos";
-        email = user.email;
+        inherit (user) email;
       };
       core = {
         editor = "nvim";

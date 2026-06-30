@@ -19,7 +19,7 @@
 
 let
   userDefs = import ../../users.nix;
-  primaryUser = userDefs.primaryUser;
+  inherit (userDefs) primaryUser;
   cfg = config.nixie.certbot;
 
   # certbot-dns-luadns is not in nixpkgs — packaged locally

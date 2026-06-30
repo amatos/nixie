@@ -7,7 +7,7 @@
 # is not on PATH during the activation environment.  The YubiKey is only
 # needed interactively when running `ragenix` to create or rekey secrets,
 # which uses the recipient public keys from secrets/secrets.nix directly.
-{ ... }:
+_:
 
 {
   age.identityPaths = [

@@ -3,7 +3,7 @@
 #
 # command is set per-host (codex.nix / darwintron.nix) to the nix-managed
 # fish path, overriding the default shell lookup.
-{ ... }:
+_:
 
 {
   programs.ghostty.settings = {

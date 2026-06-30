@@ -7,7 +7,7 @@
 
 let
   userDefs = import ../../../users.nix;
-  primaryUser = userDefs.primaryUser;
+  inherit (userDefs) primaryUser;
   user = userDefs.${primaryUser};
 in
 {
@@ -50,7 +50,7 @@ in
   # Primary user — key sourced from users.nix
   users.users.${primaryUser} = {
     isNormalUser = true;
-    description = user.description;
+    inherit (user) description;
     extraGroups = [ "wheel" ];
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = user.openssh.authorizedKeys.keys;

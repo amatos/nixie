@@ -8,7 +8,7 @@
 #   - Kubernetes/AWS/Azure/GCloud are always visible when configured (p10k showed
 #     them only while typing the relevant command — Starship has no equivalent).
 #   - No powerline segment backgrounds; catppuccin.starship handles colors.
-{ ... }:
+_:
 
 {
   programs.starship = {

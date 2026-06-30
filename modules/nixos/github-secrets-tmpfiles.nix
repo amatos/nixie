@@ -3,11 +3,11 @@
 # root, which then blocks home-manager from writing ~/.ssh/config.
 # tmpfiles runs before agenix on NixOS; darwin has no systemd, so this is
 # kept out of modules/common/github-secrets.nix and only imported here.
-{ ... }:
+_:
 
 let
   userDefs = import ../../users.nix;
-  primaryUser = userDefs.primaryUser;
+  inherit (userDefs) primaryUser;
   home = "/home/${primaryUser}";
 in
 {

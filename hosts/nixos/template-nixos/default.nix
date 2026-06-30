@@ -11,11 +11,11 @@
 #      corresponding age-encrypted secret to keytabs-matos-cc.
 #   6. If host-specific home settings are needed, create
 #      home/alberth/<hostname>.nix and wire it in below.
-{ ... }:
+_:
 
 let
   userDefs = import ../../../users.nix;
-  primaryUser = userDefs.primaryUser;
+  inherit (userDefs) primaryUser;
 in
 {
   imports = [

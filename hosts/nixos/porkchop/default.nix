@@ -7,7 +7,7 @@
 
 let
   userDefs = import ../../../users.nix;
-  primaryUser = userDefs.primaryUser;
+  inherit (userDefs) primaryUser;
 
   # Build krb5 with LDAP backend support in a clean nixpkgs instantiation,
   # completely separate from the system pkgs set.  Overlaying krb5 system-wide

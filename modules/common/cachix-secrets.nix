@@ -2,7 +2,7 @@
 
 let
   userDefs = import ../../users.nix;
-  primaryUser = userDefs.primaryUser;
+  inherit (userDefs) primaryUser;
 in
 {
   age.secrets.cachix-authtoken = {

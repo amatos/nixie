@@ -1,7 +1,7 @@
 # Sudo configuration for NixOS hosts.
 # - Sources /etc/sudoers.d/* so drop-in files placed via environment.etc are honoured.
 # - Allows wheel members to run nixos-rebuild without a password.
-{ ... }:
+_:
 
 {
   security.sudo.extraConfig = ''

@@ -1,6 +1,6 @@
 # Neovim configuration via nvf.
 # See https://github.com/notashelf/nvf for available options.
-{ ... }:
+_:
 
 {
   programs.nvf = {

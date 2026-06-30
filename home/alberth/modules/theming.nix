@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   # Catppuccin — global flavor and accent; autoEnable = false so we opt in per-tool.

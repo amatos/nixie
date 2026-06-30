@@ -1,5 +1,5 @@
 # Allow members of the staff group to run darwin-rebuild without a password.
-{ ... }:
+_:
 
 {
   environment.etc."sudoers.d/nix-rebuild-sudoers" = {

@@ -91,7 +91,7 @@
     }:
     let
       # Helper to build a lib from nixpkgs for a given system
-      lib = nixpkgs.lib;
+      inherit (nixpkgs) lib;
 
       # Supported systems
       supportedSystems = [
