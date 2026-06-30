@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `modules/darwin/macos-defaults/dock/persistent-apps.nix` — fixed incorrect path to users.nix
 - `home/alberth/common/` — renamed from `home/alberth/modules/`
 - `home/alberth/codex.nix`, `darwintron.nix`, `template-darwin.nix` —
   import `./darwin`; stale `./ghostty.nix` import removed

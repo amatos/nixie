@@ -17,8 +17,8 @@
 _:
 
 let
-  userConfig = import ../../../lib/user-config.nix;
-  inherit (userConfig.user) homeDir;
+  userDefs = import ../../users.nix;
+  homeDir = userDefs.primaryUser.homeDir;
 in
 {
   system.defaults.dock = {
