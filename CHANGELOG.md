@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/darwin/codex/default.nix` - added claude-code cask
 - `hosts/nixos/picanha/` — `home/alberth/picanha.nix` added
 - `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
 - `home/alberth/picanha.nix` — Gammu-specific home-manager settings for alberth

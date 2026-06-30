@@ -47,6 +47,7 @@ in
     casks = [
       # Development Tools
       "claude" # Anthropic's official Claude AI desktop app
+      "claude-code" # Anthropic's official Claude AI CLI app
       "visual-studio-code"
       "zed" # Replacing nix flake due to https://github.com/zed-industries/zed/issues/59250
       "tower" # Git client focusing on power and productivity
