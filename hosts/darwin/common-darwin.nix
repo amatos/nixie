@@ -24,7 +24,6 @@ in
     ../../modules/common/age-host-key.nix
     ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
-    ../../modules/common/tailscale-secrets.nix
     ../../modules/common/cachix-secrets.nix
     ../../modules/common/krb5-client.nix
   ];
@@ -41,10 +40,6 @@ in
 
   # Zapp — CLI tool for flashing ZSA keyboards
   programs.zapp.enable = true;
-
-  # authKeyFile is not supported by the nix-darwin Tailscale module;
-  # authenticate darwin hosts manually with: sudo tailscale up --authkey <key>
-  services.tailscale.enable = true;
 
   # NTP — sync from porkchop over Tailscale. macOS timed does not support NTS and
   # only accepts a single server (set via systemsetup); porkchop still provides

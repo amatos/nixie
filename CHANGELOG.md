@@ -16,6 +16,14 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
 - `modules/common/packages.nix` — `alberth` added to `trusted-users`
 
+### Changed
+
+- `hosts/darwin/common-darwin.nix` — removed `tailscale-secrets.nix` import;
+  darwin hosts rely solely on the Homebrew `tailscale-app` cask, which
+  manages its own auth key without agenix
+- `modules/common/tailscale-secrets.nix` — updated comment to reflect the
+  module is NixOS-only
+
 ### Fixed
 
 - `modules/common/packages.nix` — `@admin` added to `trusted-users`; on
