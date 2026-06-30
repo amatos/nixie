@@ -64,13 +64,14 @@ modules/
     packages.nix                 # shared system packages + nixpkgs.config.allowUnfree
     secrets.nix                  # ragenix identity paths
     age-host-key.nix             # generates /etc/age/host-key on first activation
-    github-secrets.nix           # deploys GitHub SSH keys via ragenix
+    github-secrets.nix           # deploys GitHub SSH keys via ragenix (age.secrets only)
     certbot-secrets.nix          # deploys LuaDNS credentials via ragenix
   nixos/
     users.nix                    # NixOS user declarations
     home-manager.nix             # shared NixOS home-manager block
     certbot.nix                  # systemd timer, weekly + 1h random delay
     ghostty.nix                  # conditional on display server presence
+    github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only; darwin has no systemd)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
     certbot.nix                  # launchd daemon, Sunday 03:00
@@ -78,7 +79,8 @@ modules/
 home/alberth/
   default.nix                    # all shared home config (shells, git, gpg, tools, catppuccin)
   nvf.nix                        # neovim via nvf
-  codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH)
+  codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH,
+                                  # copyApps for TCC, OrbStack data location)
   darwintron.nix                 # darwin/darwintron overlay (pinentry-mac, ghostty)
   nixos.nix                      # NixOS overlay (pinentry-tty, open alias)
 ```
@@ -100,6 +102,12 @@ home/alberth/
 - **NixOS-only** → `modules/nixos/`
 - **darwin-only** → `modules/darwin/`
 - **User home config** → `home/alberth/` (platform-specific divergences go in the host overlay file)
+- darwin declares no `systemd` option namespace at all (no systemd on macOS). Gating a
+  `systemd.*` option's *value* with `lib.mkIf`/`lib.optionals pkgs.stdenv.isLinux` inside a
+  `modules/common/` file is not enough — the option *key* itself doesn't exist on darwin and
+  evaluation fails regardless of the value. Any `systemd.*` setting must live in
+  `modules/nixos/`, imported only from NixOS hosts (see `github-secrets-tmpfiles.nix`, split
+  out of `modules/common/github-secrets.nix` for this reason).
 
 ### flake.nix
 
@@ -137,6 +145,13 @@ home/alberth/
 - When migrating a cask to a nix package, leave the cask entry as a comment with a note of
   where it moved (`— moved to pkgs.X in path/to/file.nix`).
 - Fonts and apps with a nixpkgs equivalent should be in `home.packages`, not homebrew.
+- Some casks (e.g. `orbstack`) have no nix-darwin module to manage their config/data, but the
+  app's own data files can still be nix-managed: install via the cask in the host's
+  `default.nix`, then manage the app's config/data location declaratively in the host's
+  `home/alberth/<host>.nix` overlay (e.g. `home.file` for config files, an out-of-store
+  symlink for relocating data to another volume). See `hosts/darwin/codex/default.nix`
+  (OrbStack cask + `ContainerData` APFS volume activation script) and `home/alberth/codex.nix`
+  (Docker daemon config + Group Container symlink) for the pattern.
 
 ### home-manager host overlays
 

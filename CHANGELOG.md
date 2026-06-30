@@ -28,10 +28,37 @@ All notable changes to this project will be documented in this file.
 - `CLAUDE.md` — "Nix daemon settings (Determinate)" section documenting
   that `nix.settings` is NixOS-only under Determinate Nix and darwin hosts
   must use `determinateNix.customSettings` instead
+- `hosts/darwin/codex/default.nix` — `system.activationScripts.containerDataVolume`
+  creates the `ContainerData` APFS volume on `disk3` (idempotent via
+  `diskutil info`) backing OrbStack's data directory
+- `modules/nixos/github-secrets-tmpfiles.nix` — NixOS-only module holding the
+  `systemd.tmpfiles.rules` entry that pre-creates `~/.ssh`, split out of
+  `modules/common/github-secrets.nix`
+- `CLAUDE.md` — "Module placement" gotcha documenting that darwin has no
+  `systemd` option namespace at all, so `systemd.*` options can't live in
+  `modules/common/` even when their value is platform-gated; and a Homebrew
+  pattern note for casks with no nix-darwin module (install via cask,
+  manage config/data via nix), referencing the OrbStack setup
 
 ### Changed
 
-- `hosts/darwin/codex/default.nix` — OrbStack configuration added
+- `hosts/darwin/codex/default.nix` — OrbStack: dropped the `programs.orbstack`
+  block (that option doesn't exist in this nix-darwin pin, so it never
+  actually evaluated); OrbStack is now installed solely via the existing
+  Homebrew cask, with data/config managed declaratively (see Added above and
+  the `home/alberth/codex.nix` entry below)
+- `home/alberth/codex.nix` — reworked: `targets.darwin.copyApps` enabled
+  (real app copies in `~/Applications/Home Manager Apps/` instead of
+  `/nix/store` symlinks, so macOS TCC camera/mic/screen-recording grants
+  persist across rebuilds); `manual.manpages.enable = false` workaround for
+  a home-manager `options.json` warning; `programs.ssh.settings` and
+  `programs.ghostty` merged under one `programs = { ... }` block;
+  `home.activation.prependSSHInclude`/`syncthingConfig` moved under
+  `home.activation`; added OrbStack Docker daemon config
+  (`.orbstack/config/docker.json`: log rotation, build-cache GC) and a
+  `Library/Group Containers/HUAQ24HBR6.dev.orbstack` out-of-store symlink
+  pointing at the `ContainerData` volume; `CONTAINER_DATA` session variable
+  added
 - `hosts/darwin/common-darwin.nix` — removed `tailscale-secrets.nix` import;
   darwin hosts rely solely on the Homebrew `tailscale-app` cask, which
   manages its own auth key without agenix
@@ -56,6 +83,18 @@ All notable changes to this project will be documented in this file.
   pre-create `~/.ssh` as the primary user on NixOS; agenix (running as
   root) was creating the directory as root, blocking home-manager from
   writing `~/.ssh/config`
+- `modules/common/github-secrets.nix` — the `systemd.tmpfiles.rules` fix
+  above broke every darwin host (`error: The option 'systemd' does not
+  exist`); nix-darwin declares no `systemd` option namespace, so gating the
+  rule's *value* with `lib.optionals pkgs.stdenv.isLinux` wasn't enough —
+  the option *key* still got merged into the darwin module tree. Moved the
+  rule out to the new `modules/nixos/github-secrets-tmpfiles.nix` (imported
+  only by NixOS hosts); `modules/common/github-secrets.nix` is back to
+  pure cross-platform `age.secrets` deployment. (An intermediate fix using
+  `lib.optionalAttrs pkgs.stdenv.isLinux { ... } // { ... }` at the module's
+  top level was tried and discarded — it forces `pkgs` during module
+  merging before `config` is settled and caused an infinite-recursion error
+  on every host, darwin and NixOS alike.)
 - `hosts/darwin/common-darwin.nix` — darwin's `nix.settings.trusted-users`
   (set in `modules/common/packages.nix`) never actually took effect; under
   Determinate Nix, `nix.enable` is forced `false` on darwin so nix-darwin

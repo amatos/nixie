@@ -1,8 +1,5 @@
 {
   pkgs,
-  nvf,
-  catppuccin-bat,
-  catppuccin,
   keytabs-matos-cc,
   ...
 }:
@@ -24,6 +21,18 @@ in
 
   # Darwin-specific system packages
   environment.systemPackages = [ pkgs.dockutil ];
+
+  # Dedicated APFS volume backing OrbStack's container data (Docker images,
+  # volumes, Linux VMs) — see home/alberth/codex.nix for the Group Container
+  # symlink that points at it and the Docker daemon config. disk3 is codex's
+  # internal APFS container; re-check with `diskutil apfs list` if the
+  # physical disk layout ever changes.
+  system.activationScripts.containerDataVolume.text = ''
+    if ! diskutil info "ContainerData" >/dev/null 2>&1; then
+      echo "creating ContainerData APFS volume..." >&2
+      diskutil apfs addVolume disk3 APFS ContainerData
+    fi
+  '';
 
   # nix-homebrew — manages the Homebrew installation itself
   nix-homebrew = {
@@ -154,31 +163,4 @@ in
   };
 
   nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-codex.age";
-
-  programs.orbstack = {
-    # --- OrbStack ---
-    # Container runtime as system-level application
-    # - System-wide installation via nix-darwin
-    # - Dedicated APFS volume for data storage
-    # - Data symlink configured in home.nix using mkOutOfStoreSymlink
-    #
-    # NOTE: package.enable = true installs OrbStack system-wide
-    # TCC permissions (Docker/Linux VM access) may need re-granting after rebuilds
-    # For TCC stability, set package.enable = false and add to home.packages instead
-    enable = true;
-    # package.enable = false: OrbStack is installed via Homebrew cask (greedy = true)
-    # in modules/darwin/homebrew.nix. Homebrew installs to /Applications/ as a real
-    # copy, so TCC permissions (Docker socket, Linux VM) persist across darwin-rebuild.
-    # Previously, nixpkgs installed a symlink to a /nix/store path that changes on
-    # every rebuild, forcing TCC re-granting each time.
-    package.enable = false;
-    # orb start exits 0 in <1s; KeepAlive=true was throttle-respawning it into
-    # a runningboardd assertion flood. OrbStack.app manages its own startup.
-    background.enable = false;
-    dataVolume = {
-      enable = true;
-      name = "ContainerData";
-      apfsContainer = "disk3"; # Find with: diskutil apfs list
-    };
-  };
 }

@@ -22,6 +22,7 @@ in
     ../../modules/nixos/agenix-fix.nix
     ../../modules/nixos/default-password.nix
     ../../modules/nixos/sudo.nix
+    ../../modules/nixos/github-secrets-tmpfiles.nix
     ../../modules/common/packages.nix
     ../../modules/common/age-host-key.nix
     ../../modules/common/secrets.nix
