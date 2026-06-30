@@ -7,7 +7,7 @@
 #      and update the imports reference below.
 #   4. Add a darwinConfigurations entry in flake.nix (copy the codex block).
 #   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
-#      corresponding age-encrypted secret to nix-secrets.
+#      corresponding age-encrypted secret to keytabs-matos-cc.
 {
   pkgs,
   ...

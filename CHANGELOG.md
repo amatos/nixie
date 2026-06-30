@@ -15,6 +15,13 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/porkchop/` — `home/alberth/porkchop.nix` added
 - `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
 - `modules/common/packages.nix` — `alberth` added to `trusted-users`
+- `flake.nix` — `keytabs-matos-cc` flake input added
+  (`github:amatos/keytabs-matos-cc`, `flake = false`); threaded through
+  `outputs` and `sharedSpecialArgs` alongside `nix-secrets`
+- `CLAUDE.md` — "Wiring an external secrets repo into nixie" runbook
+  documenting the add-input/thread-specialArgs/reference-file pattern, and
+  an explicit text-vs-binary split rule for `nix-secrets` vs
+  `keytabs-matos-cc`
 
 ### Changed
 
@@ -23,6 +30,18 @@ All notable changes to this project will be documented in this file.
   manages its own auth key without agenix
 - `modules/common/tailscale-secrets.nix` — updated comment to reflect the
   module is NixOS-only
+- `hosts/darwin/codex/default.nix`, `hosts/nixos/gammu/default.nix`,
+  `hosts/nixos/porkchop/default.nix` — Kerberos keytab references
+  (`nixie.krb5.keytabFile`, `saslKeytabFile`) repointed from
+  `${nix-secrets}` to `${keytabs-matos-cc}`, now that keytabs live in a
+  dedicated repo; unused `nix-secrets` function args removed where the
+  keytab was the only consumer in that file
+- `modules/common/krb5-client.nix` — option doc/comments updated to
+  reference `keytabs-matos-cc` instead of `nix-secrets`
+- `hosts/nixos/{huginn,sirloin,picanha,template-nixos}/default.nix`,
+  `hosts/darwin/template-darwin/default.nix` — "add a keytab" bootstrap
+  comment updated to point at `keytabs-matos-cc`
+- `flake.lock` — updated to pin the new `keytabs-matos-cc` input
 
 ### Fixed
 

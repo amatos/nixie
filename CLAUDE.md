@@ -9,8 +9,9 @@ It uses Determinate Nix and is driven exclusively by flakes — no `nix-env`, no
 ragenix (age-encrypted secrets via YubiKey), nvf (declarative neovim),
 catppuccin/nix (theming), nix-homebrew (declarative Homebrew on darwin).
 
-**Secrets** live in a separate non-flake repo (`github:amatos/nix-secrets`, `flake = false`)
-and are referenced as `nix-secrets` in specialArgs.
+**Secrets** live in separate non-flake repos (`flake = false`) and are referenced via
+specialArgs: text/token secrets in `github:amatos/nix-secrets` (input `nix-secrets`),
+binary Kerberos keytabs in `github:amatos/keytabs-matos-cc` (input `keytabs-matos-cc`).
 
 ---
 
@@ -47,7 +48,6 @@ and add an entry to `darwinConfigurations` in `flake.nix`. Create a matching
 ```text
 flake.nix                        # inputs, sharedSpecialArgs, host wiring
 users.nix                        # single source of truth for all users
-secrets/secrets.nix              # ragenix recipient definitions
 
 hosts/
   darwin/
@@ -103,7 +103,8 @@ home/alberth/
 
 ### flake.nix
 
-- All hosts share `sharedSpecialArgs = { inherit self nix-secrets nvf catppuccin-bat catppuccin; }`.
+- All hosts share
+  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf catppuccin-bat catppuccin; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Packages
@@ -130,9 +131,35 @@ home/alberth/
 
 ### Secrets
 
-- All secrets are age-encrypted via ragenix. Recipient lists are in `secrets/secrets.nix`.
+- All secrets are age-encrypted via ragenix. Recipient lists live in the external secrets
+  repos' own `secrets.nix` (`nix-secrets` or `keytabs-matos-cc`), not in nixie itself.
 - Secrets are deployed to known paths by modules in `modules/common/` or platform modules.
 - The YubiKey identity stub and host key paths are configured in `modules/common/secrets.nix`.
+- **Text secrets** (SSH keys, tokens, passwords, `.ini` credentials) go in `nix-secrets`.
+- **Binary secrets** (e.g. Kerberos keytabs) go in their own dedicated repo
+  (`keytabs-matos-cc`) — git diffs binary files poorly and they don't share the
+  plaintext-editing workflow of the secrets above. Never add a binary secret to
+  `nix-secrets`; if a new binary secret type is needed, create a new repo for it
+  following the `keytabs-matos-cc` pattern rather than mixing it into an existing repo.
+
+#### Wiring an external secrets repo into nixie
+
+When a secrets repo (`nix-secrets`, `keytabs-matos-cc`, or a new one) gains a file that a
+host needs to consume:
+
+1. If the repo is not yet a flake input, add it in `flake.nix`:
+   `<name> = { url = "github:amatos/<repo>"; flake = false; };` (plain git repo, not a flake).
+2. Thread `<name>` through the `outputs` function arguments and add it to `sharedSpecialArgs`.
+3. Reference the file from the consuming host/module as `"${<name>}/<file>"` — e.g.
+   `nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-codex.age";`.
+4. Only declare `<name>` in a file's function args if that file actually uses it — remove
+   unused specialArgs args rather than leaving dead ones around.
+5. Update the `hosts/*/template-*` skeleton comments if the new pattern applies to future hosts.
+6. Run `nix flake lock --update-input <name>` to pick up the input, then verify with
+   `nix eval .#<darwinConfigurations|nixosConfigurations>.<host>.config.<option>` before
+   committing — confirms the path resolves into the new input's store path.
+7. Update the secrets repo's own `README.md` (recipients table, secrets table) — see that
+   repo's `CLAUDE.md` for its conventions.
 
 ### Theming
 

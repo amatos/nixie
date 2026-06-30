@@ -477,6 +477,22 @@
         "type": "github"
       }
     },
+    "keytabs-matos-cc": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782826502,
+        "narHash": "sha256-8pE2NCI7VgGZbcWXdn3HtyBqSFgij3jtJtY2y+ndjdU=",
+        "owner": "amatos",
+        "repo": "keytabs-matos-cc",
+        "rev": "7aa7a979e6ecc1a3ecf6b6601d79e12f0793169c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amatos",
+        "repo": "keytabs-matos-cc",
+        "type": "github"
+      }
+    },
     "mnw": {
       "locked": {
         "lastModified": 1780772958,
@@ -751,6 +767,7 @@
         "catppuccin-bat": "catppuccin-bat",
         "determinate": "determinate",
         "home-manager": "home-manager",
+        "keytabs-matos-cc": "keytabs-matos-cc",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nix-kerberos-ldap": "nix-kerberos-ldap",

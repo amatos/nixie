@@ -1,4 +1,4 @@
-{ lib, nix-secrets, ... }:
+{ lib, keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -80,5 +80,5 @@ in
     syncthingDeploy = true;
   };
 
-  nixie.krb5.keytabFile = "${nix-secrets}/keytab-gammu.age";
+  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-gammu.age";
 }

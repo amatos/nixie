@@ -29,6 +29,11 @@
       flake = false; # plain git repo, not a flake
     };
 
+    keytabs-matos-cc = {
+      url = "github:amatos/keytabs-matos-cc";
+      flake = false; # plain git repo, not a flake
+    };
+
     nvf = {
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -74,6 +79,7 @@
       home-manager,
       ragenix,
       nix-secrets,
+      keytabs-matos-cc,
       nvf,
       catppuccin-bat,
       catppuccin,
@@ -101,6 +107,7 @@
         inherit
           self
           nix-secrets
+          keytabs-matos-cc
           nvf
           catppuccin-bat
           catppuccin

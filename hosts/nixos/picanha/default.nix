@@ -8,7 +8,7 @@
 #   3. Set networking.hostName below.
 #   4. Add a nixosConfigurations entry in flake.nix (copy the gammu block).
 #   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
-#      corresponding age-encrypted secret to nix-secrets.
+#      corresponding age-encrypted secret to keytabs-matos-cc.
 #   6. If host-specific home settings are needed, create
 #      home/alberth/<hostname>.nix and wire it in below.
 { ... }:

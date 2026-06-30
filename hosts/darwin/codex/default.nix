@@ -3,7 +3,7 @@
   nvf,
   catppuccin-bat,
   catppuccin,
-  nix-secrets,
+  keytabs-matos-cc,
   ...
 }:
 
@@ -153,5 +153,5 @@ in
     syncthingDeploy = true; # copy renewed cert to syncthing and restart on renewal
   };
 
-  nixie.krb5.keytabFile = "${nix-secrets}/keytab-codex.age";
+  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-codex.age";
 }

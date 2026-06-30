@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  nix-secrets,
+  keytabs-matos-cc,
   ...
 }:
 
@@ -174,7 +174,7 @@ in
     # saslHost: must match the hostname component of the ldap/ principal.
     # saslAuthzRegexp: maps alberth@MATOS.CC to the LDAP rootDN so
     #   ldapwhoami/ldapsearch/ldapmodify work with a valid TGT.
-    saslKeytabFile = "${nix-secrets}/keytab-ldap-porkchop.age";
+    saslKeytabFile = "${keytabs-matos-cc}/keytab-ldap-porkchop.age";
     saslHost = "porkchop.ts.matos.cc";
     saslAuthzRegexp = [
       "{0}uid=alberth,cn=[^,]*,cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
@@ -199,7 +199,7 @@ in
     krb5Package = krb5WithLdap;
   };
 
-  nixie.krb5.keytabFile = "${nix-secrets}/keytab-porkchop.age";
+  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-porkchop.age";
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
