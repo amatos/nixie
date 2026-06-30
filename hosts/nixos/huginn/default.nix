@@ -1,17 +1,4 @@
-# Template for new NixOS hosts based on the gammu layout.
-#
-# To provision a new NixOS host:
-#   1. cp -r hosts/nixos/template-nixos hosts/nixos/<hostname>
-#   2. Replace hardware-configuration.nix with the output of:
-#        nixos-generate-config --show-hardware-config
-#      (run on the target machine after booting the installer ISO).
-#   3. Set networking.hostName below.
-#   4. Add a nixosConfigurations entry in flake.nix (copy the gammu block).
-#   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
-#      corresponding age-encrypted secret to keytabs-matos-cc.
-#   6. If host-specific home settings are needed, create
-#      home/alberth/<hostname>.nix and wire it in below.
-{ ... }:
+{ keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -26,8 +13,17 @@ in
   networking.hostName = "huginn";
 
   # Firewall — SSH (22) is already opened by common-nixos.nix.
-  # Add host-specific ports here.
-  networking.firewall.enable = true;
+  # Restrict SSH and Syncthing GUI to the local subnet;
+  # Syncthing sync protocol (22000) open globally for peer connectivity
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 22000 ];
+    allowedUDPPorts = [ 22000 ];
+    extraInputRules = ''
+      ip  saddr 10.0.4.0/22 tcp dport 8384 accept
+      ip6 nexthdr tcp tcp dport 8384 accept
+    '';
+  };
 
   # Host-specific home overlay — uncomment and create the file if needed.
   # The NixOS common overlay (home/alberth/nixos.nix) is already applied
@@ -35,5 +31,36 @@ in
   # are required for this specific host.
   home-manager.users.${primaryUser} = {
     imports = [ ../../../home/alberth/huginn.nix ];
+  };
+
+  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-huginn.age";
+
+  # Certbot — certificates via LuaDNS DNS-01 challenge
+  nixie.certbot = {
+    enable = true;
+    domains = [
+      [
+        "huginn.home.matos.cc"
+        "huginn.ts.matos.cc"
+      ]
+    ];
+    syncthingDeploy = true;
+  };
+
+  # Syncthing — runs as a systemd service, syncs to the primary user's home.
+  # GUI password is managed via syncthing-password.nix (ragenix secret).
+  services.syncthing = {
+    settings.gui.user = "syncthing";
+    enable = true;
+    user = primaryUser;
+    dataDir = "/home/${primaryUser}";
+    guiAddress = "[::]:8384";
+    overrideDevices = false;
+    overrideFolders = false;
+    settings.gui.address = "[::]:8384";
+    settings.options.listenAddresses = [
+      "tcp://0.0.0.0:22000"
+      "quic://0.0.0.0:22000"
+    ];
   };
 }
