@@ -9,10 +9,13 @@ All notable changes to this project will be documented in this file.
 - `hosts/darwin/codex/default.nix` - added claude-code cask
 - `hosts/nixos/picanha/` — `home/alberth/picanha.nix` added
 - `hosts/nixos/sirloin/` — `home/alberth/sirloin.nix` added
-- `home/alberth/picanha.nix` — Gammu-specific home-manager settings for alberth
+- `hosts/nixos/huginn/` — `home/alberth/huginn.nix` added
+- `home/alberth/picanha.nix` — home-manager settings for alberth
   on the picanha host
-- `home/alberth/sirloin.nix` — Gammu-specific home-manager settings for alberth
+- `home/alberth/sirloin.nix` — home-manager settings for alberth
   on the sirloin host
+- `home/alberth/huginn.nix` — home-manager settings for alberth
+  on the huginn host
 
 ### Fixed
 

@@ -10,6 +10,8 @@ Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, a
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | Development & Testing VM |
 | `nixostron` | NixOS | aarch64-linux | Virtual | Development & Testing VM |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
+| `porkchop` | NixOS | x86_64-linux | Physical | SMTP smart relay, ldap server, Kerberos KDC |
+| `huginn` | NixOS | x86_64-linux | Physical | misc |
 
 Hosts whose names end in `tron` are virtual machines.
 
