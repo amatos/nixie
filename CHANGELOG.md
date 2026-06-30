@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/darwin/codex/default.nix` — OrbStack configuration added
 - `hosts/darwin/common-darwin.nix` — removed `tailscale-secrets.nix` import;
   darwin hosts rely solely on the Homebrew `tailscale-app` cask, which
   manages its own auth key without agenix
