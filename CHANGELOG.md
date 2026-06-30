@@ -39,6 +39,15 @@ All notable changes to this project will be documented in this file.
   `modules/common/` even when their value is platform-gated; and a Homebrew
   pattern note for casks with no nix-darwin module (install via cask,
   manage config/data via nix), referencing the OrbStack setup
+- `CLAUDE.md` — "darwin activation scripts" section documenting that
+  nix-darwin's `/activate` only runs a fixed, hardcoded list of named
+  stages, so arbitrary `system.activationScripts.<name>` keys are silently
+  never run; use `extraActivation`/`postActivation` instead, and how to
+  verify a script actually made it into the built activation script
+- `hosts/darwin/codex/default.nix` — added `claudebar` cask (menu bar app
+  for monitoring AI coding assistant usage quotas); replaces the earlier
+  `pkgs.claudebar` reference in `home/alberth/codex.nix`, which doesn't
+  exist in nixpkgs and was blocking `codex` from evaluating at all
 
 ### Changed
 
