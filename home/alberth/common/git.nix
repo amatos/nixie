@@ -1,4 +1,4 @@
-_:
+{ config, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -18,14 +18,19 @@ in
     ];
     settings = {
       user = {
-        name = "Alberth Matos";
+        name = user.description;
         inherit (user) email;
       };
       core = {
         editor = "nvim";
         autocrlf = "input";
+        whitespace = "trailing-space,space-before-tab"; # Highlight whitespace issues
+        hooksPath = "${config.home.homeDirectory}/.config/git/template/hooks"; # Global hooks for ALL repos
       };
-      init.defaultBranch = "main";
+      init = {
+        defaultBranch = "main";
+        templateDir = "${config.home.homeDirectory}/.config/git/template/repo";
+      };
       commit.gpgSign = true;
       tag.gpgSign = true;
       pull.rebase = true;
@@ -33,6 +38,16 @@ in
       push.autoSetupRemote = true;
       maintenance.auto = true;
       maintenance.strategy = "incremental";
+      # Fetch behavior
+      fetch = {
+        prune = true; # Auto-remove deleted remote branches
+        pruneTags = true; # Auto-remove deleted remote tags
+      };
+      diff = {
+        algorithm = "histogram"; # Better diff algorithm than default
+        colorMoved = "default"; # Highlight moved lines in different color
+        mnemonicPrefix = true; # Use i/w/c/o instead of a/b in diffs
+      };
     };
   };
 

@@ -4,7 +4,7 @@
 
 {
   imports = [
-    ./ghostty.nix
+    ./darwin
   ];
 
   # GPG agent — use pinentry-mac for native macOS Keychain / Touch ID prompts.

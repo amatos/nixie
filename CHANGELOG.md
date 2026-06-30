@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings` adds
+  `trusted-users`: `root`, `alberth`, `@admin`, `@staff`
+- `home/alberth/darwin/` — new darwin home-manager overlay modules:
+  - `finder.nix` — Finder preferences (extensions, search scope, Trash)
+  - `ghostty.nix` — Ghostty settings (moved from top-level `ghostty.nix`)
+  - `homebrew.nix` — Homebrew config; casks with `greedy = true`; masApps;
+    `homebrew/autoupdate` tap; brew autoupdate LaunchAgent via `postActivation`
+  - `keyboard.nix` — key repeat and keyboard navigation settings
+  - `system-ui.nix` — NSGlobalDomain appearance, menu bar clock,
+    screensaver, control center, screenshots config
+  - `trackpad.nix` — trackpad click, scrolling, force-touch settings
+  - `dock/default.nix` — Dock autohide, size, hot corners, gestures
+  - `dock/persistent-apps.nix` — persistent Dock application list
+- `home/alberth/scripts/configure-brew-autoupdate.sh` — shell script to
+  configure brew autoupdate LaunchAgent on each `darwin-rebuild switch`
+
+### Changed
+
+- `home/alberth/common/` — renamed from `home/alberth/modules/`
+- `home/alberth/codex.nix`, `darwintron.nix`, `template-darwin.nix` —
+  import `./darwin`; stale `./ghostty.nix` import removed
+- `hosts/darwin/codex/default.nix` — `homebrew` block moved to
+  `home/alberth/darwin/homebrew.nix`
+
+### Removed
+
+- `home/alberth/ghostty.nix` — moved to `home/alberth/darwin/ghostty.nix`
+
 ## 26.06.09
 
 ### Added

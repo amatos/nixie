@@ -14,14 +14,14 @@ in
     ./chezmoi.nix
     ./devenv.nix
     ./starship.nix
-    ./modules/cachix.nix
-    ./modules/git.nix
-    ./modules/gpg.nix
-    ./modules/packages.nix
-    ./modules/shells.nix
-    ./modules/ssh.nix
-    ./modules/theming.nix
-    ./modules/tools.nix
+    ./common/cachix.nix
+    ./common/git.nix
+    ./common/gpg.nix
+    ./common/packages.nix
+    ./common/shells.nix
+    ./common/ssh.nix
+    ./common/theming.nix
+    ./common/tools.nix
   ];
 
   home.username = primaryUser;
