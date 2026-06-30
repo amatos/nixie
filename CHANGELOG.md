@@ -22,6 +22,11 @@ All notable changes to this project will be documented in this file.
   documenting the add-input/thread-specialArgs/reference-file pattern, and
   an explicit text-vs-binary split rule for `nix-secrets` vs
   `keytabs-matos-cc`
+- `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings.trusted-users`
+  added (`root`, `alberth`, `@admin`, `@staff`)
+- `CLAUDE.md` — "Nix daemon settings (Determinate)" section documenting
+  that `nix.settings` is NixOS-only under Determinate Nix and darwin hosts
+  must use `determinateNix.customSettings` instead
 
 ### Changed
 
@@ -45,6 +50,15 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `hosts/darwin/common-darwin.nix` — darwin's `nix.settings.trusted-users`
+  (set in `modules/common/packages.nix`) never actually took effect; under
+  Determinate Nix, `nix.enable` is forced `false` on darwin so nix-darwin
+  never writes `/etc/nix/nix.conf`, silently dropping the setting (NixOS is
+  unaffected — Determinate redirects its generated `nix.conf` into
+  `nix.custom.conf`). `determinateNix.customSettings.trusted-users` is the
+  correct mechanism on darwin and writes directly to `nix.custom.conf`;
+  fixes "ignoring untrusted substituter" / "ignoring the client-specified
+  setting 'trusted-public-keys'" warnings on codex
 - `modules/common/packages.nix` — `@admin` added to `trusted-users`; on
   macOS admin users are in the `admin` group, not `wheel`, so `@wheel`
   alone does not trust them and flake `nixConfig` substituters are ignored

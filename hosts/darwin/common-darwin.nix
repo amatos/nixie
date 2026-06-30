@@ -31,6 +31,20 @@ in
   # Primary user — required by options that run under the user context (e.g. homebrew)
   system.primaryUser = primaryUser;
 
+  # Determinate Nix forces nix.enable = false on darwin, so nix-darwin never
+  # writes /etc/nix/nix.conf — the nix.settings.trusted-users block in
+  # modules/common/packages.nix is silently dropped here (it only takes
+  # effect on NixOS, where Determinate redirects the generated nix.conf into
+  # nix.custom.conf automatically). On darwin, custom settings must go
+  # through determinateNix.customSettings instead, which Determinate Nixd
+  # writes to /etc/nix/nix.custom.conf directly.
+  determinateNix.customSettings.trusted-users = [
+    "root"
+    primaryUser
+    "@admin" # admin users
+    "@staff" # all local user accounts
+  ];
+
   # Allow Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
 

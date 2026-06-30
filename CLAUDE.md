@@ -107,6 +107,23 @@ home/alberth/
   `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf catppuccin-bat catppuccin; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
+### Nix daemon settings (Determinate)
+
+- Every host uses Determinate Nix (`determinate.darwinModules.default` /
+  `determinate.nixosModules.default`), which manages `/etc/nix/nix.conf`
+  itself and expects custom settings in `/etc/nix/nix.custom.conf` instead.
+- **NixOS**: the standard `nix.settings` (e.g. in `modules/common/packages.nix`)
+  works as expected — Determinate's NixOS module redirects the normal
+  generated `nix.conf` straight into `nix.custom.conf`.
+- **darwin**: Determinate forces `nix.enable = false`, so nix-darwin never
+  writes `/etc/nix/nix.conf` at all — anything set via `nix.settings` is
+  silently dropped (this is why a plain `nix.settings.trusted-users` entry
+  doesn't take effect on codex). Use `determinateNix.customSettings` instead
+  (see `hosts/darwin/common-darwin.nix`); it maps directly onto
+  `/etc/nix/nix.custom.conf`. Verify with:
+  `nix eval .#darwinConfigurations.<host>.config.determinateNix.customSettings.trusted-users`
+  or by building the system and inspecting `<closure>/etc/nix/nix.custom.conf`.
+
 ### Packages
 
 - User-facing apps and fonts → `home.packages` in `home/alberth/default.nix`
