@@ -8,27 +8,31 @@ All notable changes to this project will be documented in this file.
 
 - `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings` adds
   `trusted-users`: `root`, `alberth`, `@admin`, `@staff`
-- `home/alberth/darwin/` — new darwin home-manager overlay modules:
+- `home/alberth/darwin/` — darwin home-manager overlay (ghostty settings
+  only; moved from top-level `ghostty.nix`)
+- `home/alberth/scripts/configure-brew-autoupdate.sh` — shell script to
+  configure brew autoupdate LaunchAgent on each `darwin-rebuild switch`
+- `modules/darwin/macos-defaults/` — declarative macOS system defaults
+  (all darwin hosts via `common-darwin.nix`):
   - `finder.nix` — Finder preferences (extensions, search scope, Trash)
-  - `ghostty.nix` — Ghostty settings (moved from top-level `ghostty.nix`)
-  - `homebrew.nix` — Homebrew config; casks with `greedy = true`; masApps;
-    `homebrew/autoupdate` tap; brew autoupdate LaunchAgent via `postActivation`
   - `keyboard.nix` — key repeat and keyboard navigation settings
   - `system-ui.nix` — NSGlobalDomain appearance, menu bar clock,
     screensaver, control center, screenshots config
   - `trackpad.nix` — trackpad click, scrolling, force-touch settings
   - `dock/default.nix` — Dock autohide, size, hot corners, gestures
   - `dock/persistent-apps.nix` — persistent Dock application list
-- `home/alberth/scripts/configure-brew-autoupdate.sh` — shell script to
-  configure brew autoupdate LaunchAgent on each `darwin-rebuild switch`
+- `hosts/darwin/codex/homebrew.nix` — Homebrew config (codex-specific);
+  casks with `greedy = true`; masApps; `homebrew/autoupdate` tap;
+  brew autoupdate LaunchAgent via `postActivation`
 
 ### Changed
 
 - `home/alberth/common/` — renamed from `home/alberth/modules/`
 - `home/alberth/codex.nix`, `darwintron.nix`, `template-darwin.nix` —
   import `./darwin`; stale `./ghostty.nix` import removed
-- `hosts/darwin/codex/default.nix` — `homebrew` block moved to
-  `home/alberth/darwin/homebrew.nix`
+- `hosts/darwin/common-darwin.nix` — imports `modules/darwin/macos-defaults`
+- `hosts/darwin/codex/default.nix` — imports `./homebrew.nix`; old inline
+  `homebrew` block removed
 
 ### Removed
 

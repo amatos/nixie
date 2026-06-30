@@ -13,6 +13,7 @@ in
   imports = [
     ../common-darwin.nix
     ../../../modules/darwin/certbot.nix
+    ./homebrew.nix
     ../../../modules/darwin/syncthing-password.nix
     ../../../modules/common/certbot-secrets.nix
   ];

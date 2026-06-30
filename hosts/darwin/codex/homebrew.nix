@@ -44,7 +44,7 @@ let
   configureBrewAutoupdateScript = pkgs.writeShellApplication {
     name = "configure-brew-autoupdate";
     runtimeInputs = [ ];
-    text = builtins.readFile .././scripts/configure-brew-autoupdate.sh;
+    text = builtins.readFile ../../../home/alberth/scripts/configure-brew-autoupdate.sh;
   };
 in
 {
