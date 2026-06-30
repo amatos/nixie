@@ -109,6 +109,24 @@ home/alberth/
   `modules/nixos/`, imported only from NixOS hosts (see `github-secrets-tmpfiles.nix`, split
   out of `modules/common/github-secrets.nix` for this reason).
 
+### darwin activation scripts
+
+- Unlike NixOS, nix-darwin's `/activate` script is assembled from a **fixed, hardcoded list**
+  of named stages (`preActivation`, `groups`, `users`, `applications`, ..., `homebrew`,
+  `postActivation` — see upstream `modules/system/activation-scripts.nix`). Defining
+  `system.activationScripts.<your-own-name>.text` is accepted by the module system and
+  evaluates fine, but is **silently never run** — it isn't one of the names the fixed script
+  concatenates. This bit both the OrbStack `ContainerData` volume script and the long-standing
+  `ntp` script in `hosts/darwin/common-darwin.nix`.
+- Use `system.activationScripts.extraActivation.text = lib.mkAfter "..."` instead — it's
+  nix-darwin's supported extension point and runs early (before `homebrew` and home-manager
+  activation). `postActivation` (runs last, after `homebrew`) is the other valid hook if
+  ordering after Homebrew/home-manager matters.
+- To verify a darwin activation script actually ran, don't trust that `darwin-rebuild switch`
+  succeeded — check the *content*:
+  `nix eval --raw .#darwinConfigurations.<host>.config.system.activationScripts.script.text | grep <marker>`
+  must find it, and so must `grep <marker> /run/current-system/activate` after switching.
+
 ### flake.nix
 
 - All hosts share

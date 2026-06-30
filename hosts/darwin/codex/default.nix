@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   keytabs-matos-cc,
   ...
 }:
@@ -27,7 +28,12 @@ in
   # symlink that points at it and the Docker daemon config. disk3 is codex's
   # internal APFS container; re-check with `diskutil apfs list` if the
   # physical disk layout ever changes.
-  system.activationScripts.containerDataVolume.text = ''
+  #
+  # nix-darwin's /activate script is assembled from a fixed list of named
+  # stages (see modules/system/activation-scripts.nix upstream) — arbitrary
+  # custom activationScripts.<name> keys are silently never run. extraActivation
+  # is the supported extension point and runs early, before homebrew/home-manager.
+  system.activationScripts.extraActivation.text = lib.mkAfter ''
     if ! diskutil info "ContainerData" >/dev/null 2>&1; then
       echo "creating ContainerData APFS volume..." >&2
       diskutil apfs addVolume disk3 APFS ContainerData

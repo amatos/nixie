@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file.
 - `CLAUDE.md` — "Nix daemon settings (Determinate)" section documenting
   that `nix.settings` is NixOS-only under Determinate Nix and darwin hosts
   must use `determinateNix.customSettings` instead
-- `hosts/darwin/codex/default.nix` — `system.activationScripts.containerDataVolume`
+- `hosts/darwin/codex/default.nix` — `system.activationScripts.extraActivation`
   creates the `ContainerData` APFS volume on `disk3` (idempotent via
   `diskutil info`) backing OrbStack's data directory
 - `modules/nixos/github-secrets-tmpfiles.nix` — NixOS-only module holding the
@@ -95,6 +95,21 @@ All notable changes to this project will be documented in this file.
   top level was tried and discarded — it forces `pkgs` during module
   merging before `config` is settled and caused an infinite-recursion error
   on every host, darwin and NixOS alike.)
+- `hosts/darwin/codex/default.nix`, `hosts/darwin/common-darwin.nix` — the
+  `ContainerData`-volume script and the `ntp` activation script both
+  silently never ran on darwin: nix-darwin's `/activate` is assembled from
+  a fixed, hardcoded list of named stages (`groups`, `users`, `applications`,
+  `homebrew`, `postActivation`, etc. — see upstream
+  `modules/system/activation-scripts.nix`), unlike NixOS where
+  `system.activationScripts.<name>` entries are collected generically.
+  Custom names outside that list (`containerDataVolume`, `ntp`) are
+  evaluated as options but never concatenated into the built script.
+  Verified by diffing `nix eval .#darwinConfigurations.codex.config.system.activationScripts.script.text`
+  against the actually-built `/activate` — neither script appeared in
+  either, even though the system had genuinely rebuilt from current `HEAD`.
+  Both moved onto `system.activationScripts.extraActivation.text` (via
+  `lib.mkAfter`), nix-darwin's supported extension point, which runs early
+  — before `homebrew` and home-manager activation
 - `hosts/darwin/common-darwin.nix` — darwin's `nix.settings.trusted-users`
   (set in `modules/common/packages.nix`) never actually took effect; under
   Determinate Nix, `nix.enable` is forced `false` on darwin so nix-darwin

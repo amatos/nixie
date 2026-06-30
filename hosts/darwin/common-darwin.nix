@@ -59,7 +59,13 @@ in
   # only accepts a single server (set via systemsetup); porkchop still provides
   # authenticated upstream sync. Tailscale hostname is preferred over LAN because
   # it is reachable from any network.
-  system.activationScripts.ntp.text = ''
+  #
+  # nix-darwin's /activate script is assembled from a fixed list of named
+  # stages (see modules/system/activation-scripts.nix upstream) — arbitrary
+  # custom activationScripts.<name> keys (like the old `ntp` key here) are
+  # evaluated but silently never run. extraActivation is the supported
+  # extension point.
+  system.activationScripts.extraActivation.text = lib.mkAfter ''
     echo "configuring NTP server..." >&2
     systemsetup -setnetworktimeserver "porkchop.ts.matos.cc" 2>/dev/null || true
     systemsetup -setusingnetworktime on 2>/dev/null || true
