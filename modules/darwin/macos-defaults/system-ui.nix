@@ -71,7 +71,7 @@ in
 
     # --- Screenshots ---
     screencapture = {
-      location = "/Users/${userConfig.user.name}/Pictures/Screenshots";
+      location = "/Users/${userConfig.primaryUser}/Pictures/Screenshots";
       type = "png"; # png, jpg, gif, pdf, tiff
       disable-shadow = true;
       include-date = true;

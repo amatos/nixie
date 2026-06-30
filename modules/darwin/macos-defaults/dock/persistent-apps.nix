@@ -17,8 +17,8 @@
 _:
 
 let
-  userDefs = import ../../users.nix;
-  homeDir = userDefs.primaryUser.homeDir;
+  userDefs = import ../../../../users.nix;
+  homeDir = "/Users/${userDefs.primaryUser}";
 in
 {
   system.defaults.dock = {
