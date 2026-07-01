@@ -57,7 +57,7 @@ hosts/
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
     nixostron/default.nix        # hostname only
-    gammu/default.nix            # hostname only
+    gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming
 
 modules/
   common/                        # cross-platform modules (NixOS + darwin)
@@ -223,6 +223,20 @@ host needs to consume:
 - Darwin: launchd daemon, runs Sunday 03:00.
 - NixOS: systemd timer, weekly cadence with 1h randomized delay and `Persistent = true`.
 - Both use `--keep-until-expiring` — safe to run frequently.
+
+### Gaming (Steam)
+
+- Steam config is host-specific, not a shared module — declared inline in the host's
+  `default.nix` (see `hosts/nixos/gammu/default.nix`), since only one host currently needs it.
+- Minimum required: `hardware.graphics.enable = true;` and `enable32Bit = true;` — without
+  32-bit graphics support Steam fails to start. `nixpkgs.config.allowUnfree` is already set
+  fleet-wide in `modules/common/packages.nix`, so no per-host unfree predicate is needed.
+- `programs.steam.enable = true` also implicitly enables `hardware.steam-hardware.enable`
+  (Steam Controller/Valve Index udev rules).
+- AMD GPUs need no extra driver packages — the default `radv` Vulkan driver (via
+  `hardware.graphics`) is used; do not add `amdvlk` unless a specific game requires it.
+- `programs.gamemode.enable` and `programs.gamescope.enable` are separate top-level options,
+  not sub-options of `programs.steam`.
 
 ---
 

@@ -31,7 +31,7 @@ hosts/
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
     nixostron/default.nix        # hostname only
-    gammu/default.nix            # hostname only
+    gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming
 
 modules/
   common/                        # cross-platform modules (NixOS + darwin)
@@ -198,3 +198,32 @@ sudo launchctl start org.nixie.certbot
 ### Certificate location
 
 `/etc/letsencrypt/live/<domain>/` on all hosts.
+
+## Gaming (Steam)
+
+Currently configured on `gammu` only (AMD GPU) — declared inline in its `default.nix`, not
+a shared module:
+
+```nix
+hardware.graphics = {
+  enable = true;
+  enable32Bit = true; # required or Steam fails to start
+};
+
+programs.steam = {
+  enable = true;
+  remotePlay.openFirewall = true;
+  dedicatedServer.openFirewall = true;
+  extraCompatPackages = with pkgs; [ proton-ge-bin ];
+  gamescopeSession.enable = true;
+};
+
+programs.gamemode.enable = true;
+programs.gamescope = {
+  enable = true;
+  capSysNice = true;
+};
+```
+
+Note: `gammu` has no display manager configured, so the gamescope session isn't reachable from
+a login screen — launch it manually from a TTY with `gamescope -- steam -gamepadui`.
