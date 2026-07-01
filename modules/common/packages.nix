@@ -32,6 +32,7 @@ in
       cachix # Nix binary cache hosting — push and use build artifacts
       rage # Rust implementation of age
       git
+      pre-commit
       inkscape # Vector graphics editor
       nh # Nix helper — nicer `nixos-rebuild` / `darwin-rebuild` / `home-manager` UX
     ]
