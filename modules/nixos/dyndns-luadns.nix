@@ -52,7 +52,7 @@ let
     # X-API-Key — no session cookie needed on UniFi OS consoles.
     # --insecure: the UDM's local HTTPS listener uses a self-signed cert on
     # the LAN; this is the standard way local tooling talks to it.
-    health=$(curl -fsS --insecure \
+    health=$(${pkgs.curl}/bin/curl -fsS --insecure \
       -H "X-API-Key: $unifiApiKey" \
       -H "Accept: application/json" \
       "https://${cfg.gatewayHost}/proxy/network/api/s/default/stat/health")
@@ -79,7 +79,7 @@ let
     # dyndns2 update — HTTPS only (LuaDNS does not support plain HTTP here).
     # No -f: dyndns2 servers report failures (badauth, abuse, 911, ...) as a
     # 200 response with a status body, not a non-2xx HTTP status.
-    response=$(curl -sS \
+    response=$(${pkgs.curl}/bin/curl -sS \
       -u "$luadnsEmail:$luadnsToken" \
       "https://app.luadns.com/nic/update?hostname=${cfg.hostname}&myip=$wanIp")
 

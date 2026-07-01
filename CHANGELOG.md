@@ -14,6 +14,14 @@ All notable changes to this project will be documented in this file.
   `unifi-api-key` secret (UniFi read-only API token) via ragenix
 - `hosts/nixos/porkchop/default.nix` — enables `nixie.dyndnsLuadns` for
   `home.matos.cc`, checking every 5 minutes
+- `modules/common/packages.nix` — `curl`, `jq` (fleet-wide; `curl` and `jq`
+  were missing system-wide, breaking `dyndns-luadns.service`)
+
+### Fixed
+
+- `modules/nixos/dyndns-luadns.nix` — use `${pkgs.curl}/bin/curl` instead of
+  bare `curl`, matching `syncthing-password.nix`'s pattern of not relying on
+  `PATH` inside systemd units
 
 ## 26.07.01
 

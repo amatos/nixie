@@ -33,6 +33,8 @@ in
       rage # Rust implementation of age
       git
       pre-commit
+      curl
+      jq
       inkscape # Vector graphics editor
       nh # Nix helper — nicer `nixos-rebuild` / `darwin-rebuild` / `home-manager` UX
     ]
