@@ -172,12 +172,12 @@ in
     # saslKeytabFile: age-encrypted keytab for the ldap/ service principal;
     #   deployed to /run/agenix/ldapSaslKeytab with openldap ownership.
     # saslHost: must match the hostname component of the ldap/ principal.
-    # saslAuthzRegexp: maps alberth@MATOS.CC to the LDAP rootDN so
+    # saslAuthzRegexp: maps <primaryUser>@MATOS.CC to the LDAP rootDN so
     #   ldapwhoami/ldapsearch/ldapmodify work with a valid TGT.
     saslKeytabFile = "${keytabs-matos-cc}/keytab-ldap-porkchop.age";
     saslHost = "porkchop.ts.matos.cc";
     saslAuthzRegexp = [
-      "{0}uid=alberth,cn=[^,]*,cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
+      "{0}uid=${primaryUser},cn=[^,]*,cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
     ];
     # Listen on all interfaces so remote hosts and GSSAPI clients can
     # reach slapd via the FQDN.  The firewall restricts LDAP (389) to

@@ -53,6 +53,10 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/sirloin/default.nix` — same
 - `modules/nixos/default-password.nix` — use `primaryUser` from `users.nix`
   instead of hardcoded `"alberth"` for `users.users.<name>.hashedPasswordFile`
+- `modules/common/packages.nix` — use `primaryUser` in `trusted-users`
+  instead of hardcoded `"alberth"`
+- `hosts/nixos/porkchop/default.nix` — use `primaryUser` in
+  `saslAuthzRegexp` LDAP pattern instead of hardcoded `"alberth"`
 - `home/alberth/default.nix` — imports reorganised; `atuin`, `chezmoi`,
   `devenv`, `starship` now imported from `common/` (moved; see Removed)
 - `hosts/nixos/huginn/default.nix` — added missing
