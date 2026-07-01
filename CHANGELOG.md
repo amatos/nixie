@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 26.07.01
+
 ### Added
 
 - `hosts/nixos/gammu/default.nix` — Steam gaming support: `programs.steam`
@@ -19,6 +21,9 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/gammu/default.nix` — `services.xrdp` for remote desktop
   access into Plasma (X11 session via `startplasma-x11`), chosen over
   KDE's native KRDP for declarative NixOS support
+- `home/alberth/gammu.nix` — sets ghostty as the default terminal in KDE
+  (`kdeglobals` `TerminalApplication`/`TerminalService`) via a `kwriteconfig6`
+  `home.activation` hook, since nixie has no `plasma-manager` input
 - `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings` adds
   `trusted-users`: `root`, `alberth`, `@admin`, `@staff`
 - `home/alberth/darwin/` — darwin home-manager overlay (ghostty settings

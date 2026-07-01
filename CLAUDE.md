@@ -282,6 +282,25 @@ host needs to consume:
   Hit when migrating gammu/huginn/porkchop from `[::]:8384` to `0.0.0.0:8384`. Not needed on a
   brand-new host with no existing `config.xml`.
 
+### KDE Configuration
+
+- nixie has no `plasma-manager` input — KDE settings that need to be declarative (e.g. gammu's
+  default terminal) are set via a `home.activation` hook calling `kwriteconfig6`
+  (`pkgs.kdePackages.kconfig`), not by having home-manager own the whole config file.
+- Files like `kdeglobals` hold many settings Plasma itself writes at runtime (theme, fonts,
+  click behavior, etc.) alongside the one or two keys nixie cares about. Managing the file
+  wholesale via `xdg.configFile`/`home.file` would symlink it read-only into the Nix store,
+  breaking every other System Settings change on next write. `kwriteconfig6 --file <name>
+  --group <group> --key <key> <value>` merges a single key in place instead — the same
+  mechanism KDE's own System Settings uses under the hood.
+- Example: gammu's default terminal is set in `home/alberth/gammu.nix` via
+  `TerminalApplication=ghostty` / `TerminalService=com.mitchellh.ghostty.desktop` in
+  `kdeglobals` — this is the only mechanism Dolphin's "Open Terminal Here" (and similar
+  actions) respects; there is no MIME-type-based way to set a default terminal.
+- If adding much more KDE-specific declarative config becomes common, reconsider adding
+  `plasma-manager` as a flake input rather than growing ad-hoc `kwriteconfig6` activation
+  scripts — propose that as a structural change first per the project conventions above.
+
 ---
 
 ## Formatting
