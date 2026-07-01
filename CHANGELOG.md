@@ -90,6 +90,16 @@ All notable changes to this project will be documented in this file.
   `home-manager.users` import and unused `primaryUser` let binding
 - `hosts/nixos/sirloin/default.nix` — same
 
+### Fixed
+
+- `hosts/nixos/huginn/default.nix` — restored the `primaryUser` let binding
+  removed in the `home-manager.users` cleanup below; huginn's
+  `services.syncthing.user`/`dataDir` still need it, unlike picanha/sirloin
+  which only used it for the now-removed import. Surfaced as
+  `undefined variable 'primaryUser'` during a `nixos-rebuild switch` on
+  another host, since flake tooling can evaluate all `nixosConfigurations`
+  entries eagerly.
+
 ### Removed
 
 - `home/alberth/ghostty.nix` — moved to `home/alberth/darwin/ghostty.nix`

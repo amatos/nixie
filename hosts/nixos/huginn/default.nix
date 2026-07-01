@@ -1,4 +1,9 @@
 { keytabs-matos-cc, ... }:
+
+let
+  userDefs = import ../../../users.nix;
+  inherit (userDefs) primaryUser;
+in
 {
   imports = [
     ./hardware-configuration.nix
