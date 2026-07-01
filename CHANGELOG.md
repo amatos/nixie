@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `users.nix` - added `ecdsa-sha2-nistp256` key for SSH access to `alberth`
 - `modules/common/packages.nix` — `pre-commit`
 - `modules/nixos/dyndns-luadns.nix` — `nixie.dyndnsLuadns`: polls a UDM's
   local API for the WAN IP and updates LuaDNS's dyndns2 endpoint (HTTPS)
