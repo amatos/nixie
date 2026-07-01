@@ -39,12 +39,19 @@ in
   # nix.custom.conf automatically). On darwin, custom settings must go
   # through determinateNix.customSettings instead, which Determinate Nixd
   # writes to /etc/nix/nix.custom.conf directly.
-  determinateNix.customSettings.trusted-users = [
-    "root"
-    primaryUser
-    "@admin" # admin users
-    "@staff" # all local user accounts
-  ];
+  determinateNix.customSettings = {
+    trusted-users = [
+      "root"
+      primaryUser
+      "@admin" # admin users
+      "@staff" # all local user accounts
+    ];
+    # Allow substituters declared in flake nixConfig blocks (e.g. ragenix,
+    # home-manager, zed). Without this, the daemon ignores those caches even
+    # for users already in trusted-users — trusted-users only covers caches
+    # the user specifies in their own nix config, not flake-sourced ones.
+    accept-flake-config = true;
+  };
 
   # Allow Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
