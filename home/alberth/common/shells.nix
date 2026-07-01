@@ -130,6 +130,12 @@ in
       [ -f "$HOME/.config/op/plugins.sh" ] && source "$HOME/.config/op/plugins.sh"
 
       # ls → eza wrapper; rewrites -t (standalone or combined) to --sort=newest
+      # eza's enableZshIntegration writes `alias ls=...` earlier in this file;
+      # zsh cannot parse a `name() { ... }` function definition when `name` is
+      # already an alias ("defining function based on alias `ls'" parse error
+      # near `()`), so the alias must be cleared immediately before this.
+      unalias ls 2>/dev/null
+
       ls() {
         local args=()
         for arg in "$@"; do

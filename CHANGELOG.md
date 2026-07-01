@@ -26,6 +26,15 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `home/alberth/darwin/default.nix` — remove the
+  `programs.ghostty.settings.command` override that hardcoded a path to the
+  fish binary; Ghostty now launches whatever the user's login shell is
+  (zsh), and the now-unused `primaryUser` binding was dropped
+- `home/alberth/common/shells.nix` — `unalias ls` before defining the zsh
+  `ls` wrapper function; eza's `enableZshIntegration` alias earlier in the
+  generated `.zshrc` otherwise broke zsh's parsing of `ls() { ... }`
+  ("defining function based on alias `ls'"), surfaced after switching the
+  default login shell to zsh
 - `modules/nixos/dyndns-luadns.nix` — use `${pkgs.curl}/bin/curl` instead of
   bare `curl`, matching `syncthing-password.nix`'s pattern of not relying on
   `PATH` inside systemd units

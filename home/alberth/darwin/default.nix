@@ -5,10 +5,6 @@
 # Host overlays only need to add settings that genuinely differ between hosts.
 { pkgs, ... }:
 
-let
-  userDefs = import ../../../users.nix;
-  inherit (userDefs) primaryUser;
-in
 {
   imports = [
     ./ghostty.nix
@@ -27,10 +23,10 @@ in
   # Ghostty terminal — installed via homebrew cask on all darwin hosts.
   # package = null prevents home-manager from installing the nixpkgs build,
   # which has no aarch64-darwin support. ghostty.nix provides shared settings;
-  # command launches the nix-managed fish from the user's profile.
+  # command is left unset so Ghostty launches the user's default login shell
+  # (users.users.<name>.shell, now zsh — see common-darwin.nix).
   programs.ghostty = {
     enable = true;
     package = null;
-    settings.command = "/etc/profiles/per-user/${primaryUser}/bin/fish";
   };
 }
