@@ -42,10 +42,18 @@ if ! test -x /opt/homebrew/bin/brew; then
     exit 0
 fi
 
-# Ensure homebrew/autoupdate tap is present. brew tap is idempotent; running
-# it as the brew user avoids the permission error that occurs when the
-# activation script runs as root and tries to write to /opt/homebrew/Library/Taps/.
-if ! /usr/bin/sudo -u "$brew_user" -H /opt/homebrew/bin/brew tap homebrew/autoupdate 2>/dev/null; then
+# Fix ownership of the Taps directory tree before switching to the brew user.
+# A previous activation that ran brew tap as root may have left
+# /opt/homebrew/Library/Taps/homebrew/ owned by root, which blocks the brew
+# user from creating tap subdirectories inside it. This script runs as root
+# (postActivation), so we can correct that here before switching users.
+if [ -d "/opt/homebrew/Library/Taps" ]; then
+    /bin/chown -R "$brew_user" "/opt/homebrew/Library/Taps" 2>/dev/null || true
+fi
+
+# Ensure homebrew/autoupdate tap is present. brew tap is idempotent; runs as
+# the brew user so Homebrew writes to paths it owns.
+if ! /usr/bin/sudo -u "$brew_user" -H /opt/homebrew/bin/brew tap homebrew/autoupdate; then
     warn "brew tap homebrew/autoupdate failed; autoupdate may not be available"
 fi
 
