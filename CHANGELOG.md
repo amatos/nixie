@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - `modules/common/packages.nix` — `pre-commit`
+- `modules/nixos/dyndns-luadns.nix` — `nixie.dyndnsLuadns`: polls a UDM's
+  local API for the WAN IP and updates LuaDNS's dyndns2 endpoint (HTTPS)
+  when it changes; reuses the existing `luadns-ini` certbot secret
+- `modules/common/dyndns-luadns-secrets.nix` — deploys the new
+  `unifi-api-key` secret (UniFi read-only API token) via ragenix
+- `hosts/nixos/porkchop/default.nix` — enables `nixie.dyndnsLuadns` for
+  `home.matos.cc`, checking every 5 minutes
 
 ## 26.07.01
 

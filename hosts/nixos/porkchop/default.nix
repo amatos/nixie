@@ -27,8 +27,10 @@ in
     ../common-nixos.nix
     ../../../modules/common/certbot-secrets.nix
     ../../../modules/common/smtp-relay-secrets.nix
+    ../../../modules/common/dyndns-luadns-secrets.nix
     ../../../modules/nixos/syncthing-password.nix
     ../../../modules/nixos/smtp-relay.nix
+    ../../../modules/nixos/dyndns-luadns.nix
   ];
 
   networking.hostName = "porkchop";
@@ -223,5 +225,15 @@ in
     postfixDeploy = true;
     chronyDeploy = true;
     ldapDeploy = true;
+  };
+
+  # Dynamic DNS — keeps home.matos.cc pointed at the current WAN IP by
+  # polling the UDM's local API and updating LuaDNS's dyndns2 endpoint
+  # (over HTTPS) when it changes. See modules/nixos/dyndns-luadns.nix.
+  nixie.dyndnsLuadns = {
+    enable = true;
+    hostname = "home.matos.cc";
+    gatewayHost = "unifi";
+    interval = "5min";
   };
 }
