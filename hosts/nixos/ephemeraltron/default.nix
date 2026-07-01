@@ -44,15 +44,15 @@ in
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Fish — register as a login shell
-  programs.fish.enable = true;
+  # Zsh — register as a login shell
+  programs.zsh.enable = true;
 
   # Primary user — key sourced from users.nix
   users.users.${primaryUser} = {
     isNormalUser = true;
     inherit (user) description;
     extraGroups = [ "wheel" ];
-    shell = pkgs.fish;
+    shell = pkgs.zsh;
     openssh.authorizedKeys.keys = user.openssh.authorizedKeys.keys;
   };
 

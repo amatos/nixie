@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix`,
+  `hosts/nixos/ephemeraltron/default.nix` — default login shell for
+  `alberth` switched from fish to zsh
+
 ### Added
 
 - `users.nix` - added `ecdsa-sha2-nistp256` key for SSH access to `alberth`

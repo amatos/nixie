@@ -54,9 +54,9 @@ in
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Fish — enable system-wide so it appears in /etc/shells and can be set as login shell
-  programs.fish.enable = true;
-  users.users.${primaryUser}.shell = pkgs.fish;
+  # Zsh — enable system-wide so it appears in /etc/shells and can be set as login shell
+  programs.zsh.enable = true;
+  users.users.${primaryUser}.shell = pkgs.zsh;
 
   # Zapp — CLI tool for flashing ZSA keyboards; also installs udev rules
   programs.zapp.enable = true;
