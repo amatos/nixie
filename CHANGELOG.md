@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file.
 - `modules/nixos/dyndns-luadns.nix` — use `${pkgs.curl}/bin/curl` instead of
   bare `curl`, matching `syncthing-password.nix`'s pattern of not relying on
   `PATH` inside systemd units
+- `modules/nixos/dyndns-luadns.nix` — match LuaDNS's response on its first
+  word only; LuaDNS replies with a bare `good`/`nochg`, not `good <ip>`, so
+  the old pattern reported every successful update as a failure
 
 ## 26.07.01
 

@@ -83,8 +83,11 @@ let
       -u "$luadnsEmail:$luadnsToken" \
       "https://app.luadns.com/nic/update?hostname=${cfg.hostname}&myip=$wanIp")
 
-    case "$response" in
-      good\ *|nochg\ *)
+    # LuaDNS replies with just the status word (e.g. "good"), not the
+    # "good <ip>" form some other dyndns2 servers use — match on the first
+    # word only so either form works.
+    case "''${response%% *}" in
+      good|nochg)
         printf '%s' "$wanIp" > "$stateFile"
         echo "dyndns-luadns: LuaDNS update result: $response"
         ;;
