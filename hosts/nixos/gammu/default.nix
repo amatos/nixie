@@ -94,15 +94,24 @@ in
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
   # GUI password is managed via syncthing-password.nix (ragenix secret).
+  #
+  # guiAddress/settings.gui.address use the IPv4 wildcard "0.0.0.0", not the
+  # IPv6 wildcard "[::]": NixOS's syncthing-init service (merge-syncthing-config)
+  # curls this same address to reconcile declared settings, and connecting TO
+  # a literal "::" destination fails outright ("Failed to connect to :: port
+  # 8384") since IPv6 has no equivalent of Linux's 0.0.0.0-connects-to-loopback
+  # behavior. 0.0.0.0 works for both binding (all IPv4 interfaces) and as a
+  # connect target (kernel routes it over loopback) — see CLAUDE.md Syncthing
+  # conventions. This does mean the GUI is IPv4-only.
   services.syncthing = {
     settings.gui.user = "syncthing";
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
-    guiAddress = "[::]:8384";
+    guiAddress = "0.0.0.0:8384";
     overrideDevices = false;
     overrideFolders = false;
-    settings.gui.address = "[::]:8384";
+    settings.gui.address = "0.0.0.0:8384";
     settings.options.listenAddresses = [
       "tcp://0.0.0.0:22000"
       "quic://0.0.0.0:22000"
@@ -117,7 +126,6 @@ in
     allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
       ip  saddr 10.0.4.0/22 tcp dport 8384 accept
-      ip6 nexthdr tcp tcp dport 8384 accept
     '';
   };
 

@@ -102,6 +102,15 @@ All notable changes to this project will be documented in this file.
   `undefined variable 'primaryUser'` during a `nixos-rebuild switch` on
   another host, since flake tooling can evaluate all `nixosConfigurations`
   entries eagerly.
+- `hosts/nixos/{gammu,huginn,porkchop}/default.nix` — changed Syncthing
+  `guiAddress`/`settings.gui.address` from the IPv6 wildcard `"[::]:8384"`
+  to the IPv4 wildcard `"0.0.0.0:8384"`. NixOS's `syncthing-init` service
+  curls `guiAddress` directly to reconcile config; connecting to a literal
+  `::` destination always fails, breaking that service with
+  `curl: (7) Failed to connect to :: port 8384` on every syncthing restart
+  (observed in production on porkchop). Also dropped the now-nonfunctional
+  `ip6 nexthdr tcp tcp dport 8384 accept` firewall rule on all three hosts —
+  the GUI is IPv4-only now. See CLAUDE.md Syncthing conventions.
 
 ### Removed
 

@@ -23,7 +23,6 @@ in
     allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
       ip  saddr 10.0.4.0/22 tcp dport 8384 accept
-      ip6 nexthdr tcp tcp dport 8384 accept
     '';
   };
 
@@ -43,15 +42,19 @@ in
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
   # GUI password is managed via syncthing-password.nix (ragenix secret).
+  #
+  # guiAddress/settings.gui.address use the IPv4 wildcard "0.0.0.0", not the
+  # IPv6 wildcard "[::]" — see CLAUDE.md Syncthing conventions for why (the
+  # short version: NixOS's syncthing-init service breaks against "::").
   services.syncthing = {
     settings.gui.user = "syncthing";
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
-    guiAddress = "[::]:8384";
+    guiAddress = "0.0.0.0:8384";
     overrideDevices = false;
     overrideFolders = false;
-    settings.gui.address = "[::]:8384";
+    settings.gui.address = "0.0.0.0:8384";
     settings.options.listenAddresses = [
       "tcp://0.0.0.0:22000"
       "quic://0.0.0.0:22000"

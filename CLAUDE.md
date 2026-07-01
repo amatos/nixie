@@ -248,6 +248,22 @@ host needs to consume:
   X11 (`defaultWindowManager = "startplasma-x11"`), separate and independent from SDDM's local
   Wayland session; both can run concurrently on the same host.
 
+### Syncthing
+
+- Hosts running `services.syncthing` (gammu, huginn, porkchop) bind the GUI to the IPv4
+  wildcard `guiAddress = "0.0.0.0:8384"` (and matching `settings.gui.address`) — **never**
+  the IPv6 wildcard `"[::]:8384"`. NixOS's `syncthing-init` service (`merge-syncthing-config`)
+  reconciles any declared `services.syncthing.settings` by curling `guiAddress` itself; curl
+  can connect to `0.0.0.0` (the Linux kernel routes it over loopback) but cannot connect to a
+  literal `::` destination at all, so `[::]` breaks `syncthing-init` with
+  `curl: (7) Failed to connect to :: port 8384`. This was hit in production on porkchop (and
+  latent on gammu/huginn) — see CHANGELOG. The GUI firewall rule is IPv4-only
+  (`ip saddr 10.0.4.0/22 tcp dport 8384 accept`) to match; there is no IPv6 rule for 8384.
+- The GUI password is set via the custom `modules/nixos/syncthing-password.nix` service, which
+  correctly targets loopback (`http://[::1]:8384`) directly rather than reusing `guiAddress` —
+  that pattern is safe regardless of what `guiAddress` is bound to and should be the model for
+  any future custom syncthing REST API calls.
+
 ---
 
 ## Formatting
