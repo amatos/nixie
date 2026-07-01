@@ -43,7 +43,7 @@ in
   # Gamescope — micro-compositor backing the Steam gamescope session above
   programs.gamescope = {
     enable = true;
-    capSysNice = true;
+    capSysNice = false;
   };
 
   # steamup.sh — ad-hoc headless launcher for Steam Remote Play (SSH in, run
