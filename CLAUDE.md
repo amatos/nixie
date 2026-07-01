@@ -238,6 +238,16 @@ host needs to consume:
 - `programs.gamemode.enable` and `programs.gamescope.enable` are separate top-level options,
   not sub-options of `programs.steam`.
 
+### Remote Desktop
+
+- `gammu` uses `services.xrdp` (not KDE's native KRDP) for RDP access into Plasma, chosen
+  specifically to stay flakes-only: KRDP has no declarative NixOS module — its on/off toggle
+  and password live in Plasma's System Settings GUI, not the Nix store — and has had
+  NixOS-specific reliability issues. `xrdp` is a proper declarative service.
+- `services.xserver.enable = true;` is required alongside `services.xrdp` — xrdp's session is
+  X11 (`defaultWindowManager = "startplasma-x11"`), separate and independent from SDDM's local
+  Wayland session; both can run concurrently on the same host.
+
 ---
 
 ## Formatting

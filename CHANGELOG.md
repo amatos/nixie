@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/gammu/default.nix` — KDE Plasma 6 desktop via
   `services.desktopManager.plasma6` + `services.displayManager.sddm`
   (Wayland, login screen, no autologin)
+- `hosts/nixos/gammu/default.nix` — `services.xrdp` for remote desktop
+  access into Plasma (X11 session via `startplasma-x11`), chosen over
+  KDE's native KRDP for declarative NixOS support
 - `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings` adds
   `trusted-users`: `root`, `alberth`, `@admin`, `@staff`
 - `home/alberth/darwin/` — darwin home-manager overlay (ghostty settings

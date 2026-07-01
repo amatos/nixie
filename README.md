@@ -232,3 +232,29 @@ SSH-only access with nothing plugged in, run `steamup.sh` instead — installed 
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play. It
 detaches so the session survives the SSH connection closing; stop it with
 `pkill -f 'gamescope --backend headless'`.
+
+## Remote Desktop (xrdp)
+
+`gammu` runs `services.xrdp` for full desktop access from codex, separate from the Steam
+streaming setup above:
+
+```nix
+services.xserver.enable = true; # required: xrdp's session is X11, not Wayland
+
+services.xrdp = {
+  enable = true;
+  defaultWindowManager = "startplasma-x11";
+  openFirewall = true;
+};
+```
+
+This spins up its own X11 Plasma session per RDP connection, independent of SDDM's local
+Wayland session — connecting over RDP doesn't disturb whatever's running on the physical
+console (or vice versa). Connect from codex with any RDP client (e.g. Microsoft Remote
+Desktop, FreeRDP) to `gammu.ts.matos.cc:3389`.
+
+KDE's own native RDP server (KRDP) was considered instead — it's Wayland-native, but has no
+declarative NixOS module (the on/off toggle and password live in Plasma's System Settings GUI,
+not the flake) and has had NixOS-specific reliability issues. `xrdp` was chosen for consistency
+with nixie's flakes-only convention, at the cost of the remote session running over X11 instead
+of Wayland.

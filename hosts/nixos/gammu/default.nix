@@ -61,6 +61,17 @@ in
     wayland.enable = true;
   };
 
+  # xrdp — remote access into Plasma over RDP for streaming to codex.
+  # Requires services.xserver.enable = true: xrdp's session is a separate
+  # X11 (not Wayland) Plasma instance, independent of SDDM's local Wayland
+  # session above — both can run at once.
+  services.xserver.enable = true;
+  services.xrdp = {
+    enable = true;
+    defaultWindowManager = "startplasma-x11";
+    openFirewall = true;
+  };
+
   # containerd — container runtime; starts automatically via systemd
   virtualisation.containerd.enable = true;
 
