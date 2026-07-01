@@ -42,6 +42,13 @@ if ! test -x /opt/homebrew/bin/brew; then
     exit 0
 fi
 
+# Ensure homebrew/autoupdate tap is present. brew tap is idempotent; running
+# it as the brew user avoids the permission error that occurs when the
+# activation script runs as root and tries to write to /opt/homebrew/Library/Taps/.
+if ! /usr/bin/sudo -u "$brew_user" -H /opt/homebrew/bin/brew tap homebrew/autoupdate 2>/dev/null; then
+    warn "brew tap homebrew/autoupdate failed; autoupdate may not be available"
+fi
+
 # Delete existing autoupdate config (no-op if absent). Best-effort: the start
 # below will surface the real outcome.
 /usr/bin/sudo -u "$brew_user" -H /opt/homebrew/bin/brew autoupdate delete 2>/dev/null || true

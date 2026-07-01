@@ -59,9 +59,6 @@ in
       # This keeps rebuilds fast. Run `brew upgrade --greedy` manually for immediate updates.
       upgrade = false;
     };
-    taps = [
-      "homebrew/autoupdate" # Background auto-update via launchd (brew autoupdate)
-    ];
     brews = [
       "mas" # Mac App Store CLI
       "pinentry-mac" # GPG pinentry with macOS Keychain / Touch ID support
