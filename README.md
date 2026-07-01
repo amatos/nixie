@@ -225,9 +225,10 @@ programs.gamescope = {
 };
 ```
 
-Note: `gammu` has no display manager configured, so the gamescope session isn't reachable from
-a login screen. Instead, SSH in and run `steamup.sh` — installed system-wide from
-`hosts/nixos/gammu/scripts/steamup.sh` — which launches a headless (no display, physical or
+`gammu` also runs KDE Plasma 6 via SDDM (Wayland, login screen, no autologin), so the gamescope
+Big Picture session above is selectable from SDDM's session picker if a monitor is attached. For
+SSH-only access with nothing plugged in, run `steamup.sh` instead — installed system-wide from
+`hosts/nixos/gammu/scripts/steamup.sh` — which launches a fully headless (no display, physical or
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play. It
 detaches so the session survives the SSH connection closing; stop it with
 `pkill -f 'gamescope --backend headless'`.

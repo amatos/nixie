@@ -50,6 +50,17 @@ in
   # `steamup.sh`); see hosts/nixos/gammu/scripts/steamup.sh
   environment.systemPackages = [ steamupScript ];
 
+  # KDE Plasma — desktop environment. SDDM starts automatically at boot
+  # (systemd default target flips to graphical.target when a display manager
+  # is enabled) and shows a login screen; no autologin. This also makes the
+  # Steam gamescope Big Picture session (programs.steam.gamescopeSession
+  # above) selectable from SDDM's session picker.
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+  };
+
   # containerd — container runtime; starts automatically via systemd
   virtualisation.containerd.enable = true;
 
