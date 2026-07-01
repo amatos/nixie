@@ -3,6 +3,14 @@
 let
   userDefs = import ../../../users.nix;
   inherit (userDefs) primaryUser;
+
+  # Launches a headless gamescope + Steam Big Picture session at 4K for
+  # Steam Remote Play — see modules/common conventions in CLAUDE.md.
+  steamupScript = pkgs.writeShellApplication {
+    name = "steamup.sh";
+    runtimeInputs = [ ]; # gamescope/steam come from programs.gamescope/programs.steam on PATH
+    text = builtins.readFile ./scripts/steamup.sh;
+  };
 in
 {
   imports = [
@@ -37,6 +45,10 @@ in
     enable = true;
     capSysNice = true;
   };
+
+  # steamup.sh — ad-hoc headless launcher for Steam Remote Play (SSH in, run
+  # `steamup.sh`); see hosts/nixos/gammu/scripts/steamup.sh
+  environment.systemPackages = [ steamupScript ];
 
   # containerd — container runtime; starts automatically via systemd
   virtualisation.containerd.enable = true;

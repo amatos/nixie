@@ -10,6 +10,9 @@ All notable changes to this project will be documented in this file.
   (remote play + dedicated server firewall, proton-ge-bin, gamescope
   session), `hardware.graphics.enable32Bit`, `programs.gamemode`,
   `programs.gamescope`
+- `hosts/nixos/gammu/scripts/steamup.sh` — headless gamescope + Steam
+  Big Picture launcher at 4K for Steam Remote Play; wrapped via
+  `writeShellApplication` and installed as `steamup.sh`
 - `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings` adds
   `trusted-users`: `root`, `alberth`, `@admin`, `@staff`
 - `home/alberth/darwin/` — darwin home-manager overlay (ghostty settings

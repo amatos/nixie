@@ -226,4 +226,8 @@ programs.gamescope = {
 ```
 
 Note: `gammu` has no display manager configured, so the gamescope session isn't reachable from
-a login screen — launch it manually from a TTY with `gamescope -- steam -gamepadui`.
+a login screen. Instead, SSH in and run `steamup.sh` — installed system-wide from
+`hosts/nixos/gammu/scripts/steamup.sh` — which launches a headless (no display, physical or
+virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play. It
+detaches so the session survives the SSH connection closing; stop it with
+`pkill -f 'gamescope --backend headless'`.
