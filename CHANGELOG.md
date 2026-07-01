@@ -64,6 +64,19 @@ All notable changes to this project will be documented in this file.
   `modules/common/certbot-secrets.nix` (LuaDNS credentials) and
   `modules/nixos/syncthing-password.nix` imports; huginn uses both
   certbot and Syncthing but was not importing either module
+- `home/alberth/nixos.nix` — now auto-imports
+  `home/alberth/<hostname>.nix` via `builtins.pathExists` +
+  `osConfig.networking.hostName`; adds `pkgs.krb5` for all NixOS
+  hosts except `porkchop` (which uses `krb5WithLdap` from system
+  packages to avoid shadowing `kadmin.local`)
+- `home/alberth/gammu.nix` — removed `pkgs.krb5`; now provided by
+  `nixos.nix` for all NixOS hosts
+- `hosts/nixos/huginn/default.nix` — removed explicit
+  `home-manager.users` import; `nixos.nix` auto-discovers the overlay
+- `hosts/nixos/gammu/default.nix` — same; removed `lib` arg (unused)
+- `hosts/nixos/picanha/default.nix` — removed explicit
+  `home-manager.users` import and unused `primaryUser` let binding
+- `hosts/nixos/sirloin/default.nix` — same
 
 ### Removed
 
@@ -72,6 +85,10 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/chezmoi.nix` — moved to `home/alberth/common/chezmoi.nix`
 - `home/alberth/devenv.nix` — moved to `home/alberth/common/devenv.nix`
 - `home/alberth/starship.nix` — moved to `home/alberth/common/starship.nix`
+- `home/alberth/huginn.nix` — removed; `pkgs.krb5` absorbed into
+  `nixos.nix` (shared across all NixOS hosts except porkchop)
+- `home/alberth/picanha.nix` — same
+- `home/alberth/sirloin.nix` — same
 
 ## 26.06.09
 

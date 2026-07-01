@@ -1,9 +1,4 @@
 { keytabs-matos-cc, ... }:
-
-let
-  userDefs = import ../../../users.nix;
-  inherit (userDefs) primaryUser;
-in
 {
   imports = [
     ./hardware-configuration.nix
@@ -25,14 +20,6 @@ in
       ip  saddr 10.0.4.0/22 tcp dport 8384 accept
       ip6 nexthdr tcp tcp dport 8384 accept
     '';
-  };
-
-  # Host-specific home overlay — uncomment and create the file if needed.
-  # The NixOS common overlay (home/alberth/nixos.nix) is already applied
-  # via modules/nixos/home-manager.nix; only add this if extra settings
-  # are required for this specific host.
-  home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/huginn.nix ];
   };
 
   nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-huginn.age";

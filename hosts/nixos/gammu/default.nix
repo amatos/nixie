@@ -1,4 +1,4 @@
-{ lib, keytabs-matos-cc, ... }:
+{ keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -32,11 +32,6 @@ in
       ${primaryUser} ALL=(ALL:ALL) NOPASSWD: /etc/profiles/per-user/${primaryUser}/bin/nerdctl
     '';
     mode = "0440";
-  };
-
-  # Merge gammu home overlay on top of the base imported by common-nixos.nix
-  home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/gammu.nix ];
   };
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.

@@ -45,7 +45,7 @@ in
       # Development & Tools
       "/Applications/Zed.app"
       "/Applications/Ghostty.app"
-      "/Applications/Home Manager Apps/Discord.app" # nixpkgs, copyApps for TCC stability
+      "/Applications/Discord.app" # nixpkgs, copyApps for TCC stability
 
       # AI Assistants
       "/Applications/Claude.app" # Anthropic Claude desktop app (homebrew cask)

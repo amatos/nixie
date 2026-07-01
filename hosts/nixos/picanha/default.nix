@@ -7,13 +7,7 @@
 #   2. Add a nixosConfigurations.picanha entry in flake.nix.
 #   3. If a keytab is needed: set nixie.krb5.keytabFile and add the
 #      age-encrypted secret to keytabs-matos-cc.
-_:
-
-let
-  userDefs = import ../../../users.nix;
-  inherit (userDefs) primaryUser;
-in
-{
+_: {
   imports = [
     ./hardware-configuration.nix
     ../common-nixos.nix
@@ -25,11 +19,6 @@ in
   # Add host-specific ports here.
   networking.firewall.enable = true;
 
-  # Host-specific home overlay — uncomment and create the file if needed.
-  # The NixOS common overlay (home/alberth/nixos.nix) is already applied
-  # via modules/nixos/home-manager.nix; only add this if extra settings
-  # are required for this specific host.
-  home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/picanha.nix ];
-  };
+  # Host-specific home overlay: create home/alberth/picanha.nix if needed.
+  # nixos.nix auto-imports it when it exists — no manual wiring required.
 }
