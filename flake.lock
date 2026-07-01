@@ -477,6 +477,22 @@
         "type": "github"
       }
     },
+    "homebrew-autoupdate": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782248905,
+        "narHash": "sha256-mFkZ0Z/nsFiFT6zW/n067RV6zt4WlvjKEE7icUBP5qI=",
+        "owner": "Homebrew",
+        "repo": "homebrew-autoupdate",
+        "rev": "ae3e5c275ec98e84d79812229911a08b98a6a923",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Homebrew",
+        "repo": "homebrew-autoupdate",
+        "type": "github"
+      }
+    },
     "keytabs-matos-cc": {
       "flake": false,
       "locked": {
@@ -767,6 +783,7 @@
         "catppuccin-bat": "catppuccin-bat",
         "determinate": "determinate",
         "home-manager": "home-manager",
+        "homebrew-autoupdate": "homebrew-autoupdate",
         "keytabs-matos-cc": "keytabs-matos-cc",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",

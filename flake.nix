@@ -53,6 +53,11 @@
       url = "github:zhaofengli/nix-homebrew";
     };
 
+    homebrew-autoupdate = {
+      url = "github:Homebrew/homebrew-autoupdate";
+      flake = false; # plain git repo, not a flake
+    };
+
     zapp = {
       url = "github:amatos/zapp/add-aarch64-darwin-support-for-nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -84,6 +89,7 @@
       catppuccin-bat,
       catppuccin,
       nix-homebrew,
+      homebrew-autoupdate,
       zapp,
       pre-commit-hooks,
       nix-kerberos-ldap,
@@ -111,6 +117,7 @@
           nvf
           catppuccin-bat
           catppuccin
+          homebrew-autoupdate
           ;
       };
 

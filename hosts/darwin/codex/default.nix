@@ -2,6 +2,7 @@
   pkgs,
   lib,
   keytabs-matos-cc,
+  homebrew-autoupdate,
   ...
 }:
 
@@ -47,6 +48,13 @@ in
     enableRosetta = true; # x86 bottles on Apple Silicon via Rosetta 2
     user = primaryUser;
     autoMigrate = true; # adopt an existing /opt/homebrew install
+    # Third-party taps must be declared here as nix inputs so nix-homebrew
+    # can symlink them into /opt/homebrew/Library/Taps/ from the nix store.
+    # Using `brew tap` at activation time fails because nix-homebrew owns
+    # and write-protects that directory tree.
+    taps = {
+      "homebrew/homebrew-autoupdate" = homebrew-autoupdate;
+    };
   };
 
   # Merge codex home overlay on top of the base imported by common-darwin.nix
