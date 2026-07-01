@@ -27,7 +27,7 @@ in
     # ========================================================================
     persistent-apps = [
       "/System/Applications/Apps.app"
-      "/Applications/Safari.app"
+      "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
       "/Applications/Helium.app"
       "/Applications/Google Chrome.app"
       "/System/Applications/Mail.app"
