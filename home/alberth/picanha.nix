@@ -1,8 +1,8 @@
-# Gammu-specific home-manager settings for alberth.
+# Picanha-specific home-manager settings for alberth.
 { pkgs, ... }:
 
 {
-  # Gammu-only packages
+  # Picanha-only packages
   home.packages = [
     pkgs.krb5 # kinit / klist / kdestroy for MATOS.CC realm
   ];

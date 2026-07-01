@@ -27,17 +27,46 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `modules/darwin/macos-defaults/dock/persistent-apps.nix` — fixed incorrect path to users.nix
+- `modules/darwin/macos-defaults/dock/persistent-apps.nix` — fixed
+  incorrect path to users.nix
 - `home/alberth/common/` — renamed from `home/alberth/modules/`
 - `home/alberth/codex.nix`, `darwintron.nix`, `template-darwin.nix` —
   import `./darwin`; stale `./ghostty.nix` import removed
 - `hosts/darwin/common-darwin.nix` — imports `modules/darwin/macos-defaults`
 - `hosts/darwin/codex/default.nix` — imports `./homebrew.nix`; old inline
   `homebrew` block removed
+- `home/alberth/darwin/default.nix` — expanded from a one-line ghostty
+  wrapper into the shared darwin home base: adds `services.gpg-agent`
+  (pinentry-mac) and `programs.ghostty` (enable, `package = null`, fish
+  command using `primaryUser`); removes duplicated blocks from
+  `codex.nix`, `darwintron.nix`, and `template-darwin.nix`
+- `home/alberth/darwintron.nix` — now trivial (just imports `./darwin`);
+  removed redundant GPG agent and Ghostty blocks now in `darwin/default.nix`
+- `home/alberth/template-darwin.nix` — same; now imports `./darwin` only
+- `home/alberth/codex.nix` — removed GPG agent and Ghostty enable blocks
+  now in `darwin/default.nix`; SSH and activation scripts unchanged
+- `home/alberth/huginn.nix` — fixed doc comment (was "Gammu-specific")
+- `home/alberth/picanha.nix` — fixed doc comment (was "Gammu-specific")
+- `home/alberth/sirloin.nix` — fixed doc comment (was "Gammu-specific")
+- `hosts/nixos/picanha/default.nix` — replaced boilerplate template
+  comment with a host-specific stub description
+- `hosts/nixos/sirloin/default.nix` — same
+- `modules/nixos/default-password.nix` — use `primaryUser` from `users.nix`
+  instead of hardcoded `"alberth"` for `users.users.<name>.hashedPasswordFile`
+- `home/alberth/default.nix` — imports reorganised; `atuin`, `chezmoi`,
+  `devenv`, `starship` now imported from `common/` (moved; see Removed)
+- `hosts/nixos/huginn/default.nix` — added missing
+  `modules/common/certbot-secrets.nix` (LuaDNS credentials) and
+  `modules/nixos/syncthing-password.nix` imports; huginn uses both
+  certbot and Syncthing but was not importing either module
 
 ### Removed
 
 - `home/alberth/ghostty.nix` — moved to `home/alberth/darwin/ghostty.nix`
+- `home/alberth/atuin.nix` — moved to `home/alberth/common/atuin.nix`
+- `home/alberth/chezmoi.nix` — moved to `home/alberth/common/chezmoi.nix`
+- `home/alberth/devenv.nix` — moved to `home/alberth/common/devenv.nix`
+- `home/alberth/starship.nix` — moved to `home/alberth/common/starship.nix`
 
 ## 26.06.09
 

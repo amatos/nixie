@@ -10,16 +10,16 @@ let
 in
 {
   imports = [
-    ./atuin.nix
-    ./chezmoi.nix
-    ./devenv.nix
-    ./starship.nix
+    ./common/atuin.nix
     ./common/cachix.nix
+    ./common/chezmoi.nix
+    ./common/devenv.nix
     ./common/git.nix
     ./common/gpg.nix
     ./common/packages.nix
     ./common/shells.nix
     ./common/ssh.nix
+    ./common/starship.nix
     ./common/theming.nix
     ./common/tools.nix
   ];

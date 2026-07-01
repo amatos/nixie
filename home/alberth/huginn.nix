@@ -1,8 +1,8 @@
-# Gammu-specific home-manager settings for alberth.
+# Huginn-specific home-manager settings for alberth.
 { pkgs, ... }:
 
 {
-  # Gammu-only packages
+  # Huginn-only packages
   home.packages = [
     pkgs.krb5 # kinit / klist / kdestroy for MATOS.CC realm
   ];

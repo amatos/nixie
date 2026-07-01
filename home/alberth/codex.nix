@@ -30,32 +30,14 @@
   # TODO: Re-enable when upstream fixes options.json context in manual.nix
   manual.manpages.enable = false;
 
-  # GPG agent — use pinentry-mac for native macOS Keychain / Touch ID prompts.
-  # pinentry-mac is also in homebrew.brews so it's available system-wide;
-  # we point gpg-agent at the nixpkgs derivation for a deterministic path.
-  services.gpg-agent = {
-    enable = true;
-    extraConfig = ''
-      pinentry-program ${pkgs.pinentry_mac}/bin/pinentry-mac
-    '';
-  };
-
   imports = [
     ./darwin
   ];
 
-  # Ghostty — installed via homebrew cask; enable programs.ghostty so
-  # home-manager can manage the config and catppuccin can inject the theme.
-  # package = null prevents home-manager from installing the nixpkgs build,
-  # which has no aarch64-darwin support.
-  # darwin/ghostty.nix provides shared settings; command overrides the default shell lookup.
-  programs = {
-    ghostty = {
-      enable = true;
-      package = null;
-      settings.command = "/etc/profiles/per-user/alberth/bin/fish";
-    };
+  # darwin/default.nix provides: GPG agent (pinentry-mac), Ghostty (enable,
+  # package = null, command = fish). Only add settings that differ on codex.
 
+  programs = {
     ssh.settings = {
       "*" = {
         ServerAliveInterval = 120;

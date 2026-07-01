@@ -8,6 +8,8 @@ in
   imports = [
     ./hardware-configuration.nix
     ../common-nixos.nix
+    ../../../modules/common/certbot-secrets.nix
+    ../../../modules/nixos/syncthing-password.nix
   ];
 
   networking.hostName = "huginn";

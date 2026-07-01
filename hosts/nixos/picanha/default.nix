@@ -1,16 +1,12 @@
-# Template for new NixOS hosts based on the gammu layout.
+# Picanha host configuration.
 #
-# To provision a new NixOS host:
-#   1. cp -r hosts/nixos/template-nixos hosts/nixos/<hostname>
-#   2. Replace hardware-configuration.nix with the output of:
+# Status: stub — hardware-configuration.nix is a placeholder.
+# Before deploying:
+#   1. Boot the installer ISO, then replace hardware-configuration.nix with:
 #        nixos-generate-config --show-hardware-config
-#      (run on the target machine after booting the installer ISO).
-#   3. Set networking.hostName below.
-#   4. Add a nixosConfigurations entry in flake.nix (copy the gammu block).
-#   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
-#      corresponding age-encrypted secret to keytabs-matos-cc.
-#   6. If host-specific home settings are needed, create
-#      home/alberth/<hostname>.nix and wire it in below.
+#   2. Add a nixosConfigurations.picanha entry in flake.nix.
+#   3. If a keytab is needed: set nixie.krb5.keytabFile and add the
+#      age-encrypted secret to keytabs-matos-cc.
 _:
 
 let
