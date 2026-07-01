@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/nixos/gammu/default.nix` — Steam gaming support: `programs.steam`
+  (remote play + dedicated server firewall, proton-ge-bin, gamescope
+  session), `hardware.graphics.enable32Bit`, `programs.gamemode`,
+  `programs.gamescope`
 - `hosts/darwin/common-darwin.nix` — `determinateNix.customSettings` adds
   `trusted-users`: `root`, `alberth`, `@admin`, `@staff`
 - `home/alberth/darwin/` — darwin home-manager overlay (ghostty settings
@@ -27,6 +31,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `CLAUDE.md`, `README.md` — documented the Steam gaming convention; fixed
+  stale `gammu/default.nix — hostname only` layout comment
 - `modules/darwin/macos-defaults/dock/persistent-apps.nix` - fixed path to Safari.app
 - `modules/darwin/macos-defaults/dock/persistent-apps.nix` — fixed
   incorrect path to users.nix

@@ -1,4 +1,4 @@
-{ keytabs-matos-cc, ... }:
+{ pkgs, keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -13,6 +13,30 @@ in
   ];
 
   networking.hostName = "gammu";
+
+  # Steam — 32-bit graphics support is required or Steam fails to start.
+  # AMD GPU (radv, via mesa) needs no extra driver packages.
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server hosting
+    extraCompatPackages = with pkgs; [ proton-ge-bin ]; # Custom Proton build with extra game fixes
+    gamescopeSession.enable = true; # Steam Big Picture session launchable via gamescope
+  };
+
+  # GameMode — applies temporary perf tweaks (CPU governor, etc.) while a game runs
+  programs.gamemode.enable = true;
+
+  # Gamescope — micro-compositor backing the Steam gamescope session above
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
 
   # containerd — container runtime; starts automatically via systemd
   virtualisation.containerd.enable = true;
