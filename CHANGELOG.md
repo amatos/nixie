@@ -111,6 +111,14 @@ All notable changes to this project will be documented in this file.
   (observed in production on porkchop). Also dropped the now-nonfunctional
   `ip6 nexthdr tcp tcp dport 8384 accept` firewall rule on all three hosts —
   the GUI is IPv4-only now. See CLAUDE.md Syncthing conventions.
+- (manual, not a flake change) gammu/huginn/porkchop each had a pre-existing
+  `~/.config/syncthing/config.xml` with `<gui><address>[::]:8384</gui>`
+  persisted from before the fix above; syncthing v2.0.15 prefers that
+  persisted value over the `--gui-address` CLI flag on restart, so the
+  address change above didn't take effect until manually PATCHed via the
+  still-live old address and the service bounced. See CLAUDE.md Syncthing
+  conventions for the recovery steps — needed again on any host migrating
+  an existing `guiAddress` value.
 
 ### Removed
 

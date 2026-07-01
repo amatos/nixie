@@ -263,6 +263,24 @@ host needs to consume:
   correctly targets loopback (`http://[::1]:8384`) directly rather than reusing `guiAddress` —
   that pattern is safe regardless of what `guiAddress` is bound to and should be the model for
   any future custom syncthing REST API calls.
+- **Changing `guiAddress` on a host with a pre-existing `~/.config/syncthing/config.xml` does
+  not take effect on its own.** Once `config.xml` has a persisted `<gui><address>`, it wins over
+  the `--gui-address` CLI flag on restart (observed on syncthing v2.0.15) — so
+  `nixos-rebuild switch` alone leaves the daemon listening on the *old* address while
+  `syncthing-init` tries to reach the *new* one declared in Nix, a chicken-and-egg loop that
+  can't self-heal (reaching the API to fix the address requires already being connected to the
+  address being changed). Break it once manually via the still-live old address, then bounce
+  the service:
+
+  ```bash
+  APIKEY=$(xmllint --xpath 'string(configuration/gui/apikey)' ~/.config/syncthing/config.xml)
+  curl -sk -H "X-API-Key: $APIKEY" -X PATCH -d '{"address":"<new-guiAddress>"}' http://[::1]:8384/rest/config/gui
+  sudo systemctl restart syncthing.service
+  sudo systemctl restart syncthing-init.service
+  ```
+
+  Hit when migrating gammu/huginn/porkchop from `[::]:8384` to `0.0.0.0:8384`. Not needed on a
+  brand-new host with no existing `config.xml`.
 
 ---
 
