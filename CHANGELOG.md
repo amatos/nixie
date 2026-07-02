@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `.github/workflows/ci.yml` — `concurrency` group keyed on workflow + ref
+  with `cancel-in-progress: true`, so a new push cancels the previous
+  run's CI instead of letting both finish
+
 ### Fixed
 
 - `flake.nix` — `nixosConfigurations.minixie` set `hardware.facter.reportPath`
