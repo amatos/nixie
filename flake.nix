@@ -324,8 +324,15 @@
             ragenix.nixosModules.default
             ./hosts/nixos/minixie
             # hardware.facter.reportPath is a native nixpkgs option (the
-            # standalone nixos-facter-modules flake is deprecated/upstreamed)
-            { hardware.facter.reportPath = ./hosts/nixos/minixie/facter.json; }
+            # standalone nixos-facter-modules flake is deprecated/upstreamed).
+            # facter.json only exists after a real deploy generates it
+            # (nixos-anywhere --generate-hardware-config nixos-facter ...);
+            # a plain path literal to a file untracked by git fails flake
+            # evaluation outright, so only set the option once the file is
+            # actually present and committed.
+            (lib.optionalAttrs (builtins.pathExists ./hosts/nixos/minixie/facter.json) {
+              hardware.facter.reportPath = ./hosts/nixos/minixie/facter.json;
+            })
           ];
         };
       };

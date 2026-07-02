@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- `flake.nix` — `nixosConfigurations.minixie` set `hardware.facter.reportPath`
+  unconditionally to `hosts/nixos/minixie/facter.json`, a file that only
+  exists after a real deploy generates it. A path literal to a file
+  untracked by git fails flake evaluation outright (not just when the
+  option is read), breaking `nix flake check` for every configuration,
+  not just minixie. Now guarded with `lib.optionalAttrs (builtins.pathExists
+  ...)` so the option is only set once the file exists and is committed.
+  Inherited from the original standalone `minixie` repo, which had the
+  same bug but no CI to catch it.
+
 ## 26.07.02
 
 ### Changed
