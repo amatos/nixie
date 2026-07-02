@@ -12,8 +12,12 @@ Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, a
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
 | `porkchop` | NixOS | x86_64-linux | Physical | SMTP smart relay, ldap server, Kerberos KDC |
 | `huginn` | NixOS | x86_64-linux | Physical | misc |
+| `picanha` | NixOS | x86_64-linux | Physical | stub — not yet deployed |
+| `sirloin` | NixOS | x86_64-linux | Physical | stub — not yet deployed |
+| `minixie` | NixOS | x86_64-linux | N/A | generic nixos-anywhere bootstrap target, not a real host |
 
-Hosts whose names end in `tron` are virtual machines.
+Hosts whose names end in `tron` are virtual machines. `picanha` and `sirloin` have
+host directories and home-manager overlays but aren't wired into `flake.nix` yet.
 
 ## Repository layout
 
@@ -32,6 +36,7 @@ hosts/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
     nixostron/default.nix        # hostname only
     gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming
+    minixie/default.nix          # generic nixos-anywhere bootstrap target (no sharedSpecialArgs)
 
 modules/
   common/                        # cross-platform modules (NixOS + darwin)
@@ -87,6 +92,37 @@ darwin-rebuild switch --flake .#<hostname>
 # NixOS
 nixos-rebuild switch --flake .#<hostname>
 ```
+
+## Provisioning new hosts
+
+nixie has three ways to get a fresh machine running, depending on what you're starting from:
+
+| Path | Starting point | How |
+| --- | --- | --- |
+| `template-nixos` | Console access, booted into a NixOS installer | Copy `hosts/nixos/template-nixos`, add to `flake.nix`, install manually |
+| `ephemeraltron` | Console/monitor access, bare metal | Build `.#ephemeraltron-iso`, boot it — auto-installs a real nixie host at a fixed IP |
+| `minixie` | SSH-only, no console (VPS/cloud host, or a booted installer) | `nixos-anywhere --flake .#minixie root@<ip>` — disko + identity-less install |
+
+`minixie` is intentionally disconnected from `nix-secrets`/`keytabs-matos-cc` and
+`sharedSpecialArgs` — it exists only to get a box from "freshly booted/rescued" to
+"reachable over SSH with disks partitioned". Once it's up, replace
+`hosts/nixos/minixie` with a real host directory (following the `template-nixos`
+pattern) rather than extending the minixie config in place.
+
+```bash
+nixos-anywhere --flake .#minixie root@<target-ip>
+
+# Or via nix run if nixos-anywhere isn't installed locally:
+nix run github:nix-community/nixos-anywhere -- --flake .#minixie root@<target-ip>
+
+# With nixos-facter hardware detection:
+nixos-anywhere --flake .#minixie \
+  --generate-hardware-config nixos-facter hosts/nixos/minixie/facter.json \
+  root@<target-ip>
+```
+
+Before deploying, replace the placeholder SSH key in `hosts/nixos/minixie/default.nix` under
+`users.users.root.openssh.authorizedKeys.keys` with your own.
 
 ## Secrets (ragenix + YubiKey)
 
@@ -171,7 +207,8 @@ nodes persist across reboots and re-deploys.
 
 ## Certbot (LuaDNS DNS-01)
 
-Certificates renew automatically — weekly via a systemd timer (NixOS, with 1h randomized delay) or launchd job (darwin, Sunday 03:00). Both use `--keep-until-expiring`.
+Certificates renew automatically — weekly via a systemd timer (NixOS, with 1h
+randomized delay) or launchd job (darwin, Sunday 03:00). Both use `--keep-until-expiring`.
 
 The LuaDNS API credentials are decrypted from `nix-secrets/luadns.ini.age` at boot and placed at
 `/run/agenix/luadns-ini`.

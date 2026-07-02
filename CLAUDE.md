@@ -13,6 +13,13 @@ catppuccin/nix (theming), nix-homebrew (declarative Homebrew on darwin).
 specialArgs: text/token secrets in `github:amatos/nix-secrets` (input `nix-secrets`),
 binary Kerberos keytabs in `github:amatos/keytabs-matos-cc` (input `keytabs-matos-cc`).
 
+**`hosts/nixos/minixie`** is the one exception to the pattern above: a generic,
+identity-less nixos-anywhere bootstrap target (`nixosConfigurations.minixie`) used to
+get an unknown/fresh machine reachable over SSH before it gets a real host config. It
+deliberately does **not** receive `sharedSpecialArgs` and never touches `nix-secrets` or
+`keytabs-matos-cc` — see README "Provisioning new hosts" for the full workflow. Formerly
+its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
+
 ---
 
 ## Hosts
@@ -24,11 +31,18 @@ binary Kerberos keytabs in `github:amatos/keytabs-matos-cc` (input `keytabs-mato
 | `nixostron` | NixOS | aarch64-linux | `hosts/nixos/nixostron/` | virtual |
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
 | `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
+| `huginn` | NixOS | x86_64-linux | `hosts/nixos/huginn/` | physical |
+| `picanha` | NixOS | x86_64-linux | `hosts/nixos/picanha/` | physical, stub — not in `flake.nix` yet |
+| `sirloin` | NixOS | x86_64-linux | `hosts/nixos/sirloin/` | physical, stub — not in `flake.nix` yet |
 | `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | installer template |
+| `minixie` | NixOS | x86_64-linux | `hosts/nixos/minixie/` | generic nixos-anywhere bootstrap target, not a real host — see README "Provisioning new hosts" |
 | `template-darwin` | nix-darwin | aarch64-darwin | `hosts/darwin/template-darwin/` | new host template |
 | `template-nixos` | NixOS | x86_64-linux | `hosts/nixos/template-nixos/` | new host template |
 
-Hosts whose names end in `tron` are virtual machines.
+Hosts whose names end in `tron` are virtual machines. `picanha`/`sirloin` have host
+directories and home-manager overlays already committed but aren't wired into
+`nixosConfigurations` in `flake.nix` yet — check `flake.nix` before assuming a host
+listed here is actually deployable.
 
 **Adding a new NixOS host:** create `hosts/nixos/<name>/default.nix` importing
 `../common-nixos.nix` and `./hardware-configuration.nix`, set `networking.hostName`,
@@ -58,6 +72,7 @@ hosts/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
     nixostron/default.nix        # hostname only
     gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming
+    minixie/default.nix          # generic nixos-anywhere bootstrap target (no sharedSpecialArgs)
 
 modules/
   common/                        # cross-platform modules (NixOS + darwin)

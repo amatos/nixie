@@ -9,9 +9,21 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/common-nixos.nix`, `hosts/darwin/common-darwin.nix`,
   `hosts/nixos/ephemeraltron/default.nix` — default login shell for
   `alberth` switched from fish to zsh
+- `CLAUDE.md`, `README.md` — host tables were missing `huginn`, `picanha`,
+  and `sirloin`; added, with `picanha`/`sirloin` marked as stubs not yet
+  in `flake.nix`
 
 ### Added
 
+- `flake.nix` — `disko` input; merged the former standalone
+  `amatos/minixie` repo in as `hosts/nixos/minixie` and a
+  `nixosConfigurations.minixie` entry (generic nixos-anywhere bootstrap
+  target, deliberately outside `sharedSpecialArgs`). Dropped the original
+  repo's unused `nixos-facter-modules` input — that flake is deprecated
+  and `hardware.facter.reportPath` is now a native nixpkgs option
+- `README.md` — "Provisioning new hosts" section documenting the three
+  bootstrap paths (`template-nixos`, `ephemeraltron`, `minixie`) and when
+  to use each
 - `users.nix` - added `ecdsa-sha2-nistp256` key for SSH access to `alberth`
 - `modules/common/packages.nix` — `pre-commit`
 - `modules/nixos/dyndns-luadns.nix` — `nixie.dyndnsLuadns`: polls a UDM's

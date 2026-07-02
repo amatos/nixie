@@ -73,6 +73,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nix-secrets.follows = "nix-secrets";
     };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -93,6 +98,7 @@
       zapp,
       pre-commit-hooks,
       nix-kerberos-ldap,
+      disko,
       ...
     }:
     let
@@ -303,6 +309,23 @@
           specialArgs = sharedSpecialArgs;
           modules = [
             ./hosts/nixos/ephemeraltron
+          ];
+        };
+
+        # Generic nixos-anywhere bootstrap target — no nixie identity baked
+        # in. Deploy with: nixos-anywhere --flake .#minixie root@<target-ip>
+        # Replace with a real host config once reachable; not part of
+        # sharedSpecialArgs on purpose (it never consumes nix-secrets or
+        # keytabs-matos-cc).
+        minixie = lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            disko.nixosModules.disko
+            ragenix.nixosModules.default
+            ./hosts/nixos/minixie
+            # hardware.facter.reportPath is a native nixpkgs option (the
+            # standalone nixos-facter-modules flake is deprecated/upstreamed)
+            { hardware.facter.reportPath = ./hosts/nixos/minixie/facter.json; }
           ];
         };
       };
