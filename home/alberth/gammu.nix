@@ -9,8 +9,10 @@
     pkgs.nerdctl # Docker-compatible CLI for containerd
   ];
 
-  # nerdctl — transparent sudo so rootful containerd works as non-root
-  programs.fish.shellAliases = {
+  # nerdctl — transparent sudo so rootful containerd works as non-root.
+  # home.shellAliases (not programs.fish.shellAliases) so it applies to
+  # bash and zsh too, not just fish.
+  home.shellAliases = {
     nerdctl = "sudo nerdctl";
   };
 

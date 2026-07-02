@@ -26,6 +26,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `home/alberth/gammu.nix` — move the `nerdctl` alias from
+  `programs.fish.shellAliases` to `home.shellAliases` so it's available in
+  bash and zsh too, not just fish
 - `home/alberth/darwin/default.nix` — remove the
   `programs.ghostty.settings.command` override that hardcoded a path to the
   fish binary; Ghostty now launches whatever the user's login shell is
