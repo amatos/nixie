@@ -10,6 +10,14 @@ All notable changes to this project will be documented in this file.
   with `cancel-in-progress: true`, so a new push cancels the previous
   run's CI instead of letting both finish
 
+### Changed
+
+- `hosts/nixos/common-nixos.nix` — `documentation.nixos.enable = false;`
+  fleet-wide; stops the local NixOS manual/options-JSON build, which was
+  the source of the upstream `builtins.toFile ... options.json` warning
+  (nixpkgs#485682) on every `nix flake check`/`nix flake update`. Removes
+  `nixos-help` and the local HTML manual on NixOS hosts
+
 ### Fixed
 
 - `flake.nix` — `nixosConfigurations.minixie` set `hardware.facter.reportPath`

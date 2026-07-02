@@ -54,6 +54,13 @@ in
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
+  # Disable the local NixOS manual/options-search JSON build. Not used day
+  # to day (docs are read on search.nixos.org / via CLAUDE.md), it adds to
+  # eval/build time, and it's the source of the upstream
+  # `builtins.toFile ... options.json ... without a proper context` warning
+  # (nixpkgs#485682) that fires on every `nix flake check`/`nix flake update`.
+  documentation.nixos.enable = false;
+
   # Zsh — enable system-wide so it appears in /etc/shells and can be set as login shell
   programs.zsh.enable = true;
   users.users.${primaryUser}.shell = pkgs.zsh;
