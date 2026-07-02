@@ -20,6 +20,16 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `hosts/nixos/template-nixos/hardware-configuration.nix` — the empty
+  placeholder tripped NixOS's "fileSystems option does not specify your
+  root file system" assertion, which only surfaces when `nix flake check`
+  runs natively on x86_64-linux (not when cross-evaluated from codex,
+  aarch64-darwin) — this was the original `ci.yml` breakage from Jun 29,
+  masked ever since by evaluating `nix flake check` from the wrong arch.
+  Added a placeholder `fileSystems."/"` entry, clearly marked as fake, to
+  satisfy the assertion. Also applied to `hosts/nixos/{picanha,sirloin}`,
+  which have the identical placeholder and will hit the same assertion
+  once wired into `flake.nix`
 - `flake.nix` — `nixosConfigurations.minixie` set `hardware.facter.reportPath`
   unconditionally to `hosts/nixos/minixie/facter.json`, a file that only
   exists after a real deploy generates it. A path literal to a file
