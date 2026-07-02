@@ -145,7 +145,7 @@ home/alberth/
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf catppuccin-bat catppuccin; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf catppuccin; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)
@@ -229,7 +229,7 @@ host needs to consume:
 ### Theming
 
 - catppuccin flavor: `macchiato`, accent: `blue` — set globally in `home/alberth/default.nix`.
-- bat uses a custom auto light/dark config (macchiato dark / latte light); do not enable `catppuccin.bat`.
+- bat uses Dracula (bundled with bat itself); do not enable `catppuccin.bat`.
 - nvf manages its own catppuccin-mocha internally; do not enable `catppuccin.nvim`.
 
 ### Certbot

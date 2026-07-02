@@ -17,6 +17,11 @@ All notable changes to this project will be documented in this file.
   the source of the upstream `builtins.toFile ... options.json` warning
   (nixpkgs#485682) on every `nix flake check`/`nix flake update`. Removes
   `nixos-help` and the local HTML manual on NixOS hosts
+- `home/alberth/common/tools.nix` — bat now uses the Dracula theme (bundled
+  with bat itself) instead of the Catppuccin auto light/dark setup. Dropped
+  the now-unused `catppuccin-bat` flake input and its `themes` block, and
+  removed the `catppuccin-bat` arg/wiring from `flake.nix`,
+  `hosts/darwin/common-darwin.nix`, and `modules/nixos/home-manager.nix`
 
 ### Fixed
 

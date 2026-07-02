@@ -1,4 +1,4 @@
-{ catppuccin-bat, ... }:
+_:
 
 {
   # eza (modern ls replacement)
@@ -21,24 +21,12 @@
   };
 
   # bat — cat clone with syntax highlighting
-  # Uses auto light/dark theme switching; do not enable catppuccin.bat.
+  # Dracula is bundled with bat itself; do not enable catppuccin.bat.
   programs.bat = {
     enable = true;
     config = {
-      # auto: switches between light/dark based on terminal colour scheme
-      # light = Catppuccin Macchiato, dark = Catppuccin Latte
-      theme = "auto:Catppuccin Macchiato,Catppuccin Latte";
+      theme = "Dracula";
       italic-text = "always";
-    };
-    themes = {
-      "Catppuccin Latte" = {
-        src = catppuccin-bat;
-        file = "themes/Catppuccin Latte.tmTheme";
-      };
-      "Catppuccin Macchiato" = {
-        src = catppuccin-bat;
-        file = "themes/Catppuccin Macchiato.tmTheme";
-      };
     };
   };
 

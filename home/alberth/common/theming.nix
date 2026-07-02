@@ -2,7 +2,7 @@ _:
 
 {
   # Catppuccin — global flavor and accent; autoEnable = false so we opt in per-tool.
-  # bat uses a custom auto light/dark config — do not enable catppuccin.bat.
+  # bat uses Dracula (bundled with bat itself) — do not enable catppuccin.bat.
   # neovim is handled inside nvf.nix with its own catppuccin-mocha setup — do not enable catppuccin.nvim.
   catppuccin = {
     flavor = "macchiato";

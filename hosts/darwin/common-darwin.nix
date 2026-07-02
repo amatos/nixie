@@ -7,7 +7,6 @@
   pkgs,
   nvf,
   catppuccin,
-  catppuccin-bat,
   nix-secrets,
   ...
 }:
@@ -130,7 +129,7 @@ in
       nvf.homeManagerModules.default
       catppuccin.homeModules.catppuccin
     ];
-    extraSpecialArgs = { inherit catppuccin-bat nix-secrets; };
+    extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {
       imports = [
         ../../home/alberth
