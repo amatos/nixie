@@ -140,6 +140,10 @@ in
         greedy = true;
       }
       {
+        name = "cmux"; # Native macOS terminal for running AI coding agents in parallel
+        greedy = true;
+      }
+      {
         name = "coherence-x"; # GUI for managing CrossOver/Wine bottles
         greedy = true;
       }
@@ -313,6 +317,10 @@ in
       }
       {
         name = "steam"; # Video game digital distribution service
+        greedy = true;
+      }
+      {
+        name = "supacode"; # Worktree coding agents command center (macOS)
         greedy = true;
       }
       {

@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/darwin/codex/homebrew.nix` — added `cmux` and `supacode` casks;
+  both are native macOS terminals for running AI coding agents in parallel,
+  not available in nixpkgs
 - `home/alberth/common/tools.nix` — `programs.tmux` enabled fleet-wide:
   mouse support, 0ms escape time (neovim-friendly), 50k line scrollback,
   `tmux-256color` terminal with true-color RGB passthrough, and the
