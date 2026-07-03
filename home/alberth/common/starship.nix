@@ -20,7 +20,7 @@ _:
   programs.starship.settings = {
     # \n in a Nix regular string is a real newline; home-manager serialises it
     # to TOML as \n which Starship interprets as a line break.
-    format = "[](purple)$os$username[](bg:cyan fg:purple)$directory[](bg:pink fg:cyan)$git_branch$git_status[](fg:pink bg:green)$c$rust$golang$nodejs$php$java$kotlin$haskell$python$nix_shell[](fg:green bg:comment)$conda[](fg:comment bg:comment)$time[ ](fg:comment)$cmd_duration\n$character";
+    format = "[](purple)$os$username[](bg:cyan fg:purple)$directory[](bg:pink fg:cyan)$git_branch$git_status[](fg:pink bg:green)$c$rust$golang$nodejs$php$java$kotlin$haskell$python$nix_shell[](fg:green bg:comment)$conda[](fg:comment bg:comment)$time[](fg:comment)$cmd_duration\n$character";
 
     palette = "dracula";
 
@@ -45,22 +45,22 @@ _:
       disabled = false;
       style = "bg:purple fg:crust";
       symbols = {
-        Windows = "";
+        Windows = "";
         Ubuntu = "󰕈";
-        SUSE = "";
+        SUSE = "";
         Raspbian = "󰐿";
         Mint = "󰣭";
         Macos = "󰀵";
-        Manjaro = "";
+        Manjaro = "";
         Linux = "󰌽";
         Gentoo = "󰣨";
         Fedora = "󰣛";
-        Alpine = "";
-        Amazon = "";
-        Android = "";
+        Alpine = "";
+        Amazon = "";
+        Android = "";
         Arch = "󰣇";
         Artix = "󰣇";
-        CentOS = "";
+        CentOS = "";
         Debian = "󰣚";
         Redhat = "󱄛";
         RedHatEnterprise = "󱄛";
