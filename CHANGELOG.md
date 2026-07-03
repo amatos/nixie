@@ -51,6 +51,7 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/nvf.nix` — removed `fish.enable` language support
 - `home/alberth/darwin/ghostty.nix`, `home/alberth/template-darwin.nix`
   — updated stale fish references in comments
+- `CLAUDE.md` — removed fish from Dracula theming tool list
 - `CLAUDE.md` — added directive prohibiting AI/tool attribution tags
   (`Co-Authored-By` etc.) in commits without explicit user permission
 - `hosts/nixos/common-nixos.nix` — `documentation.nixos.enable = false;`

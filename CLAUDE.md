@@ -232,7 +232,7 @@ host needs to consume:
   catppuccin/nix-style nix flake input for Dracula, so nixie carries no theming flake input at
   all: bat, neovim (nvf), and Ghostty theme via their own bundled `"dracula"`/`"Dracula"`
   option (no extra config needed beyond selecting it). Tools with no bundled Dracula variant
-  (btop, eza, fish, fzf, starship, zsh-syntax-highlighting) have the official Dracula
+  (btop, eza, fzf, starship, zsh-syntax-highlighting) have the official Dracula
   colors/theme files embedded directly in `home/alberth/common/theming.nix` (or, for starship,
   as `style` overrides layered onto the existing segment formats in
   `home/alberth/common/starship.nix`) — see that project's own README/`draculatheme.com/<tool>`
