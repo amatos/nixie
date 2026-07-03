@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/scripts/npbs-all.sh` (new) — runs `npbs` on all physical
+  hosts (gammu, porkchop, huginn) simultaneously via SSH; streams output
+  live with `[hostname]` prefixes, reports which hosts failed, exits
+  non-zero if any do
 - `home/alberth/common/shells.nix` — `programs.fish` enabled fleet-wide:
   `interactiveShellInit` sets GPG_TTY, ARCHFLAGS, and sources 1Password
   plugins; fish `functions` define `nixbuild` and `nixswitch` (using fish
