@@ -43,6 +43,13 @@ All notable changes to this project will be documented in this file.
   `catppuccin` flake input and its `homeModules.catppuccin` sharedModule were
   removed from `flake.nix`, `hosts/darwin/common-darwin.nix`, and
   `modules/nixos/home-manager.nix` — nixie now carries no theming flake input
+- `home/alberth/common/starship.nix` — replaced the two-line p10k-mirroring
+  prompt with a powerline segmented layout using a named Dracula palette.
+  Segments left-to-right: OS icon + username (purple block) → directory
+  (cyan) → git branch + status (pink) → language tools + nix_shell (green:
+  c, rust, go, node, php, java, kotlin, haskell, python, nix) → conda +
+  time (comment grey) → cmd_duration. Prompt character changed from `❯` to
+  `λ`; username is now always shown (was SSH-only)
 - `home/alberth/common/ssh.nix` — added SSH host entry for
   `unifi.home.matos.cc` / `unifi` alias with `User = root`
 
