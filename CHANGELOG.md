@@ -13,7 +13,13 @@ All notable changes to this project will be documented in this file.
 - `modules/nixos/unifi-backup.nix` (new) — `nixie.unifiBackup`: daily scp
   backup of UniFi OS's autobackup directory from unifi.home.matos.cc into a
   local directory, via SSH key auth. Deploys the script as `unifi_backup.sh`
-  (also runnable manually) and wraps it in a systemd oneshot service + timer
+  (also runnable manually) and wraps it in a systemd oneshot service + timer.
+  Uses `IdentitiesOnly=yes` + `PreferredAuthentications=publickey` so the
+  service only ever offers the ragenix-deployed key — without these, the
+  primary user's `Host *` `~/.ssh/config` (IdentityFile is cumulative across
+  matching blocks) adds a nonexistent default identity and tries GSSAPI
+  first, producing misleading "no such identity" errors ahead of the real
+  failure
 - `modules/common/unifi-backup-secrets.nix` (new) — deploys the new
   `unifi-backup-ssh-key` secret (SSH private key for unifi.home.matos.cc)
   via ragenix from `nix-secrets`

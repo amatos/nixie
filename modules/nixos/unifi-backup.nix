@@ -16,6 +16,16 @@
 # known_hosts file under stateDir, kept separate from the primary user's own
 # interactive ~/.ssh/known_hosts.
 #
+# IdentitiesOnly=yes + PreferredAuthentications=publickey: the primary user's
+# home-manager-managed ~/.ssh/config (home/alberth/common/ssh.nix) has a
+# `Host *` block with its own `IdentityFile ~/.ssh/id_rsa` and
+# `GSSAPIAuthentication yes` — ssh_config's IdentityFile keyword is cumulative
+# across matching Host blocks, so without IdentitiesOnly=yes ssh also offers
+# that (nonexistent, on porkchop) identity and attempts GSSAPI first, adding
+# noisy/misleading "no such identity" errors to the log before ever getting
+# to the key that actually matters. These two options make the service use
+# *only* the ragenix-deployed key.
+#
 # Usage — in a host's default.nix:
 #   nixie.unifiBackup = {
 #     enable = true;
@@ -41,6 +51,8 @@ let
 
     ${pkgs.openssh}/bin/scp -r \
       -o BatchMode=yes \
+      -o IdentitiesOnly=yes \
+      -o PreferredAuthentications=publickey \
       -o StrictHostKeyChecking=accept-new \
       -o UserKnownHostsFile=${stateDir}/known_hosts \
       -i /run/agenix/unifi-backup-ssh-key \
