@@ -56,6 +56,9 @@ All notable changes to this project will be documented in this file.
   c, rust, go, node, php, java, kotlin, haskell, python, nix) → conda +
   time (comment grey) → cmd_duration. Prompt character changed from `❯` to
   `λ`; username is now always shown (was SSH-only)
+- `home/alberth/common/starship.nix` — added `$hostname` to the purple
+  segment immediately after `$username`; always shown (`ssh_only = false`),
+  formatted as `@hostname`
 - `home/alberth/common/ssh.nix` — added SSH host entry for
   `unifi.home.matos.cc` / `unifi` alias with `User = root`
 
