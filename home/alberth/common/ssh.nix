@@ -25,6 +25,9 @@ _:
           "~/.ssh/github-ratelimit"
         ];
       };
+      "unifi.home.matos.cc unifi" = {
+        User = "root";
+      };
     };
   };
 }

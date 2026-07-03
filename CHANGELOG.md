@@ -43,6 +43,8 @@ All notable changes to this project will be documented in this file.
   `catppuccin` flake input and its `homeModules.catppuccin` sharedModule were
   removed from `flake.nix`, `hosts/darwin/common-darwin.nix`, and
   `modules/nixos/home-manager.nix` — nixie now carries no theming flake input
+- `home/alberth/common/ssh.nix` — added SSH host entry for
+  `unifi.home.matos.cc` / `unifi` alias with `User = root`
 
 ### Fixed
 
