@@ -28,9 +28,11 @@ in
     ../../../modules/common/certbot-secrets.nix
     ../../../modules/common/smtp-relay-secrets.nix
     ../../../modules/common/dyndns-luadns-secrets.nix
+    ../../../modules/common/unifi-backup-secrets.nix
     ../../../modules/nixos/syncthing-password.nix
     ../../../modules/nixos/smtp-relay.nix
     ../../../modules/nixos/dyndns-luadns.nix
+    ../../../modules/nixos/unifi-backup.nix
   ];
 
   networking.hostName = "porkchop";
@@ -235,5 +237,15 @@ in
     hostname = "home.matos.cc";
     gatewayHost = "unifi";
     interval = "5min";
+  };
+
+  # UniFi backup — daily scp of the UniFi Network autobackup directory from
+  # unifi.home.matos.cc into the primary user's home. Uses the SSH key
+  # deployed by modules/common/unifi-backup-secrets.nix (nix-secrets); the
+  # matching public key must be added to unifi.home.matos.cc's root
+  # authorized_keys. See modules/nixos/unifi-backup.nix.
+  nixie.unifiBackup = {
+    enable = true;
+    localDir = "/home/${primaryUser}/backups/unifi";
   };
 }

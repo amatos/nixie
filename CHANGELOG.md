@@ -10,6 +10,15 @@ All notable changes to this project will be documented in this file.
 - `.github/workflows/ci.yml` — `concurrency` group keyed on workflow + ref
   with `cancel-in-progress: true`, so a new push cancels the previous
   run's CI instead of letting both finish
+- `modules/nixos/unifi-backup.nix` (new) — `nixie.unifiBackup`: daily scp
+  backup of UniFi OS's autobackup directory from unifi.home.matos.cc into a
+  local directory, via SSH key auth. Deploys the script as `unifi_backup.sh`
+  (also runnable manually) and wraps it in a systemd oneshot service + timer
+- `modules/common/unifi-backup-secrets.nix` (new) — deploys the new
+  `unifi-backup-ssh-key` secret (SSH private key for unifi.home.matos.cc)
+  via ragenix from `nix-secrets`
+- `hosts/nixos/porkchop/default.nix` — enabled `nixie.unifiBackup`,
+  backing up into `/home/alberth/backups/unifi`
 
 ### Changed
 
