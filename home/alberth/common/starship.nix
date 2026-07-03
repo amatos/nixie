@@ -83,9 +83,9 @@ _:
       truncation_symbol = "…/";
       substitutions = {
         "Documents" = "󰈙 ";
-        "Downloads" = " ";
+        "Downloads" = " ";
         "Music" = "󰝚 ";
-        "Pictures" = " ";
+        "Pictures" = " ";
         "src" = "󰲋 ";
         "Developer" = "󰲋 ";
       };
@@ -93,7 +93,7 @@ _:
 
     # Git branch — pink segment
     git_branch = {
-      symbol = "";
+      symbol = "";
       style = "bg:pink";
       format = "[[ $symbol $branch ](fg:crust bg:pink)]($style)";
     };
@@ -106,62 +106,62 @@ _:
 
     # Language / toolchain segments — green block
     c = {
-      symbol = " ";
+      symbol = " ";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     rust = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     golang = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     nodejs = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     php = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     java = {
-      symbol = " ";
+      symbol = " ";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     kotlin = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     haskell = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version) ](fg:crust bg:green)]($style)";
     };
 
     python = {
-      symbol = "";
+      symbol = "";
       style = "bg:green";
       format = "[[ $symbol( $version)(\\($virtualenv\\)) ](fg:crust bg:green)]($style)";
     };
 
     # Conda environment — comment segment
     conda = {
-      symbol = "  ";
+      symbol = "  ";
       style = "fg:crust bg:comment";
       format = "[$symbol$environment ]($style)";
       ignore_base = false;
@@ -172,7 +172,7 @@ _:
       disabled = false;
       time_format = "%_I:%M %p";
       style = "bg:comment";
-      format = "[[  $time ](fg:crust bg:comment)]($style)";
+      format = "[[  $time ](fg:crust bg:comment)]($style)";
     };
 
     line_break.disabled = true;
@@ -192,7 +192,7 @@ _:
     cmd_duration = {
       disabled = false;
       show_milliseconds = true;
-      format = " in $duration ";
+      format = " in $duration ";
       style = "bg:purple";
       show_notifications = true;
       min_time_to_notify = 45000;
