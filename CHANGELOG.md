@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/common/tools.nix` — `programs.tmux` enabled fleet-wide:
+  mouse support, 0ms escape time (neovim-friendly), 50k line scrollback,
+  `tmux-256color` terminal with true-color RGB passthrough, and the
+  Dracula plugin (`tmuxPlugins.dracula`) for theming
 - `modules/common/packages.nix` - explicitly added uv and python3
 - `.github/workflows/ci.yml` — `concurrency` group keyed on workflow + ref
   with `cancel-in-progress: true`, so a new push cancels the previous

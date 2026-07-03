@@ -1,4 +1,4 @@
-_:
+{ pkgs, ... }:
 
 {
   # eza (modern ls replacement)
@@ -59,4 +59,19 @@ _:
 
   # Nushell
   programs.nushell.enable = true;
+
+  # tmux
+  programs.tmux = {
+    enable = true;
+    mouse = true;
+    escapeTime = 0;
+    historyLimit = 50000;
+    terminal = "tmux-256color";
+    plugins = with pkgs.tmuxPlugins; [
+      dracula
+    ];
+    extraConfig = ''
+      set -ag terminal-overrides ",xterm-256color:RGB"
+    '';
+  };
 }
