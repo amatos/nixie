@@ -2,8 +2,8 @@
 # Copy to home/alberth/<hostname>.nix when provisioning a new darwin host.
 #
 # darwin/default.nix (imported below) provides: GPG agent (pinentry-mac),
-# Ghostty terminal (enable, package = null, command = fish). Add only
-# host-specific divergences here.
+# Ghostty terminal (enable, package = null). Add only host-specific
+# divergences here.
 _:
 
 {

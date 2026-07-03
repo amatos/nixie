@@ -1,8 +1,7 @@
 # Ghostty settings — shared across all darwin hosts.
 # Migrated from ~/Library/Application Support/com.mitchellh.ghostty/config.
 #
-# command is set per-host (codex.nix / darwintron.nix) to the nix-managed
-# fish path, overriding the default shell lookup.
+# command is left unset; Ghostty inherits the login shell from the system.
 _:
 
 {

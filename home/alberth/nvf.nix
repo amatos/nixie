@@ -46,7 +46,6 @@ _:
         nix.enable = true;
         bash.enable = true;
         markdown.enable = true;
-        fish.enable = true;
         python.enable = true;
         typescript.enable = true;
         rust.enable = true;

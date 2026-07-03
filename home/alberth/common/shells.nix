@@ -22,14 +22,11 @@ in
     ragenix = "ragenix -i ~/.config/age/yubikey-identity.txt";
   };
 
-  # nixbuild / nixswitch — per-shell because fish uses (hostname) not $(hostname)
   programs.bash.shellAliases.nixbuild = "pushd $HOME/Projects/nixie && ${rebuildCmd} build .#$(hostname) && popd";
   programs.zsh.shellAliases.nixbuild = "pushd $HOME/Projects/nixie && ${rebuildCmd} build .#$(hostname) && popd";
-  programs.fish.shellAliases.nixbuild = "pushd $HOME/Projects/nixie && ${rebuildCmd} build .#(hostname) && popd";
 
   programs.bash.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#$(hostname) && popd";
   programs.zsh.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#$(hostname) && popd";
-  programs.fish.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#(hostname) && popd";
 
   # Bash
   programs.bash = {
@@ -152,58 +149,4 @@ in
     '';
   };
 
-  # Fish
-  programs.fish = {
-    enable = true;
-    interactiveShellInit = ''
-      # GPG
-      set -gx GPG_TTY (tty)
-
-      # Architecture flags
-      set -gx ARCHFLAGS "-arch "(uname -m)
-
-      # 1Password shell plugins
-      if test -f "$HOME/.config/op/plugins.sh"
-        source "$HOME/.config/op/plugins.sh"
-      end
-    '';
-    shellInit = ''
-      # History: fish deduplicates and shares across sessions by default.
-      # Ignore commands prefixed with a space and cap history size.
-      set -g fish_history_max_size 5000
-      set -g fish_history_ignore_space 1
-    '';
-    loginShellInit = ''
-      # Source Nix daemon environment if present (needed on macOS / non-NixOS)
-      if test -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
-        source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
-      end
-
-      # PYTHONPATH
-      if set -q PYTHONPATH
-        set -gx PYTHONPATH "$HOME/.local-pip/packages:$PYTHONPATH"
-      else
-        set -gx PYTHONPATH "$HOME/.local-pip/packages"
-      end
-    '';
-    # ls → eza wrapper; rewrites -t (standalone or combined) to --sort=newest
-    functions.ls = {
-      description = "eza wrapper — rewrites -t (standalone or combined) to --sort=newest";
-      body = ''
-        set -l args
-        for arg in $argv
-          if string match -rq '^-[a-zA-Z]*t[a-zA-Z]*$' -- $arg
-            set stripped (string replace -a t "" $arg)
-            if test "$stripped" != "-"
-              set args $args $stripped
-            end
-            set args $args --sort=newest
-          else
-            set args $args $arg
-          end
-        end
-        eza $args
-      '';
-    };
-  };
 }

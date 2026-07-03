@@ -43,6 +43,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `home/alberth/common/shells.nix` — removed `programs.fish` block and
+  fish-specific nixbuild/nixswitch aliases
+- `home/alberth/common/theming.nix` — removed fish Dracula theme config
+  and `programs.fish.shellInit`
+- `home/alberth/common/atuin.nix` — removed `enableFishIntegration`
+- `home/alberth/nvf.nix` — removed `fish.enable` language support
+- `home/alberth/darwin/ghostty.nix`, `home/alberth/template-darwin.nix`
+  — updated stale fish references in comments
 - `CLAUDE.md` — added directive prohibiting AI/tool attribution tags
   (`Co-Authored-By` etc.) in commits without explicit user permission
 - `hosts/nixos/common-nixos.nix` — `documentation.nixos.enable = false;`

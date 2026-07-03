@@ -11,7 +11,6 @@ _:
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
-    enableFishIntegration = true;
     flags = [ "--disable-up-arrow" ];
     settings = {
       auto_sync = true;
