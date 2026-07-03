@@ -39,11 +39,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    catppuccin = {
-      url = "github:catppuccin/nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
     };
@@ -86,7 +81,6 @@
       nix-secrets,
       keytabs-matos-cc,
       nvf,
-      catppuccin,
       nix-homebrew,
       homebrew-autoupdate,
       zapp,
@@ -115,7 +109,6 @@
           nix-secrets
           keytabs-matos-cc
           nvf
-          catppuccin
           homebrew-autoupdate
           ;
       };

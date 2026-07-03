@@ -7,7 +7,7 @@ It uses Determinate Nix and is driven exclusively by flakes — no `nix-env`, no
 
 **Key inputs:** nix-darwin, home-manager (as a NixOS/darwin module, never standalone),
 ragenix (age-encrypted secrets via YubiKey), nvf (declarative neovim),
-catppuccin/nix (theming), nix-homebrew (declarative Homebrew on darwin).
+nix-homebrew (declarative Homebrew on darwin).
 
 **Secrets** live in separate non-flake repos (`flake = false`) and are referenced via
 specialArgs: text/token secrets in `github:amatos/nix-secrets` (input `nix-secrets`),
@@ -92,7 +92,7 @@ modules/
     certbot.nix                  # launchd daemon, Sunday 03:00
 
 home/alberth/
-  default.nix                    # all shared home config (shells, git, gpg, tools, catppuccin)
+  default.nix                    # all shared home config (shells, git, gpg, tools, theming)
   nvf.nix                        # neovim via nvf
   codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH,
                                   # copyApps for TCC, OrbStack data location)
@@ -145,7 +145,7 @@ home/alberth/
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf catppuccin; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)
@@ -228,9 +228,18 @@ host needs to consume:
 
 ### Theming
 
-- catppuccin flavor: `macchiato`, accent: `blue` — set globally in `home/alberth/default.nix`.
-- bat uses Dracula (bundled with bat itself); do not enable `catppuccin.bat`.
-- nvf manages its own catppuccin-mocha internally; do not enable `catppuccin.nvim`.
+- Dracula (<https://draculatheme.com>) fleet-wide, across every themed tool. There is no
+  catppuccin/nix-style nix flake input for Dracula, so nixie carries no theming flake input at
+  all: bat, neovim (nvf), and Ghostty theme via their own bundled `"dracula"`/`"Dracula"`
+  option (no extra config needed beyond selecting it). Tools with no bundled Dracula variant
+  (btop, eza, fish, fzf, starship, zsh-syntax-highlighting) have the official Dracula
+  colors/theme files embedded directly in `home/alberth/common/theming.nix` (or, for starship,
+  as `style` overrides layered onto the existing segment formats in
+  `home/alberth/common/starship.nix`) — see that project's own README/`draculatheme.com/<tool>`
+  page as the source of truth if a value ever needs updating.
+- When adding a newly-themed tool, check `draculatheme.com/<tool>` first; if it's not listed
+  there, the tool has no available Dracula theme and should be left unstyled rather than
+  approximated.
 
 ### Certbot
 

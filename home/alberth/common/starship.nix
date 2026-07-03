@@ -7,7 +7,9 @@
 # Approximations vs p10k:
 #   - Kubernetes/AWS/Azure/GCloud are always visible when configured (p10k showed
 #     them only while typing the relevant command — Starship has no equivalent).
-#   - No powerline segment backgrounds; catppuccin.starship handles colors.
+#   - No powerline segment backgrounds; colors below are the official Dracula
+#     starship preset (draculatheme.com/starship) applied to the segments it
+#     defines — symbols/formats are unchanged from the p10k-derived layout.
 _:
 
 {
@@ -38,6 +40,7 @@ _:
     # Directory — truncate to unique prefix matching p10k truncate_to_unique strategy
     directory = {
       format = "[$path]($style)[$read_only]($read_only_style) ";
+      style = "bold #50fa7b"; # Dracula green (draculatheme.com/starship)
       truncation_length = 3;
       truncate_to_repo = true;
       truncation_symbol = "…/";
@@ -46,6 +49,7 @@ _:
     # Git branch —  nerd font branch icon, "on " prefix matching p10k VCS_PREFIX
     git_branch = {
       format = "[on ](dimmed)[$symbol$branch(:$remote_branch)]($style) ";
+      style = "bold #ff79c6"; # Dracula pink (draculatheme.com/starship)
       symbol = " ";
     };
 
@@ -66,6 +70,7 @@ _:
     # + staged, ! unstaged, ? untracked
     git_status = {
       format = "([$all_status$ahead_behind]($style) )";
+      style = "bold #ff5555"; # Dracula red (draculatheme.com/starship)
       conflicted = "~$count";
       ahead = "⇡$count";
       behind = "⇣$count";
@@ -91,6 +96,7 @@ _:
     cmd_duration = {
       min_time = 3000;
       format = "[took $duration]($style) ";
+      style = "bold #f1fa8c"; # Dracula yellow (draculatheme.com/starship)
       show_milliseconds = false;
     };
 
@@ -197,6 +203,7 @@ _:
     # AWS profile + region
     aws = {
       format = "[$symbol($profile )(\\[$duration\\] )]($style)";
+      style = "bold #ffb86c"; # Dracula orange (draculatheme.com/starship)
       symbol = " ";
     };
 
@@ -225,10 +232,12 @@ _:
     username = {
       show_always = false;
       format = "[$user]($style)";
+      style_user = "bold #bd93f9"; # Dracula purple (draculatheme.com/starship)
     };
     hostname = {
       ssh_only = true;
       format = "[@$hostname ]($style)";
+      style = "bold #ff5555"; # Dracula red (draculatheme.com/starship)
     };
 
     # Prompt character — ❯ green on success, red on failure; ❮ in vi normal mode

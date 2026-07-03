@@ -56,7 +56,7 @@ modules/
     certbot.nix                  # launchd daemon, Sunday 03:00
 
 home/alberth/
-  default.nix                    # all shared home config (shells, git, gpg, tools, catppuccin)
+  default.nix                    # all shared home config (shells, git, gpg, tools, theming)
   nvf.nix                        # neovim via nvf
   codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH)
   darwintron.nix                 # darwin/darwintron overlay (pinentry-mac, ghostty)

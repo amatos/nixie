@@ -6,7 +6,6 @@
   lib,
   pkgs,
   nvf,
-  catppuccin,
   nix-secrets,
   ...
 }:
@@ -127,7 +126,6 @@ in
     backupCommand = "${pkgs.trash-cli}/bin/trash";
     sharedModules = [
       nvf.homeManagerModules.default
-      catppuccin.homeModules.catppuccin
     ];
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {

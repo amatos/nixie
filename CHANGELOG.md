@@ -22,6 +22,17 @@ All notable changes to this project will be documented in this file.
   the now-unused `catppuccin-bat` flake input and its `themes` block, and
   removed the `catppuccin-bat` arg/wiring from `flake.nix`,
   `hosts/darwin/common-darwin.nix`, and `modules/nixos/home-manager.nix`
+- `home/alberth/common/theming.nix` — btop, eza, fish, fzf, and
+  zsh-syntax-highlighting switched from Catppuccin to Dracula. None of these
+  have a nix-packaged Dracula module (unlike Catppuccin's catppuccin/nix), so
+  their official colors/theme files are embedded directly instead of adding
+  new flake inputs. `home/alberth/common/starship.nix` gained Dracula `style`
+  overrides on the segments the official Dracula starship preset defines,
+  without touching the existing p10k-derived formats/symbols. bat, neovim
+  (nvf), and Ghostty were already Dracula. With nothing left using it, the
+  `catppuccin` flake input and its `homeModules.catppuccin` sharedModule were
+  removed from `flake.nix`, `hosts/darwin/common-darwin.nix`, and
+  `modules/nixos/home-manager.nix` — nixie now carries no theming flake input
 
 ### Fixed
 
