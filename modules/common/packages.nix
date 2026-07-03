@@ -36,7 +36,7 @@ in
       jq
       nh # Nix helper — nicer `nixos-rebuild` / `darwin-rebuild` / `home-manager` UX
       pre-commit
-      python
+      python3
       rage # Rust implementation of age
       uv
     ]
