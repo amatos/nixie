@@ -369,6 +369,10 @@ Rules enforced by commitlint:
 - Scope is optional; use it to identify the affected file or subsystem
   (e.g. `feat(atuin): …`).
 
+**Never add a `Co-Authored-By` trailer** (or any other AI/tool attribution
+tag) to a commit without explicitly asking the user first and receiving
+permission. This repository is not an advertising space.
+
 ---
 
 ## Releases

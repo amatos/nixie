@@ -40,6 +40,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `CLAUDE.md` — added directive prohibiting AI/tool attribution tags
+  (`Co-Authored-By` etc.) in commits without explicit user permission
 - `hosts/nixos/common-nixos.nix` — `documentation.nixos.enable = false;`
   fleet-wide; stops the local NixOS manual/options-JSON build, which was
   the source of the upstream `builtins.toFile ... options.json` warning
