@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/common/packages.nix` - explicitly added uv and python
 - `.github/workflows/ci.yml` — `concurrency` group keyed on workflow + ref
   with `cancel-in-progress: true`, so a new push cancels the previous
   run's CI instead of letting both finish

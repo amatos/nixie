@@ -30,13 +30,15 @@ in
       age # age encryption
       age-plugin-yubikey
       cachix # Nix binary cache hosting — push and use build artifacts
-      rage # Rust implementation of age
-      git
-      pre-commit
       curl
-      jq
+      git
       inkscape # Vector graphics editor
+      jq
       nh # Nix helper — nicer `nixos-rebuild` / `darwin-rebuild` / `home-manager` UX
+      pre-commit
+      python
+      rage # Rust implementation of age
+      uv
     ]
     # ghostty.terminfo: Linux only — on darwin the Homebrew cask installs it automatically
     ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.ghostty.terminfo ];
