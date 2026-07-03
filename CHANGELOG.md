@@ -25,6 +25,14 @@ All notable changes to this project will be documented in this file.
   via ragenix from `nix-secrets`
 - `hosts/nixos/porkchop/default.nix` — enabled `nixie.unifiBackup`,
   backing up into `/home/alberth/backups/unifi`
+- `flake.nix` — added `qmd` flake input (`github:tobi/qmd`,
+  `inputs.nixpkgs.follows = "nixpkgs"`); threaded through `outputs` args
+  and `sharedSpecialArgs`
+- `hosts/darwin/common-darwin.nix`, `modules/nixos/home-manager.nix` —
+  added `qmd.homeModules.default` to `sharedModules` so `programs.qmd`
+  is available on all hosts
+- `home/alberth/codex.nix`, `home/alberth/gammu.nix` — `programs.qmd.enable
+  = true`; installs qmd on codex (aarch64-darwin) and gammu (x86_64-linux)
 
 ### Changed
 

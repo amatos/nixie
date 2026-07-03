@@ -5,6 +5,7 @@
 {
   pkgs,
   nvf,
+  qmd,
   nix-secrets,
   ...
 }:
@@ -20,6 +21,7 @@ in
     backupCommand = "${pkgs.trash-cli}/bin/trash";
     sharedModules = [
       nvf.homeManagerModules.default
+      qmd.homeModules.default
     ];
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {

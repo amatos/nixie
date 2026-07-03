@@ -68,6 +68,11 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    qmd = {
+      url = "github:tobi/qmd";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -87,6 +92,7 @@
       pre-commit-hooks,
       nix-kerberos-ldap,
       disko,
+      qmd,
       ...
     }:
     let
@@ -110,6 +116,7 @@
           keytabs-matos-cc
           nvf
           homebrew-autoupdate
+          qmd
           ;
       };
 

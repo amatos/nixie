@@ -3,6 +3,8 @@
 { pkgs, lib, ... }:
 
 {
+  programs.qmd.enable = true;
+
   # Gammu-only packages
   home.packages = [
     pkgs.act # Run GitHub Actions locally

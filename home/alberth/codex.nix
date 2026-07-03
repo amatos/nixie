@@ -38,6 +38,7 @@
   # package = null, command = fish). Only add settings that differ on codex.
 
   programs = {
+    qmd.enable = true;
     ssh.settings = {
       "*" = {
         ServerAliveInterval = 120;
