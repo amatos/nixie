@@ -192,6 +192,37 @@
     settings.color_theme = "dracula";
   };
 
+  # fish — Dracula color palette (draculatheme.com/fish).
+  # Uses set -U (universal variables) so colors persist across sessions; writing
+  # them in interactiveShellInit is idempotent since fish skips unchanged values.
+  programs.fish.interactiveShellInit = lib.mkOrder 950 ''
+    set -U fish_color_normal F8F8F2
+    set -U fish_color_command 50FA7B
+    set -U fish_color_keyword BD93F9
+    set -U fish_color_quote F1FA8C
+    set -U fish_color_redirection FF79C6
+    set -U fish_color_end FF79C6
+    set -U fish_color_error FF5555
+    set -U fish_color_param F8F8F2
+    set -U fish_color_comment 6272A4
+    set -U fish_color_match --background=FF6188
+    set -U fish_color_search_match --background=FF6188
+    set -U fish_color_operator 50FA7B
+    set -U fish_color_escape 50FA7B
+    set -U fish_color_autosuggestion 6272A4
+    set -U fish_color_cancel --reverse
+    set -U fish_color_selection --background=44475A
+    set -U fish_pager_color_progress --background=FF79C6
+    set -U fish_pager_color_background
+    set -U fish_pager_color_prefix normal --bold --underline
+    set -U fish_pager_color_completion F8F8F2
+    set -U fish_pager_color_description 6272A4 --italics
+    set -U fish_pager_color_selected_background --background=44475A
+    set -U fish_pager_color_selected_prefix --bold --underline
+    set -U fish_pager_color_selected_completion F8F8F2
+    set -U fish_pager_color_selected_description 6272A4 --italics
+  '';
+
   # zsh-syntax-highlighting — Dracula styles (dracula/zsh-syntax-highlighting).
   # mkOrder 950 mirrors the order the former catppuccin.zsh-syntax-highlighting
   # module used, so it still loads before home-manager's syntaxHighlighting init.

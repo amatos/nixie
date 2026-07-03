@@ -55,9 +55,11 @@ in
   # Allow Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # Zsh — enable system-wide so it appears in /etc/shells and can be set as login shell
+  # Fish — default login shell; enabled system-wide so it appears in /etc/shells.
+  # Zsh remains available (kept for scripts and compatibility).
+  programs.fish.enable = true;
   programs.zsh.enable = true;
-  users.users.${primaryUser}.shell = pkgs.zsh;
+  users.users.${primaryUser}.shell = pkgs.fish;
 
   # Zapp — CLI tool for flashing ZSA keyboards
   programs.zapp.enable = true;

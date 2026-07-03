@@ -28,6 +28,61 @@ in
   programs.bash.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#$(hostname) && popd";
   programs.zsh.shellAliases.nixswitch = "pushd $HOME/Projects/nixie && ${switchCmd} .#$(hostname) && popd";
 
+  # Fish
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = ''
+      # GPG
+      set -x GPG_TTY (tty)
+
+      # Architecture flags
+      set -x ARCHFLAGS "-arch "(uname -m)
+
+      # 1Password shell plugins
+      if test -f "$HOME/.config/op/plugins.sh"
+          source "$HOME/.config/op/plugins.sh"
+      end
+    '';
+    functions = {
+      # nixbuild / nixswitch use fish command substitution (hostname) not $(hostname)
+      nixbuild = {
+        description = "Build nix config for this host";
+        body = ''
+          pushd $HOME/Projects/nixie
+          ${rebuildCmd} build .#(hostname)
+          popd
+        '';
+      };
+      nixswitch = {
+        description = "Switch nix config for this host";
+        body = ''
+          pushd $HOME/Projects/nixie
+          ${switchCmd} .#(hostname)
+          popd
+        '';
+      };
+      # ls → eza wrapper; maps -t / combined flags to --sort=newest
+      ls = {
+        description = "eza wrapper that rewrites -t to --sort=newest";
+        body = ''
+          set args
+          for arg in $argv
+              if string match -qr '^-[a-zA-Z]*t[a-zA-Z]*$' -- $arg
+                  set stripped (string replace -a t "" $arg)
+                  if test "$stripped" != "-"
+                      set args $args $stripped
+                  end
+                  set args $args --sort=newest
+              else
+                  set args $args $arg
+              end
+          end
+          eza $args
+        '';
+      };
+    };
+  };
+
   # Bash
   programs.bash = {
     enable = true;

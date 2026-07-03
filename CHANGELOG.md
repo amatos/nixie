@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/common/shells.nix` — `programs.fish` enabled fleet-wide:
+  `interactiveShellInit` sets GPG_TTY, ARCHFLAGS, and sources 1Password
+  plugins; fish `functions` define `nixbuild` and `nixswitch` (using fish
+  command substitution `(hostname)` instead of `$(hostname)`) and the
+  `ls` → eza wrapper (fish function syntax)
+- `home/alberth/common/atuin.nix` — `enableFishIntegration = true`
+- `home/alberth/common/theming.nix` — Dracula fish color palette via
+  `set -U fish_color_*` universal variables (draculatheme.com/fish),
+  ordered at 950 to match the zsh syntax-highlighting approach
 - `hosts/darwin/codex/homebrew.nix` — added `cmux` and `supacode` casks;
   both are native macOS terminals for running AI coding agents in parallel,
   not available in nixpkgs
@@ -43,6 +52,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/darwin/common-darwin.nix`, `hosts/nixos/common-nixos.nix` —
+  default login shell changed from zsh to fish (`pkgs.fish`);
+  `programs.fish.enable = true` added fleet-wide; zsh remains enabled
+  and available
 - `home/alberth/common/shells.nix` — removed `programs.fish` block and
   fish-specific nixbuild/nixswitch aliases
 - `home/alberth/common/theming.nix` — removed fish Dracula theme config
