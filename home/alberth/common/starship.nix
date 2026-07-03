@@ -20,7 +20,7 @@ _:
   programs.starship.settings = {
     # \n in a Nix regular string is a real newline; home-manager serialises it
     # to TOML as \n which Starship interprets as a line break.
-    format = "[](purple)$os$username@$hostname[](bg:cyan fg:purple)$directory[](bg:pink fg:cyan)$git_branch$git_status[](fg:pink bg:green)$c$rust$golang$nodejs$php$java$kotlin$haskell$python$nix_shell[](fg:green bg:comment)$conda[](fg:comment bg:comment)$time[](fg:comment)$cmd_duration\n$character";
+    format = "[](purple)$os$username$hostname[](bg:cyan fg:purple)$directory[](bg:pink fg:cyan)$git_branch$git_status[](fg:pink bg:green)$c$rust$golang$nodejs$php$java$kotlin$haskell$python$nix_shell[](fg:green bg:comment)$conda[](fg:comment bg:comment)$time[](fg:comment)$cmd_duration\n$character";
 
     palette = "dracula";
 
