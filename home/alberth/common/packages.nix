@@ -35,6 +35,7 @@
     );
 
   home.sessionPath = [
+    "$HOME/.local/bin"
     "$HOME/.cargo/bin"
     "$HOME/.pnpm-packages/bin"
     "$HOME/.pnpm-packages"

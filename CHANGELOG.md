@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Changed
+
+- `home/alberth/default.nix` — deploy `npbs-all` to `~/.local/bin/npbs-all`
+  via `home.file` (executable symlink into the Nix store)
+- `home/alberth/common/packages.nix` — add `$HOME/.local/bin` to
+  `home.sessionPath`
+
+---
+
 ## 26.07.03
 
 ### Added

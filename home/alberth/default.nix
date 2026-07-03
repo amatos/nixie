@@ -45,6 +45,11 @@ in
   home.file.".config/age/yubikey-identity.txt".source =
     "${nix-secrets}/age-yubikey-identity-9ca1fbf9.txt";
 
+  home.file.".local/bin/npbs-all" = {
+    source = ./scripts/npbs-all.sh;
+    executable = true;
+  };
+
   # Environment variables applied to all shells
   home.sessionVariables = {
     ALTERNATE_EDITOR = "";
