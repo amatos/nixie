@@ -36,6 +36,7 @@
       tmux.enable = false;
 
       # nvf manages neovim theming internally (nvf.nix: theme.name = "dracula").
+      nvf.enable = false;
       vim.enable = false;
     };
   };
