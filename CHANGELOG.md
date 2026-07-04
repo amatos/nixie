@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## 26.07.05
+
+### Added
+
+- `flake.nix` — `stylix` input (`github:danth/stylix`,
+  `inputs.nixpkgs.follows`); threaded through `outputs` args and
+  `sharedSpecialArgs`
+- `home/alberth/common/stylix.nix` (new) — `stylix.enable = true` with
+  base16 Dracula scheme (`base16-schemes`); JetBrainsMono Nerd Font set
+  as monospace; starship, tmux, and vim targets disabled (custom/plugin
+  theming retained for those); 1×1 bg image satisfies required option
+- `hosts/darwin/common-darwin.nix`, `modules/nixos/home-manager.nix` —
+  `stylix.homeModules.stylix` added to `home-manager.sharedModules`
+
+### Changed
+
+- `home/alberth/common/theming.nix` — removed manually embedded Dracula
+  color blocks for fzf, btop, fish, and zsh-syntax-highlighting; now
+  managed by stylix. eza YAML remains (no stylix target exists).
+- `home/alberth/common/tools.nix` — removed explicit `bat.config.theme`
+  (`"Dracula"`); stylix injects `base16-stylix` theme instead
+- `home/alberth/darwin/ghostty.nix` — removed named `theme` setting;
+  stylix generates terminal colors from base16 Dracula. Explicit
+  `font-size = 14` kept to override stylix's scaled default.
+
+---
+
 ## 26.07.04
 
 ### Changed
