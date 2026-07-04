@@ -1,38 +1,54 @@
 #!/usr/bin/env bash
-# npbs-all — run 'npbs' (nixpull + nixbuild + nixswitch) on all remote hosts
-# simultaneously from codex. SSH keys and host connectivity must be in place.
+# npbs-all — run nixpull + nixbuild + nixswitch on all hosts simultaneously.
+# Codex (local darwin) runs in-process; NixOS hosts connect via SSH.
 #
 # Output from every host streams live, prefixed with [hostname].
 # The script exits non-zero if any host fails.
 
 set -uo pipefail
 
-HOSTS=(gammu porkchop huginn)
+REMOTE_HOSTS=(gammu porkchop huginn)
 
-# Runs npbs on a single host, prefixing every output line with [host].
-# Returns the SSH exit code so failures are detected by the caller.
-run_host() {
+# npbs is a shell alias (only active in interactive sessions). Expand it
+# inline using the fish functions nixbuild and nixswitch, which are proper
+# function files and auto-load in non-interactive fish as well.
+NPBS_CMD='cd ~/Projects/nixie; and git pull; and nixbuild; and nixswitch'
+
+# Runs npbs on a remote NixOS host over SSH.
+run_remote() {
     local host="$1"
     ssh \
         -o BatchMode=yes \
         -o ConnectTimeout=15 \
-        "$host" 'fish -c npbs' 2>&1 \
+        "$host" "fish -c '$NPBS_CMD'" 2>&1 \
         | while IFS= read -r line; do
             printf '[%s] %s\n' "$host" "$line"
           done
     return "${PIPESTATUS[0]}"
 }
 
-printf 'Updating %d hosts in parallel: %s\n\n' "${#HOSTS[@]}" "${HOSTS[*]}"
+# Runs npbs locally (codex/darwin — no SSH required).
+run_local() {
+    fish -c "$NPBS_CMD" 2>&1 \
+        | while IFS= read -r line; do
+            printf '[codex] %s\n' "$line"
+          done
+    return "${PIPESTATUS[0]}"
+}
+
+ALL_HOSTS=(codex "${REMOTE_HOSTS[@]}")
+printf 'Updating %d hosts in parallel: %s\n\n' "${#ALL_HOSTS[@]}" "${ALL_HOSTS[*]}"
 
 declare -A pids
-for host in "${HOSTS[@]}"; do
-    run_host "$host" &
+run_local &
+pids[codex]=$!
+for host in "${REMOTE_HOSTS[@]}"; do
+    run_remote "$host" &
     pids["$host"]=$!
 done
 
 failed=()
-for host in "${HOSTS[@]}"; do
+for host in "${ALL_HOSTS[@]}"; do
     if ! wait "${pids[$host]}"; then
         failed+=("$host")
     fi
