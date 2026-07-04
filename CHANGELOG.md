@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## 26.07.06
+
+### Fixed
+
+- `home/alberth/scripts/npbs-all.sh` — `fish -c npbs` failed on remote
+  hosts because `npbs` is a shell alias (loaded only in interactive
+  sessions). Replaced with the inline expansion
+  `cd ~/Projects/nixie; and git pull; and nixbuild; and nixswitch`,
+  which works in non-interactive fish because `nixbuild` and `nixswitch`
+  are proper fish function files.
+- `home/alberth/scripts/npbs-all.sh` — add `codex` (darwin) as a local
+  host via `run_local()`, running the same fish command in-process
+  instead of over SSH.
+
+---
+
 ## 26.07.05
 
 ### Added
