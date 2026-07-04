@@ -95,6 +95,28 @@ in
     '';
   };
 
+  # Postfix relay client — relay all outbound mail through porkchop.
+  # porkchop runs the full smtp-relay module (modules/nixos/smtp-relay.nix)
+  # and manages postfix itself; all other NixOS hosts use it as a smarthost
+  # over Tailscale on port 25. porkchop's myNetworks covers both the LAN
+  # subnet (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10), so no SASL
+  # credentials are required from fleet hosts.
+  services.postfix = lib.mkIf (config.networking.hostName != "porkchop") {
+    enable = true;
+    settings.main = {
+      # Listen on loopback only — this is a client, not a relay
+      inet_interfaces = "loopback-only";
+      inet_protocols = "all";
+      # Relay all mail through porkchop via Tailscale hostname
+      relayhost = [ "[porkchop.ts.matos.cc]:25" ];
+      # Disable local delivery
+      mydestination = "";
+      local_transport = "error:local delivery disabled";
+      # Opportunistic TLS toward porkchop
+      smtp_tls_security_level = "may";
+    };
+  };
+
   # LDAP client — disable SASL hostname canonicalization.
   # The SASL GSSAPI plugin resolves the server hostname via reverse DNS
   # before constructing the service principal.  On Tailscale this yields

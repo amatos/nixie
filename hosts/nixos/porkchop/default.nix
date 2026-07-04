@@ -97,6 +97,7 @@ in
       "127.0.0.0/8"
       "[::1]/128"
       "10.0.4.0/22"
+      "100.64.0.0/10" # Tailscale CGNAT — fleet hosts relay via porkchop.ts.matos.cc
     ];
     smtps.enable = true;
   };

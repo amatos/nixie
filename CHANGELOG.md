@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- `hosts/nixos/common-nixos.nix` — postfix relay client for all NixOS
+  hosts except porkchop: loopback-only listener, relays through
+  `porkchop.ts.matos.cc:25`, local delivery disabled, opportunistic TLS.
+  Mirrors the chrony client block pattern already in that file.
+
+### Changed
+
+- `hosts/nixos/porkchop/default.nix` — added `100.64.0.0/10` (Tailscale
+  CGNAT) to `nixie.smtpRelay.myNetworks` so fleet hosts connecting via
+  `porkchop.ts.matos.cc` are accepted for relay without SASL credentials.
+
+---
+
 ## 26.07.06
 
 ### Fixed
