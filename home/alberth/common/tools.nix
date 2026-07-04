@@ -20,14 +20,10 @@
     enableFishIntegration = true;
   };
 
-  # bat — cat clone with syntax highlighting
-  # Dracula is bundled with bat itself; do not enable catppuccin.bat.
+  # bat — cat clone with syntax highlighting; Dracula theme via stylix.
   programs.bat = {
     enable = true;
-    config = {
-      theme = "Dracula";
-      italic-text = "always";
-    };
+    config.italic-text = "always";
   };
 
   # btop — resource monitor

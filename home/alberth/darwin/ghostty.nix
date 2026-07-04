@@ -7,16 +7,15 @@ _:
 {
   programs.ghostty.settings = {
     # ── Font ──────────────────────────────────────────────────────────────────
-    font-family = "JetBrainsMono Nerd Font";
+    # font-family is set by stylix; font-size is explicit here because stylix's
+    # size scaling produces a non-integer value for ghostty.
     font-size = 14;
     font-feature = "-calt"; # disable programming ligatures
 
-    # ── Theme / colors ────────────────────────────────────────────────────────
-    # Adaptive Dracula — switches between light and dark with the OS theme.
-    # Both variants are bundled with Ghostty; run `ghostty +list-themes` to explore.
-    theme = "light:dracula,dark:dracula";
+    # ── Transparency ─────────────────────────────────────────────────────────
+    # Terminal colors are set by stylix (home/alberth/common/stylix.nix).
     background-opacity = 0.90;
-    background-blur = true; # blur the background when opacity < 1
+    background-blur = true;
 
     # ── Window ────────────────────────────────────────────────────────────────
     # "srgb" | "display-p3" (macOS only)

@@ -7,6 +7,7 @@
   nvf,
   qmd,
   nix-secrets,
+  stylix,
   ...
 }:
 
@@ -22,6 +23,7 @@ in
     sharedModules = [
       nvf.homeManagerModules.default
       qmd.homeModules.default
+      stylix.homeModules.stylix
     ];
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {

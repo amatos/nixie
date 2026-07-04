@@ -20,6 +20,7 @@ in
     ./common/shells.nix
     ./common/ssh.nix
     ./common/starship.nix
+    ./common/stylix.nix
     ./common/theming.nix
     ./common/tools.nix
   ];

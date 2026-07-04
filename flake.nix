@@ -73,6 +73,11 @@
       url = "github:tobi/qmd";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -93,6 +98,7 @@
       nix-kerberos-ldap,
       disko,
       qmd,
+      stylix,
       ...
     }:
     let
@@ -117,6 +123,7 @@
           nvf
           homebrew-autoupdate
           qmd
+          stylix
           ;
       };
 
