@@ -75,10 +75,41 @@ in
   # custom activationScripts.<name> keys (like the old `ntp` key here) are
   # evaluated but silently never run. extraActivation is the supported
   # extension point.
+  # Postfix relay client — relay all outbound mail through porkchop.
+  # macOS ships postfix but nix-darwin has no services.postfix module.
+  # We use postconf -e in the activation script to write specific keys into
+  # the existing /etc/postfix/main.cf without owning the whole file (same
+  # pattern as kwriteconfig6 for KDE settings), and register a launchd daemon
+  # so postfix starts on demand when mail is queued to the maildrop directory.
+  launchd.daemons."org.postfix.master" = {
+    serviceConfig = {
+      Label = "org.postfix.master";
+      # postfix master process — exits after 60 s of idle; launchd restarts
+      # it when the next message arrives in the maildrop queue directory.
+      ProgramArguments = [
+        "/usr/libexec/postfix/master"
+        "-e"
+        "60"
+      ];
+      QueueDirectories = [ "/private/var/spool/postfix/maildrop" ];
+      KeepAlive = false;
+      StandardErrorPath = "/dev/null";
+    };
+  };
+
   system.activationScripts.extraActivation.text = lib.mkAfter ''
     echo "configuring NTP server..." >&2
     systemsetup -setnetworktimeserver "porkchop.ts.matos.cc" 2>/dev/null || true
     systemsetup -setusingnetworktime on 2>/dev/null || true
+
+    echo "configuring postfix relay client..." >&2
+    /usr/sbin/postconf -e 'relayhost = [porkchop.ts.matos.cc]:25'
+    /usr/sbin/postconf -e 'inet_interfaces = loopback-only'
+    /usr/sbin/postconf -e 'inet_protocols = all'
+    /usr/sbin/postconf -e 'mydestination = '
+    /usr/sbin/postconf -e 'local_transport = error:local delivery disabled'
+    /usr/sbin/postconf -e 'smtp_tls_security_level = may'
+    /usr/sbin/postfix set-permissions 2>/dev/null || true
   '';
 
   # LDAP client — disable SASL hostname canonicalization (same reason as

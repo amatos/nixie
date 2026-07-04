@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## 26.07.08
+
+### Added
+
+- `hosts/darwin/common-darwin.nix` — postfix relay client for darwin hosts:
+  `launchd.daemons."org.postfix.master"` registers an on-demand daemon
+  (triggered by queue activity in `/private/var/spool/postfix/maildrop`,
+  exits after 60 s idle). Five relay settings applied via `postconf -e`
+  in `extraActivation` (same pattern as `kwriteconfig6` for KDE — writes
+  specific keys into the existing `main.cf` without owning the whole
+  file): `relayhost`, `inet_interfaces = loopback-only`, `inet_protocols`,
+  `mydestination = ""`, `local_transport = error:local delivery disabled`,
+  `smtp_tls_security_level = may`.
+
+---
+
 ## 26.07.07
 
 ### Added
