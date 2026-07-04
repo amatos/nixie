@@ -7,22 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - `hosts/nixos/gammu/default.nix` — `services.ollama` with `ollama-rocm`
-  package, `rocmOverrideGfx = "11.0.0"` (RX 7900 GRE / gfx1100 / RDNA3)
-- `hosts/nixos/gammu/default.nix` — `services.open-webui` pointing at
-  Ollama via `OLLAMA_BASE_URL`
-- `hosts/nixos/gammu/default.nix` — `services.nginx` as TLS-terminating
-  reverse proxy: port 443 → Open WebUI, port 11434 (HTTPS) → Ollama API
-  (standard client port). Certs from `/var/lib/nginx-tls/` via certbot hook.
-- `modules/nixos/certbot.nix` — `nginxDeploy` option: copies renewed cert
-  to `/var/lib/nginx-tls/` (root:nginx 640) and reloads nginx, following
-  the same deploy-hook pattern as `postfixDeploy`, `chronyDeploy`, etc.
-
-### Changed
-
-- `hosts/nixos/gammu/default.nix` — Ollama and Open WebUI on loopback
-  only; Ollama on port 11435 (nginx front-ends at standard port 11434
-  with TLS); firewall opens 443/11434 to LAN instead of 8080/11434
-- `hosts/nixos/gammu/default.nix` — enabled `nginxDeploy` in certbot config
+  package, `rocmOverrideGfx = "11.0.0"` (RX 7900 GRE / gfx1100 / RDNA3),
+  listening on `0.0.0.0:11434`
+- `hosts/nixos/gammu/default.nix` — `services.open-webui` on
+  `0.0.0.0:8080`, pointing at Ollama via `OLLAMA_BASE_URL`
+- `hosts/nixos/gammu/default.nix` — firewall rules allowing Ollama
+  (11434) and Open WebUI (8080) from LAN (10.0.4.0/22); Tailscale
+  access via existing `trustedInterfaces = ["tailscale0"]`
 
 ---
 

@@ -119,7 +119,8 @@ in
   };
 
   # Ollama — local LLM inference with ROCm acceleration on the RX 7900 GRE.
-  # Listens on loopback only; nginx terminates TLS on port 11434 externally.
+  # Binds to 0.0.0.0; firewall restricts LAN access below. Tailscale clients
+  # reach it via trustedInterfaces = ["tailscale0"] in common-nixos.nix.
   # rocmOverrideGfx: RX 7900 GRE is Navi 31 (gfx1100, gfx_target_version
   # 110001); HSA_OVERRIDE_GFX_VERSION = "11.0.0" is required for ROCm to
   # recognise RDNA3 cards even when officially supported.
@@ -127,72 +128,34 @@ in
     enable = true;
     package = pkgs.ollama-rocm;
     rocmOverrideGfx = "11.0.0";
-    host = "127.0.0.1";
-    port = 11435;
+    host = "0.0.0.0";
+    port = 11434;
   };
 
   # Open WebUI — browser frontend for Ollama.
-  # Listens on loopback only; nginx terminates TLS on port 443 externally.
+  # Binds to 0.0.0.0 on port 8080; points at Ollama on localhost.
+  # Accessible from any host via Tailscale or LAN (restricted by firewall).
   services.open-webui = {
     enable = true;
-    host = "127.0.0.1";
+    host = "0.0.0.0";
     port = 8080;
     environment = {
-      OLLAMA_BASE_URL = "http://127.0.0.1:11435";
-    };
-  };
-
-  # nginx — TLS-terminating reverse proxy for Ollama and Open WebUI.
-  # Certs are deployed to /var/lib/nginx-tls/ by certbot's nginxDeploy hook.
-  # Port 443  → Open WebUI  (loopback 8080)
-  # Port 11434 → Ollama API  (loopback 11435, standard Ollama client port)
-  services.nginx = {
-    enable = true;
-    recommendedProxySettings = true;
-    recommendedTlsSettings = true;
-
-    # Open WebUI — HTTPS on 443
-    virtualHosts."gammu.home.matos.cc" = {
-      serverAliases = [ "gammu.ts.matos.cc" ];
-      addSSL = true;
-      sslCertificate = "/var/lib/nginx-tls/fullchain.pem";
-      sslCertificateKey = "/var/lib/nginx-tls/privkey.pem";
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:8080";
-        proxyWebsockets = true;
-      };
-    };
-
-    # Ollama API — HTTPS on 11434 (standard Ollama port; plain HTTP on 11435 stays loopback)
-    virtualHosts."gammu-ollama" = {
-      serverName = "gammu.home.matos.cc";
-      listen = [
-        {
-          addr = "0.0.0.0";
-          port = 11434;
-          ssl = true;
-        }
-      ];
-      sslCertificate = "/var/lib/nginx-tls/fullchain.pem";
-      sslCertificateKey = "/var/lib/nginx-tls/privkey.pem";
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:11435";
-      };
+      OLLAMA_BASE_URL = "http://127.0.0.1:11434";
     };
   };
 
   # Firewall — restrict SSH and Syncthing GUI to the local subnet;
   # Syncthing sync protocol (22000) open globally for peer connectivity.
-  # Nginx (443, 11434) restricted to LAN; Tailscale access covered by
-  # trustedInterfaces = ["tailscale0"] in common-nixos.nix.
+  # Ollama (11434) and Open WebUI (8080) restricted to LAN; Tailscale
+  # access is covered by trustedInterfaces = ["tailscale0"].
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22000 ];
     allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
       ip  saddr 10.0.4.0/22 tcp dport 8384  accept
-      ip  saddr 10.0.4.0/22 tcp dport 443   accept
       ip  saddr 10.0.4.0/22 tcp dport 11434 accept
+      ip  saddr 10.0.4.0/22 tcp dport 8080  accept
     '';
   };
 
@@ -206,7 +169,6 @@ in
       ]
     ];
     syncthingDeploy = true;
-    nginxDeploy = true;
   };
 
   nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-gammu.age";

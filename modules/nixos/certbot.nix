@@ -10,7 +10,6 @@
 #   nixie.certbot.syncthingDeploy = true;  # copy renewed cert to syncthing + restart
 #   nixie.certbot.postfixDeploy = true;   # copy renewed cert to /etc/postfix/ssl/ + reload postfix
 #   nixie.certbot.chronyDeploy = true;    # copy renewed cert to /var/lib/chrony-tls/ + restart chronyd
-#   nixie.certbot.nginxDeploy = true;     # copy renewed cert to /var/lib/nginx-tls/ + reload nginx
 {
   config,
   pkgs,
@@ -40,7 +39,6 @@ let
   postfixSslDir = "/var/lib/postfix-tls";
   chronyTlsDir = "/var/lib/chrony-tls";
   openldapTlsDir = "/var/lib/openldap-tls";
-  nginxTlsDir = "/var/lib/nginx-tls";
 
   # Deploy hooks — run only when a certificate is actually renewed.
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
@@ -80,22 +78,12 @@ let
     systemctl restart openldap.service
   '';
 
-  # Installs cert+key into /var/lib/nginx-tls/ with root:nginx 640 so nginx can read the key.
-  # Reloads (not restarts) nginx — reload picks up new certs without dropping connections.
-  nginxDeployHook = pkgs.writeShellScript "certbot-nginx-deploy" ''
-    set -euo pipefail
-    install -o root -g nginx -m 640 "$RENEWED_LINEAGE/fullchain.pem" "${nginxTlsDir}/fullchain.pem"
-    install -o root -g nginx -m 640 "$RENEWED_LINEAGE/privkey.pem"   "${nginxTlsDir}/privkey.pem"
-    systemctl reload nginx.service
-  '';
-
   # Collect whichever deploy hooks are enabled; certbot accepts multiple --deploy-hook flags.
   deployHookFlags = lib.concatStringsSep " " (
     lib.optional cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"
     ++ lib.optional cfg.postfixDeploy "--deploy-hook ${postfixDeployHook}"
     ++ lib.optional cfg.chronyDeploy "--deploy-hook ${chronyDeployHook}"
     ++ lib.optional cfg.ldapDeploy "--deploy-hook ${openldapDeployHook}"
-    ++ lib.optional cfg.nginxDeploy "--deploy-hook ${nginxDeployHook}"
   );
 
   # Each entry in cfg.domains is a list of domain names for a single cert.
@@ -149,8 +137,6 @@ in
     chronyDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/chrony-tls/ (root:chrony 640) and restart chronyd.service";
 
     ldapDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/openldap-tls/ (root:openldap 640) and restart openldap.service";
-
-    nginxDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/nginx-tls/ (root:nginx 640) and reload nginx.service";
   };
 
   config = lib.mkIf cfg.enable {
@@ -174,10 +160,6 @@ in
     ++ lib.optionals cfg.ldapDeploy [
       # root:openldap 0750 — holds the LDAPS cert+key; group-readable by slapd
       "d /var/lib/openldap-tls 0750 root openldap -"
-    ]
-    ++ lib.optionals cfg.nginxDeploy [
-      # root:nginx 0750 — holds the nginx TLS cert+key; group-readable by nginx worker
-      "d /var/lib/nginx-tls    0750 root nginx    -"
     ];
 
     environment.systemPackages = [ certbotWithLuadns ];
@@ -205,8 +187,7 @@ in
         ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
         ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ]
         ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ]
-        ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ]
-        ++ lib.optionals cfg.nginxDeploy [ nginxTlsDir ];
+        ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ];
       };
     };
 
