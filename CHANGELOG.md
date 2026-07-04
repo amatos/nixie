@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 26.07.10
+
+### Fixed
+
+- `hosts/nixos/gammu/default.nix` — remove bogus
+  `services.ollama.environment` block: the NixOS Ollama module uses
+  `environmentVariables` (not `environment`), causing a hard
+  evaluation error on rebuild; `OLLAMA_NUM_CTX` is not a valid
+  Ollama server env var regardless — context window is per-model
+  (Modelfile or Open WebUI settings), not a server-level env var
+
+---
+
 ## 26.07.09
 
 ### Added
