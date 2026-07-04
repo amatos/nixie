@@ -4,11 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.09
+
 ### Added
 
 - `hosts/nixos/gammu/default.nix` — `services.ollama` with `ollama-rocm`
-  package, `rocmOverrideGfx = "11.0.0"` (RX 7900 GRE / gfx1100 / RDNA3),
-  listening on `0.0.0.0:11434`
+  package, `rocmOverrideGfx = "11.0.0"` (RX 7900 GRE / gfx1100 /
+  RDNA3), listening on `0.0.0.0:11434`
 - `hosts/nixos/gammu/default.nix` — `services.open-webui` on
   `0.0.0.0:8080`, pointing at Ollama via `OLLAMA_BASE_URL`
 - `hosts/nixos/gammu/default.nix` — firewall rules allowing Ollama
@@ -17,6 +21,12 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/gammu/default.nix` — `services.ollama.environment`
   sets `OLLAMA_NUM_CTX = "32768"` to raise the default context window
   to 32 K tokens
+
+### Changed
+
+- `modules/darwin/macos-defaults/system-ui.nix` — set
+  `loginwindow.SHOWFULLNAME = false` (show username field, not full
+  name, at the login window)
 
 ---
 
