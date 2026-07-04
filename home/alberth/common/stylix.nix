@@ -1,6 +1,12 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
+  # Prevent any stylix target from writing dconf keys during home-manager
+  # activation. dconf writes require a live D-Bus session; SSH-based switches
+  # on headless and KDE hosts have none. All hosts in this fleet are
+  # non-GNOME, so these settings are unused regardless.
+  dconf.settings = lib.mkForce { };
+
   stylix = {
     enable = true;
 
@@ -38,6 +44,14 @@
       # nvf manages neovim theming internally (nvf.nix: theme.name = "dracula").
       nvf.enable = false;
       vim.enable = false;
+
+      # Disabled — GTK/GNOME theming writes dconf keys during home-manager
+      # activation, which requires a running D-Bus session. Headless NixOS
+      # hosts and darwin have no D-Bus session over SSH, causing failure.
+      # gammu runs KDE (not GNOME), so these settings are unused on all hosts.
+      gtk.enable = false;
+      gnome.enable = false;
+      eog.enable = false;
     };
   };
 }
