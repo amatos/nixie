@@ -60,7 +60,7 @@ in
     # --- Login Window ---
     loginwindow = {
       GuestEnabled = false;
-      SHOWFULLNAME = true;
+      SHOWFULLNAME = false;
     };
 
     # --- Screensaver & Lock ---
