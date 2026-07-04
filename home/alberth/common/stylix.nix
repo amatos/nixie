@@ -1,6 +1,20 @@
 { pkgs, lib, ... }:
 
 {
+  # Stylix and home-manager are pinned independently; the version-check is
+  # a coarse string comparison that flags any mismatch even when the actual
+  # APIs used are compatible. Disable it — real incompatibilities show up
+  # as build errors, not as this banner.
+  stylix.enableReleaseChecks = false;
+
+  # Stylix's home module unconditionally adds nixpkgs.overlays entries
+  # (nixos-icons, gtksourceview). With useGlobalPkgs = true, home-manager
+  # loads the nixpkgs-disabled module whose nixpkgs.overlays option defaults
+  # to null — any non-null value (even []) triggers the warning. Force back
+  # to null so the warning check (cfg.overlays != null) is false. The
+  # overlays are unused anyway since HM uses the system pkgs instance.
+  nixpkgs.overlays = lib.mkForce null;
+
   # Prevent any stylix target from writing dconf keys during home-manager
   # activation. dconf writes require a live D-Bus session; SSH-based switches
   # on headless and KDE hosts have none. All hosts in this fleet are
