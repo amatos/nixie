@@ -1,5 +1,9 @@
 # nixie — project directives
 
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for how nixie, nix-secrets, and
+keytabs-matos-cc fit together as a system — read it first if you're new to
+this repo or making a change that spans more than one of these repos.
+
 ## What this is
 
 nixie is a unified NixOS + nix-darwin system configuration managed as a single Nix flake.

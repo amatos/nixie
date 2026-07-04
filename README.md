@@ -2,6 +2,9 @@
 
 Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, and home-manager. All configuration is driven by Nix flakes.
 
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for how this repo fits together with
+its companion secrets repos (`nix-secrets`, `keytabs-matos-cc`).
+
 ## Hosts
 
 | Hostname | OS | Architecture | Physical / Virtual | Function |

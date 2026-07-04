@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `ARCHITECTURE.md` — cross-repo architecture document for `nixie`,
+  `nix-secrets`, and `keytabs-matos-cc`, targeting both humans and AI
+  agents: repo responsibilities, the secrets lifecycle (with sequence
+  diagram), module placement rules, host provisioning paths, and the
+  invariants an agent must preserve across the three repos
+
+### Changed
+
+- `CLAUDE.md`/`README.md` — added pointers to `ARCHITECTURE.md` so both
+  humans and agents discover it before making cross-repo changes
+- `flake.lock` — updated `nix-secrets` and `keytabs-matos-cc` inputs to
+  pick up the backup-YubiKey rekey in both secrets repos
+
+### Fixed
+
+- `home/alberth/default.nix` — the YubiKey identity symlink source had a
+  typo (`age-yubikey-identity-43f4e92.txt`, missing the leading `d`)
+  introduced while wiring up the post-rekey identity file; corrected to
+  `age-yubikey-identity-d43f4e92.txt`, matching the actual file in
+  `nix-secrets`
+
 ---
 
 ## 26.07.10
