@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- `hosts/nixos/gammu/default.nix` — `services.ollama` with `ollama-rocm`
+  package, `rocmOverrideGfx = "11.0.0"` (RX 7900 GRE / gfx1100 / RDNA3),
+  listening on `0.0.0.0:11434`
+- `hosts/nixos/gammu/default.nix` — `services.open-webui` on
+  `0.0.0.0:8080`, pointing at Ollama via `OLLAMA_BASE_URL`
+- `hosts/nixos/gammu/default.nix` — firewall rules allowing Ollama
+  (11434) and Open WebUI (8080) from LAN (10.0.4.0/22); Tailscale
+  access via existing `trustedInterfaces = ["tailscale0"]`
+
+---
+
 ## 26.07.08
 
 ### Added

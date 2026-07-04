@@ -118,14 +118,44 @@ in
     ];
   };
 
+  # Ollama — local LLM inference with ROCm acceleration on the RX 7900 GRE.
+  # Binds to 0.0.0.0; firewall restricts LAN access below. Tailscale clients
+  # reach it via trustedInterfaces = ["tailscale0"] in common-nixos.nix.
+  # rocmOverrideGfx: RX 7900 GRE is Navi 31 (gfx1100, gfx_target_version
+  # 110001); HSA_OVERRIDE_GFX_VERSION = "11.0.0" is required for ROCm to
+  # recognise RDNA3 cards even when officially supported.
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-rocm;
+    rocmOverrideGfx = "11.0.0";
+    host = "0.0.0.0";
+    port = 11434;
+  };
+
+  # Open WebUI — browser frontend for Ollama.
+  # Binds to 0.0.0.0 on port 8080; points at Ollama on localhost.
+  # Accessible from any host via Tailscale or LAN (restricted by firewall).
+  services.open-webui = {
+    enable = true;
+    host = "0.0.0.0";
+    port = 8080;
+    environment = {
+      OLLAMA_BASE_URL = "http://127.0.0.1:11434";
+    };
+  };
+
   # Firewall — restrict SSH and Syncthing GUI to the local subnet;
-  # Syncthing sync protocol (22000) open globally for peer connectivity
+  # Syncthing sync protocol (22000) open globally for peer connectivity.
+  # Ollama (11434) and Open WebUI (8080) restricted to LAN; Tailscale
+  # access is covered by trustedInterfaces = ["tailscale0"].
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22000 ];
     allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
-      ip  saddr 10.0.4.0/22 tcp dport 8384 accept
+      ip  saddr 10.0.4.0/22 tcp dport 8384  accept
+      ip  saddr 10.0.4.0/22 tcp dport 11434 accept
+      ip  saddr 10.0.4.0/22 tcp dport 8080  accept
     '';
   };
 
