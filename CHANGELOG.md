@@ -14,6 +14,9 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/gammu/default.nix` — firewall rules allowing Ollama
   (11434) and Open WebUI (8080) from LAN (10.0.4.0/22); Tailscale
   access via existing `trustedInterfaces = ["tailscale0"]`
+- `hosts/nixos/gammu/default.nix` — `services.ollama.environment`
+  sets `OLLAMA_NUM_CTX = "32768"` to raise the default context window
+  to 32 K tokens
 
 ---
 

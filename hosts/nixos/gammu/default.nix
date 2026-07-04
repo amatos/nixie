@@ -130,6 +130,9 @@ in
     rocmOverrideGfx = "11.0.0";
     host = "0.0.0.0";
     port = 11434;
+    environment = {
+      OLLAMA_NUM_CTX = "32768";
+    };
   };
 
   # Open WebUI — browser frontend for Ollama.
