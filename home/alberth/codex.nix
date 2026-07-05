@@ -77,6 +77,11 @@
     # Codex-only packages
     packages = with pkgs; [
       act # Run GitHub Actions locally
+      ioskeley-mono.normal # Ioskeley Mono — Iosevka config mimicking Berkeley Mono
+      ioskeley-mono.normal-NF # ...with Nerd Font glyphs patched in
+      ioskeley-mono.normal-term # ...term variant (fixes arrow/box-drawing in Ghostty)
+      ioskeley-mono.normal-term-NF # ...term variant with Nerd Font glyphs patched in
+      iosevka # Iosevka monospace font
       telegram-desktop # Messaging
     ];
 

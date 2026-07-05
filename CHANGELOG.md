@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/codex.nix`, `home/alberth/gammu.nix` — added `iosevka`
+  and `ioskeley-mono` (`normal`, `normal-NF`, `normal-term`,
+  `normal-term-NF`) fonts to each host's packages; the `-term` variants
+  fix arrow/box-drawing rendering in Ghostty
 - `ARCHITECTURE.md` — cross-repo architecture document for `nixie`,
   `nix-secrets`, and `keytabs-matos-cc`, targeting both humans and AI
   agents: repo responsibilities, the secrets lifecycle (with sequence

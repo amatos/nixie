@@ -8,6 +8,11 @@
   # Gammu-only packages
   home.packages = [
     pkgs.act # Run GitHub Actions locally
+    pkgs.ioskeley-mono.normal # Ioskeley Mono — Iosevka config mimicking Berkeley Mono
+    pkgs.ioskeley-mono.normal-NF # ...with Nerd Font glyphs patched in
+    pkgs.ioskeley-mono.normal-term # ...term variant (fixes arrow/box-drawing in Ghostty)
+    pkgs.ioskeley-mono.normal-term-NF # ...term variant with Nerd Font glyphs patched in
+    pkgs.iosevka # Iosevka monospace font
     pkgs.nerdctl # Docker-compatible CLI for containerd
   ];
 
