@@ -615,11 +615,11 @@
     "keytabs-matos-cc": {
       "flake": false,
       "locked": {
-        "lastModified": 1783225515,
-        "narHash": "sha256-NBwVe6fQaxX/NSb41OzRVjTLhlcFxYUuTcxrpIjG3Co=",
+        "lastModified": 1783226075,
+        "narHash": "sha256-tVao1+DxgkiwCIVsYzv+mkw+W+E9H5OGZ1YStQsZiiM=",
         "owner": "amatos",
         "repo": "keytabs-matos-cc",
-        "rev": "5b3b5da2f617d1560da6a75a4980881ddb222353",
+        "rev": "82bea3ff85a448ea14dc38aaf01c578151d8650c",
         "type": "github"
       },
       "original": {
