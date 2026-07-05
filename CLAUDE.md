@@ -1,5 +1,13 @@
 # nixie — project directives
 
+## Agent conventions
+
+Any message prefixed with `question:` is a purely theoretical/discussion
+request. Treat it as a request for information, reasoning, or discussion
+only — **never** as an instruction to perform an action (no file edits,
+commits, deployments, or other side effects), regardless of how the rest
+of the phrasing reads.
+
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for how nixie, nix-secrets, and
 keytabs-matos-cc fit together as a system — read it first if you're new to
 this repo or making a change that spans more than one of these repos.
