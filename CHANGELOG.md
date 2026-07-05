@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - `home/alberth/gammu.nix` — added `iosevka` and `ioskeley-mono`
   (`normal`, `normal-NF`, `normal-term`, `normal-term-NF`) fonts; the
   `-term` variants fix arrow/box-drawing rendering in Ghostty
+- `hosts/darwin/codex/homebrew.nix` — added `font-iosevka`,
+  `font-iosevka-nerd-font`, and `font-ioskeley-mono` casks; nixpkgs'
+  `iosevka` fails to build on aarch64-darwin (see Known issues), so
+  codex gets these fonts via Homebrew's prebuilt binaries instead
 - `ARCHITECTURE.md` — cross-repo architecture document for `nixie`,
   `nix-secrets`, and `keytabs-matos-cc`, targeting both humans and AI
   agents: repo responsibilities, the secrets lifecycle (with sequence
@@ -24,9 +28,11 @@ All notable changes to this project will be documented in this file.
 
 ### Known issues
 
-- `home/alberth/codex.nix` — `iosevka`/`ioskeley-mono` were not added
-  here (unlike gammu): `iosevka` fails to build on aarch64-darwin due
-  to an upstream bug (nixpkgs#532294). Revisit once that's fixed.
+- `home/alberth/codex.nix` — `iosevka`/`ioskeley-mono` are not built
+  via nixpkgs here (unlike gammu): `iosevka` fails to build on
+  aarch64-darwin due to an upstream bug (nixpkgs#532294), worked
+  around via Homebrew casks instead (see Added). Switch back to
+  nixpkgs once that's fixed upstream.
 
 ### Fixed
 

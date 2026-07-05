@@ -184,6 +184,24 @@ in
         greedy = true;
       }
       {
+        # iosevka fails to build on aarch64-darwin due to a known upstream bug
+        # (nixpkgs issue 532294); fall back to Homebrew's prebuilt binary here.
+        # x86_64-linux (gammu) is unaffected and uses pkgs.iosevka instead.
+        name = "font-iosevka";
+        greedy = true;
+      }
+      {
+        name = "font-iosevka-nerd-font"; # see font-iosevka note above
+        greedy = true;
+      }
+      {
+        # same upstream build issue as font-iosevka above (ioskeley-mono is
+        # built on top of iosevka); Homebrew only ships the base variant, no
+        # Term/NerdFont zips like nixpkgs' pkgs.ioskeley-mono attrset
+        name = "font-ioskeley-mono";
+        greedy = true;
+      }
+      {
         name = "font-sf-mono-nerd-font-ligaturized"; # no nixpkgs equivalent
         greedy = true;
       }

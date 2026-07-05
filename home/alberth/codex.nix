@@ -75,11 +75,12 @@
     # location and Docker daemon settings.
     #
     # Codex-only packages
-    # NOTE: iosevka and ioskeley-mono (built on top of it) are intentionally
-    # omitted here — iosevka fails to build on aarch64-darwin due to a known
-    # upstream bug: https://github.com/NixOS/nixpkgs/issues/532294. They're
-    # still available on gammu (x86_64-linux), which is unaffected. Re-add
-    # once that issue is resolved upstream.
+    # NOTE: iosevka and ioskeley-mono are intentionally omitted here — iosevka
+    # fails to build on aarch64-darwin due to a known upstream bug:
+    # https://github.com/NixOS/nixpkgs/issues/532294. They're installed via
+    # Homebrew instead (hosts/darwin/codex/homebrew.nix: font-iosevka,
+    # font-iosevka-nerd-font, font-ioskeley-mono). gammu (x86_64-linux) is
+    # unaffected and uses pkgs.iosevka/pkgs.ioskeley-mono directly.
     packages = with pkgs; [
       act # Run GitHub Actions locally
       telegram-desktop # Messaging
