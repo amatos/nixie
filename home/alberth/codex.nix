@@ -75,13 +75,13 @@
     # location and Docker daemon settings.
     #
     # Codex-only packages
+    # NOTE: iosevka and ioskeley-mono (built on top of it) are intentionally
+    # omitted here — iosevka fails to build on aarch64-darwin due to a known
+    # upstream bug: https://github.com/NixOS/nixpkgs/issues/532294. They're
+    # still available on gammu (x86_64-linux), which is unaffected. Re-add
+    # once that issue is resolved upstream.
     packages = with pkgs; [
       act # Run GitHub Actions locally
-      ioskeley-mono.normal # Ioskeley Mono — Iosevka config mimicking Berkeley Mono
-      ioskeley-mono.normal-NF # ...with Nerd Font glyphs patched in
-      ioskeley-mono.normal-term # ...term variant (fixes arrow/box-drawing in Ghostty)
-      ioskeley-mono.normal-term-NF # ...term variant with Nerd Font glyphs patched in
-      iosevka # Iosevka monospace font
       telegram-desktop # Messaging
     ];
 

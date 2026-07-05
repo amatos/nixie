@@ -6,10 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `home/alberth/codex.nix`, `home/alberth/gammu.nix` — added `iosevka`
-  and `ioskeley-mono` (`normal`, `normal-NF`, `normal-term`,
-  `normal-term-NF`) fonts to each host's packages; the `-term` variants
-  fix arrow/box-drawing rendering in Ghostty
+- `home/alberth/gammu.nix` — added `iosevka` and `ioskeley-mono`
+  (`normal`, `normal-NF`, `normal-term`, `normal-term-NF`) fonts; the
+  `-term` variants fix arrow/box-drawing rendering in Ghostty
 - `ARCHITECTURE.md` — cross-repo architecture document for `nixie`,
   `nix-secrets`, and `keytabs-matos-cc`, targeting both humans and AI
   agents: repo responsibilities, the secrets lifecycle (with sequence
@@ -22,6 +21,12 @@ All notable changes to this project will be documented in this file.
   humans and agents discover it before making cross-repo changes
 - `flake.lock` — updated `nix-secrets` and `keytabs-matos-cc` inputs to
   pick up the backup-YubiKey rekey in both secrets repos
+
+### Known issues
+
+- `home/alberth/codex.nix` — `iosevka`/`ioskeley-mono` were not added
+  here (unlike gammu): `iosevka` fails to build on aarch64-darwin due
+  to an upstream bug (nixpkgs#532294). Revisit once that's fixed.
 
 ### Fixed
 
