@@ -615,11 +615,11 @@
     "keytabs-matos-cc": {
       "flake": false,
       "locked": {
-        "lastModified": 1783226549,
-        "narHash": "sha256-NfV40eblyIHjrcCS6mF784XelMe6r6L0KQDsRYXNdh0=",
+        "lastModified": 1783267801,
+        "narHash": "sha256-QGmGdEIdhdTqsXOxvhdOegnzUrKDcMe5rZBL7zi3h6o=",
         "owner": "amatos",
         "repo": "keytabs-matos-cc",
-        "rev": "56badbe17fba6826f68a41ee3e0815800169b901",
+        "rev": "042fd266c3e37d99f6469846b38a06615651283d",
         "type": "github"
       },
       "original": {
@@ -728,11 +728,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1783204299,
-        "narHash": "sha256-HtQVFO2UeKHtgi3JJ76vMu5LRT+Z355pGaSLghYqIqg=",
+        "lastModified": 1783267794,
+        "narHash": "sha256-RFXX/EMvjQ1fkYs4z2slWl/g1i8FL0Dt8eB/54NOb/c=",
         "owner": "amatos",
         "repo": "nix-secrets",
-        "rev": "748d12e41d8d2b05c0eed775fd2765ae750d985a",
+        "rev": "a51077bcd529ddef019510e8e75fd586eae6e3fd",
         "type": "github"
       },
       "original": {
@@ -837,11 +837,11 @@
         "systems": "systems_3"
       },
       "locked": {
-        "lastModified": 1783195298,
-        "narHash": "sha256-Vs9CM1KjO4OQh8MIstzHckWVhiIJ2Oi9RWcluPu9F1s=",
+        "lastModified": 1783250348,
+        "narHash": "sha256-Ur6EFTXA5agZG5C+czbqd42+31Q5/Zya9gl/Kwam7To=",
         "owner": "notashelf",
         "repo": "nvf",
-        "rev": "5e1149559308001582892f4006dd4f42556f5100",
+        "rev": "d219754499e9e6085861b611c2a2393a68366997",
         "type": "github"
       },
       "original": {
