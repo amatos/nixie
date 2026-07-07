@@ -18,6 +18,19 @@ All notable changes to this project will be documented in this file.
   agents: repo responsibilities, the secrets lifecycle (with sequence
   diagram), module placement rules, host provisioning paths, and the
   invariants an agent must preserve across the three repos
+- `modules/common/packages.nix` — added `pciutils` (`lspci`) for all NixOS
+  hosts, gated by `stdenv.isLinux` alongside `ghostty.terminfo`
+- `hosts/nixos/gammu/default.nix` — added `rocmPackages.rocm-smi` for
+  querying/monitoring the AMD GPU; convention: any NixOS host with an AMD
+  graphics card should carry this
+- `hosts/nixos/gammu/default.nix` — `services.ollama.loadModels` pulls
+  `qwen2.5-coder:14b` (~9GB Q4_K_M, fits the 12GB card with headroom);
+  `environmentVariables.OLLAMA_CONTEXT_LENGTH = "32768"` pins context
+  length for agentic tool-call loops (Zed Agent Panel, Claude Code)
+- `home/alberth/gammu.nix` — added `claude-code` package and a
+  `claude-local` fish function that points Claude Code at gammu's local
+  Ollama model via `ANTHROPIC_BASE_URL` (Ollama's native Anthropic
+  Messages API compatibility, no proxy needed)
 
 ### Changed
 
@@ -25,6 +38,14 @@ All notable changes to this project will be documented in this file.
   humans and agents discover it before making cross-repo changes
 - `flake.lock` — updated `nix-secrets` and `keytabs-matos-cc` inputs to
   pick up the backup-YubiKey rekey in both secrets repos
+- `README.md` — added "Local LLM (Ollama + Open WebUI)" section: model
+  choice/sizing rationale, Zed Agent Panel `settings.json` snippet, and
+  `claude-local` usage; updated the `gammu/default.nix` layout comment
+- `CLAUDE.md` — added a "Local LLM (Ollama)" convention: verify the GPU
+  via `rocminfo`/sysfs before setting `rocmOverrideGfx`, `rocm-smi` on
+  every AMD-GPU NixOS host, `loadModels`/`environmentVariables` usage,
+  and the Zed/Claude Code tool-calling wiring; updated the same layout
+  comment
 
 ### Known issues
 
@@ -36,6 +57,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `hosts/nixos/gammu/default.nix` — comments and `rocmOverrideGfx` wrongly
+  assumed an RX 7900 GRE (Navi 31/gfx1100/16GB); `rocminfo` and sysfs
+  confirm the card is actually a Radeon RX 7700 XT (Navi 32/gfx1101/12GB).
+  `rocmOverrideGfx` corrected from `"11.0.0"` to `"11.0.1"`
 - `home/alberth/default.nix` — the YubiKey identity symlink source had a
   typo (`age-yubikey-identity-43f4e92.txt`, missing the leading `d`)
   introduced while wiring up the post-rekey identity file; corrected to

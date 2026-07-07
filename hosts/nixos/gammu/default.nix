@@ -48,7 +48,14 @@ in
 
   # steamup.sh — ad-hoc headless launcher for Steam Remote Play (SSH in, run
   # `steamup.sh`); see hosts/nixos/gammu/scripts/steamup.sh
-  environment.systemPackages = [ steamupScript ];
+  #
+  # rocm-smi — CLI for querying/monitoring the AMD GPU (name, VRAM usage,
+  # clocks, temps). Any NixOS host with an AMD graphics card should carry
+  # this; gammu is currently the only one.
+  environment.systemPackages = [
+    steamupScript
+    pkgs.rocmPackages.rocm-smi
+  ];
 
   # KDE Plasma — desktop environment. SDDM starts automatically at boot
   # (systemd default target flips to graphical.target when a display manager
@@ -118,18 +125,37 @@ in
     ];
   };
 
-  # Ollama — local LLM inference with ROCm acceleration on the RX 7900 GRE.
+  # Ollama — local LLM inference with ROCm acceleration on the AMD GPU.
   # Binds to 0.0.0.0; firewall restricts LAN access below. Tailscale clients
   # reach it via trustedInterfaces = ["tailscale0"] in common-nixos.nix.
-  # rocmOverrideGfx: RX 7900 GRE is Navi 31 (gfx1100, gfx_target_version
-  # 110001); HSA_OVERRIDE_GFX_VERSION = "11.0.0" is required for ROCm to
-  # recognise RDNA3 cards even when officially supported.
+  #
+  # Card is a Radeon RX 7700 XT (Navi 32, gfx1101, 12GB VRAM) — confirmed via
+  # `rocminfo` and /sys/class/drm/card*/device/{device,mem_info_vram_total}
+  # on the host. Earlier comments here incorrectly assumed an RX 7900 GRE
+  # (Navi 31/gfx1100/16GB) — never verified against the actual hardware.
+  # rocmOverrideGfx = "11.0.1" reports the correct gfx1101 target to ROCm.
   services.ollama = {
     enable = true;
     package = pkgs.ollama-rocm;
-    rocmOverrideGfx = "11.0.0";
+    rocmOverrideGfx = "11.0.1";
     host = "0.0.0.0";
     port = 11434;
+
+    # qwen2.5-coder:14b (~9GB at Q4_K_M) fits the 12GB VRAM on this card
+    # with headroom for KV cache; chosen for reliable tool-calling support
+    # in both Zed's Agent Panel and Claude Code (via Ollama's Anthropic-
+    # compatible endpoint, see home/alberth/gammu.nix `claude-local`).
+    # loadModels pulls it declaratively on activation; syncModels stays at
+    # its default (false) so ad-hoc `ollama pull` isn't wiped on rebuild.
+    loadModels = [ "qwen2.5-coder:14b" ];
+
+    environmentVariables = {
+      # 32K floor recommended for agentic tool-call loops (Claude Code's
+      # system prompt + tool schemas alone can run 6-10K tokens). Default
+      # is dynamic based on VRAM (4k/32k/256k) — pinned here for
+      # predictability across model/context changes.
+      OLLAMA_CONTEXT_LENGTH = "32768";
+    };
   };
 
   # Open WebUI — browser frontend for Ollama.

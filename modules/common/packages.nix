@@ -41,5 +41,9 @@ in
       uv
     ]
     # ghostty.terminfo: Linux only — on darwin the Homebrew cask installs it automatically
-    ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.ghostty.terminfo ];
+    # pciutils (lspci): Linux only — PCI enumeration is not a darwin concept
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      pkgs.ghostty.terminfo
+      pkgs.pciutils
+    ];
 }

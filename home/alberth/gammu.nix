@@ -8,6 +8,7 @@
   # Gammu-only packages
   home.packages = [
     pkgs.act # Run GitHub Actions locally
+    pkgs.claude-code # Anthropic's Claude Code CLI; see claude-local below
     pkgs.ioskeley-mono.normal # Ioskeley Mono — Iosevka config mimicking Berkeley Mono
     pkgs.ioskeley-mono.normal-NF # ...with Nerd Font glyphs patched in
     pkgs.ioskeley-mono.normal-term # ...term variant (fixes arrow/box-drawing in Ghostty)
@@ -15,6 +16,24 @@
     pkgs.iosevka # Iosevka monospace font
     pkgs.nerdctl # Docker-compatible CLI for containerd
   ];
+
+  # claude-local — runs Claude Code against the local Ollama model
+  # (services.ollama on this host, see hosts/nixos/gammu/default.nix)
+  # instead of Anthropic's cloud API. Ollama exposes an Anthropic
+  # Messages-API-compatible endpoint directly, so no translation proxy
+  # is needed — just point ANTHROPIC_BASE_URL at it. ANTHROPIC_API_KEY is
+  # cleared so an already-logged-in cloud session doesn't take priority.
+  programs.fish.functions.claude-local = {
+    description = "Run Claude Code against the local Ollama model";
+    body = ''
+      set -x ANTHROPIC_BASE_URL http://localhost:11434
+      set -x ANTHROPIC_AUTH_TOKEN ollama
+      set -x ANTHROPIC_API_KEY ""
+      set -x ANTHROPIC_MODEL qwen2.5-coder:14b
+      set -x ANTHROPIC_DEFAULT_HAIKU_MODEL qwen2.5-coder:14b
+      claude $argv
+    '';
+  };
 
   # nerdctl — transparent sudo so rootful containerd works as non-root.
   # home.shellAliases (not programs.fish.shellAliases) so it applies to

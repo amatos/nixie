@@ -38,7 +38,8 @@ hosts/
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
     nixostron/default.nix        # hostname only
-    gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming
+    gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming,
+                                  # Ollama/Open WebUI
     minixie/default.nix          # generic nixos-anywhere bootstrap target (no sharedSpecialArgs)
 
 modules/
@@ -298,3 +299,73 @@ declarative NixOS module (the on/off toggle and password live in Plasma's System
 not the flake) and has had NixOS-specific reliability issues. `xrdp` was chosen for consistency
 with nixie's flakes-only convention, at the cost of the remote session running over X11 instead
 of Wayland.
+
+## Local LLM (Ollama + Open WebUI)
+
+`gammu` runs local LLM inference on its AMD GPU — a Radeon RX 7700 XT (Navi 32, `gfx1101`,
+12GB VRAM; confirmed via `rocminfo` and sysfs after an earlier, incorrect "RX 7900 GRE"
+assumption — see CHANGELOG):
+
+```nix
+services.ollama = {
+  enable = true;
+  package = pkgs.ollama-rocm;
+  rocmOverrideGfx = "11.0.1"; # reports gfx1101 to ROCm
+  host = "0.0.0.0";
+  port = 11434;
+  loadModels = [ "qwen2.5-coder:14b" ]; # ~9GB Q4_K_M, fits the 12GB card with headroom
+  environmentVariables.OLLAMA_CONTEXT_LENGTH = "32768";
+};
+
+services.open-webui = {
+  enable = true;
+  host = "0.0.0.0";
+  port = 8080;
+  environment.OLLAMA_BASE_URL = "http://127.0.0.1:11434";
+};
+```
+
+Both are reachable from the LAN (`10.0.4.0/22`) and over Tailscale
+(`trustedInterfaces = ["tailscale0"]`); see `hosts/nixos/gammu/default.nix` for the exact
+firewall rules. `rocm-smi` (`pkgs.rocmPackages.rocm-smi`) is installed on `gammu` for
+monitoring the GPU; `lspci` (`pciutils`) is available on all NixOS hosts.
+
+`qwen2.5-coder:14b` was chosen for reliable tool-calling support (needed for agentic coding
+workflows) at a size that fits `gammu`'s 12GB of VRAM with headroom left for context.
+
+### Zed Agent Panel
+
+Zed does not auto-enable tool calling for Ollama models — declare the model explicitly in
+`~/.config/zed/settings.json`:
+
+```json
+{
+  "language_models": {
+    "ollama": {
+      "api_url": "http://localhost:11434",
+      "available_models": [
+        {
+          "name": "qwen2.5-coder:14b",
+          "display_name": "Qwen 2.5 Coder 14B",
+          "max_tokens": 32768,
+          "supports_tools": true
+        }
+      ]
+    }
+  }
+}
+```
+
+### Claude Code
+
+Ollama exposes an Anthropic Messages-API-compatible endpoint natively, so Claude Code can
+talk to it directly — no translation proxy needed. On `gammu`, run `claude-local` (a fish
+function defined in `home/alberth/gammu.nix`) instead of plain `claude` to point Claude Code
+at the local model:
+
+```fish
+claude-local  # sets ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN / ANTHROPIC_MODEL, then runs claude
+```
+
+`claude-local` only exists on `gammu`. On `codex`, plain `claude` (installed via Homebrew)
+talks to Anthropic's cloud API as usual.

@@ -83,7 +83,8 @@ hosts/
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
     nixostron/default.nix        # hostname only
-    gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming
+    gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming,
+                                  # Ollama/Open WebUI
     minixie/default.nix          # generic nixos-anywhere bootstrap target (no sharedSpecialArgs)
 
 modules/
@@ -283,6 +284,35 @@ host needs to consume:
 - `services.xserver.enable = true;` is required alongside `services.xrdp` — xrdp's session is
   X11 (`defaultWindowManager = "startplasma-x11"`), separate and independent from SDDM's local
   Wayland session; both can run concurrently on the same host.
+
+### Local LLM (Ollama)
+
+- **Never assume a GPU model from specs sheets or prior comments** — verify with `rocminfo`
+  (reports `Marketing Name` and the `gfxNNNN` string directly) or sysfs
+  (`/sys/class/drm/card*/device/{device,mem_info_vram_total}`) before setting
+  `rocmOverrideGfx` or sizing models to VRAM. `gammu`'s GPU was misidentified as an RX 7900
+  GRE (Navi 31/gfx1100/16GB) for several releases; it's actually an RX 7700 XT (Navi
+  32/gfx1101/12GB) — see CHANGELOG for the correction.
+- `rocmOverrideGfx` must match the card's real gfx target (`HSA_OVERRIDE_GFX_VERSION`,
+  `major.minor.step` — e.g. gfx1101 → `"11.0.1"`), not a copy-pasted value from a tutorial
+  for a different card.
+- Any NixOS host with an AMD GPU should carry `pkgs.rocmPackages.rocm-smi` for
+  monitoring/querying it (see `hosts/nixos/gammu/default.nix`). `pciutils` (`lspci`) ships on
+  all NixOS hosts already, via the `stdenv.isLinux` gate in `modules/common/packages.nix`.
+- Use `services.ollama.loadModels` to declare models pulled at activation, not a manual
+  `ollama pull` — keeps the model set reproducible across rebuilds. Leave `syncModels` at its
+  default (`false`) unless you want undeclared models removed on every switch.
+- The env var is `environmentVariables.OLLAMA_CONTEXT_LENGTH`, not `environment` and not
+  `OLLAMA_NUM_CTX` — see the `26.07.10` CHANGELOG entry for the earlier evaluation-breaking
+  mistake. Context length is what agentic tool-call loops need headroom for (system prompt +
+  tool schemas alone can run several thousand tokens); size it, and the model, to fit the
+  card's VRAM with headroom to spare.
+- Both Zed's Agent Panel and Claude Code can drive a local Ollama model as a tool-calling
+  agent: Zed requires the model explicitly declared with `supports_tools: true` in
+  `~/.config/zed/settings.json` (autodiscovery alone does not enable tool calls); Claude Code
+  talks to Ollama directly via its native Anthropic Messages API compatibility
+  (`ANTHROPIC_BASE_URL`), no translation proxy needed. See README "Local LLM (Ollama + Open
+  WebUI)" and `home/alberth/gammu.nix`'s `claude-local` fish function.
 
 ### Syncthing
 
