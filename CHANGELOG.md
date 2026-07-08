@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- `LICENSE` — renamed to `LICENSE.md` for consistency across the `nixie`,
+  `nix-secrets`, `keytabs-matos-cc`, and `nixie-homes` repos
+
 ---
 
 ## 26.07.11
