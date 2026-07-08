@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - `LICENSE` — renamed to `LICENSE.md` for consistency across the `nixie`,
   `nix-secrets`, `keytabs-matos-cc`, and `nixie-homes` repos
+- `ARCHITECTURE.md` — corrected a stale claim that `nix-secrets`/
+  `keytabs-matos-cc` follow Conventional Commits "without automated
+  enforcement"; both now have their own commitlint hook via their own
+  `flake.nix`
 
 ---
 

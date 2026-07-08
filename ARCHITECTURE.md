@@ -267,8 +267,9 @@ silently breaks the security boundary described in §2, even if the Nix evaluate
 All three repos agree on:
 
 - **Commit style**: [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`,
-  `fix:`, `chore:`, `docs:`, ...). `nixie` enforces this via commitlint and requires GPG-signed
-  commits; the secrets repos follow the same style without automated enforcement.
+  `fix:`, `chore:`, `docs:`, ...). All three repos enforce this via the same commitlint hook
+  (each has its own `flake.nix`/`.commitlintrc.yaml`, installed via `nix develop`); `nixie`
+  additionally requires GPG-signed commits.
 - **Releases**: CalVer, `yy.mm.release` (e.g. `26.07.01`), counter resets to `01` each new month,
   tags are GPG-signed, changelog entries are combined per release under a heading matching the
   tag.
