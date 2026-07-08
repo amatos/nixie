@@ -24,11 +24,11 @@ host directories and home-manager overlays but aren't wired into `flake.nix` yet
 
 ## Repository layout
 
+Not exhaustive — see `modules/` for the complete module set:
+
 ```text
 flake.nix                        # inputs, sharedSpecialArgs, host wiring
 users.nix                        # single source of truth for users (primaryUser, email, GPG key)
-secrets/
-  secrets.nix                    # ragenix recipient definitions
 
 hosts/
   darwin/
@@ -55,6 +55,7 @@ modules/
     home-manager.nix             # shared NixOS home-manager block
     certbot.nix                  # systemd timer, weekly + 1h random delay
     ghostty.nix                  # conditional on display server presence
+    github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
     certbot.nix                  # launchd daemon, Sunday 03:00
@@ -79,7 +80,7 @@ nix develop
 cd nixie   # shell loads automatically
 ```
 
-The devShell provides: `nil` (Nix LSP), `nixfmt-rfc-style`, `ragenix`, `nix-tree`, `nvd`.
+The devShell provides: `nil` (Nix LSP), `nixfmt`, `ragenix`, `nix-tree`, `nvd`, `statix`.
 
 To activate direnv:
 
@@ -142,16 +143,19 @@ by a YubiKey via `age-plugin-yubikey`. Encrypted `.age` files live in the
 
 ### Generating a new secret
 
-1. **Add the secret's entry to `secrets/secrets.nix`**, listing the recipients that should be able to decrypt it:
+1. **Add the secret's entry to `nix-secrets`'s own `secrets.nix`** (a separate repo, not a
+   subdirectory of this one — see [nix-secrets](https://github.com/amatos/nix-secrets)), listing
+   the recipients that should be able to decrypt it:
 
    ```nix
    "my-new-secret.age".publicKeys = allKeys;
    ```
 
-2. **Encrypt the secret** using ragenix:
+2. **Encrypt the secret** using ragenix, from inside the `nix-secrets` checkout:
 
    ```bash
-   nix run github:yaxitech/ragenix -- -e secrets/my-new-secret.age
+   cd /path/to/nix-secrets
+   ragenix -e my-new-secret.age
    ```
 
 3. **Commit the `.age` file** to the appropriate repository.
@@ -188,7 +192,8 @@ Each host auto-generates its own age key at `/etc/age/host-key` on first activat
    nix run github:yaxitech/ragenix -- --rekey
    ```
 
-4. Commit, push, and redeploy. All subsequent boots are fully automatic.
+4. Commit, push, and redeploy. All subsequent boots are fully automatic **on NixOS**. On darwin,
+   this currently does not work — see "Known issues" in `CHANGELOG.md`.
 
 ### Re-keying secrets
 
@@ -221,8 +226,11 @@ The LuaDNS API credentials are decrypted from `nix-secrets/luadns.ini.age` at bo
 
 ```nix
 nixie.certbot = {
-  enable  = true;
-  domains = [ "example.com" "*.example.com" ];
+  enable = true;
+  domains = [
+    [ "example.com" "www.example.com" ] # one cert, two SANs — the common case
+  ];
+  # domains = [ "example.com" ];        # single-domain shorthand: one cert, no SANs
 };
 ```
 

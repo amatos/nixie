@@ -288,6 +288,7 @@ Use this document for the cross-repo picture. For anything repo-specific and aut
 | `nixie` | [`CLAUDE.md`](./CLAUDE.md) (directives + conventions), [`README.md`](./README.md) (host table, dev shell, provisioning, feature docs) |
 | `nix-secrets` | `nix-secrets/CLAUDE.md`, `nix-secrets/README.md` (recipients + secrets tables) |
 | `keytabs-matos-cc` | `keytabs-matos-cc/CLAUDE.md`, `keytabs-matos-cc/README.md` (recipients + secrets tables) |
+| `nixie-homes` | `nixie-homes/CLAUDE.md`, `nixie-homes/README.md` — **not wired into `nixie` yet**, still a scaffold |
 
 If you're an AI agent making a change that touches more than one of these repos, re-read the
 relevant `CLAUDE.md` files for each repo you're editing before starting — they carry the precise,

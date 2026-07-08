@@ -158,7 +158,7 @@ home/alberth/
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf homebrew-autoupdate qmd stylix; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)
