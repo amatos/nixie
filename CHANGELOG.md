@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `flake.nix` — added `nixie-homes` (`github:amatos/nixie-homes`) as a real flake
+  input (`inputs.nixpkgs`/`.home-manager`/`.nix-secrets`/`.nvf`/`.qmd`/`.stylix` all
+  `.follows`-pinned to nixie's own), threaded through `outputs` and added to
+  `sharedSpecialArgs`
+
+### Removed
+
+- `home/` — deleted from this repo entirely; moved to the separate `nixie-homes`
+  repo (`home/alberth` → `alberth/`), full git history carried over via
+  `git filter-repo`; see "Changed" below
+
 ### Fixed
 
 - `modules/common/age-host-key.nix` — its activation script was registered
@@ -35,6 +48,21 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Every `../../home/alberth`-style import replaced with
+  `nixie-homes.homeModules.<name>`: `modules/nixos/home-manager.nix`,
+  `hosts/darwin/common-darwin.nix`, `hosts/darwin/codex/default.nix`,
+  `hosts/darwin/darwintron/default.nix`, `hosts/darwin/template-darwin/default.nix`,
+  `hosts/darwin/codex/homebrew.nix` (script `readFile` path). Template/stub host
+  comments (`template-nixos`, `picanha`, `sirloin`) updated to describe the new
+  cross-repo workflow (add the overlay to `nixie-homes`, push it, then
+  `nix flake lock --update-input nixie-homes`)
+- `CLAUDE.md`/`README.md`/`ARCHITECTURE.md` — updated throughout for the home/
+  removal above: removed all `home/alberth` references, documented the
+  `nixie-homes` input and `homeModules` consumption pattern, reworked
+  ARCHITECTURE.md's "three repos" framing (table, mermaid diagram, invariants,
+  document map) to cover all four repos. Verified with `nix flake check` and
+  `nix build --dry-run` against every `darwinConfigurations`/`nixosConfigurations`
+  entry after the migration
 - `LICENSE` — renamed to `LICENSE.md` for consistency across the `nixie`,
   `nix-secrets`, `keytabs-matos-cc`, and `nixie-homes` repos
 - `ARCHITECTURE.md` — corrected a stale claim that `nix-secrets`/

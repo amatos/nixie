@@ -3,6 +3,7 @@
   lib,
   keytabs-matos-cc,
   homebrew-autoupdate,
+  nixie-homes,
   ...
 }:
 
@@ -26,8 +27,8 @@ in
   environment.systemPackages = [ pkgs.dockutil ];
 
   # Dedicated APFS volume backing OrbStack's container data (Docker images,
-  # volumes, Linux VMs) — see home/alberth/codex.nix for the Group Container
-  # symlink that points at it and the Docker daemon config. disk3 is codex's
+  # volumes, Linux VMs) — see nixie-homes' alberth/codex.nix for the Group
+  # Container symlink that points at it and the Docker daemon config. disk3 is codex's
   # internal APFS container; re-check with `diskutil apfs list` if the
   # physical disk layout ever changes.
   #
@@ -59,7 +60,7 @@ in
 
   # Merge codex home overlay on top of the base imported by common-darwin.nix
   home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/codex.nix ];
+    imports = [ nixie-homes.homeModules.alberth-codex ];
   };
 
   nixie.certbot = {

@@ -3,13 +3,16 @@
 # To provision a new darwin host:
 #   1. cp -r hosts/darwin/template-darwin hosts/darwin/<hostname>
 #   2. Set networking.hostName and networking.computerName below.
-#   3. cp home/alberth/template-darwin.nix home/alberth/<hostname>.nix
-#      and update the imports reference below.
+#   3. In the nixie-homes repo: cp alberth/template-darwin.nix alberth/<hostname>.nix,
+#      add a homeModules.alberth-<hostname> entry in its flake.nix, commit, and push.
+#      Then update the imports reference below to
+#      nixie-homes.homeModules.alberth-<hostname>.
 #   4. Add a darwinConfigurations entry in flake.nix (copy the codex block).
 #   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
 #      corresponding age-encrypted secret to keytabs-matos-cc.
 {
   pkgs,
+  nixie-homes,
   ...
 }:
 
@@ -54,8 +57,10 @@ in
   };
 
   # Merge host home overlay on top of the base imported by common-darwin.nix.
-  # Update this import when the host is renamed.
+  # References the template file directly (no dedicated homeModules.alberth-*
+  # output exists for it, since it's meant to be copied, not imported as-is)
+  # — update this import when the host is renamed, per step 3 above.
   home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/template-darwin.nix ];
+    imports = [ "${nixie-homes}/alberth/template-darwin.nix" ];
   };
 }

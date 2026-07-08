@@ -78,6 +78,17 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixie-homes = {
+      url = "github:amatos/nixie-homes";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+      inputs.nix-secrets.follows = "nix-secrets";
+      inputs.nvf.follows = "nvf";
+      inputs.qmd.follows = "qmd";
+      inputs.stylix.follows = "stylix";
+      inputs.pre-commit-hooks.follows = "pre-commit-hooks";
+    };
   };
 
   outputs =
@@ -99,6 +110,7 @@
       disko,
       qmd,
       stylix,
+      nixie-homes,
       ...
     }:
     let
@@ -124,6 +136,7 @@
           homebrew-autoupdate
           qmd
           stylix
+          nixie-homes
           ;
       };
 

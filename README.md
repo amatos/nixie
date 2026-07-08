@@ -59,14 +59,11 @@ modules/
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
     certbot.nix                  # launchd daemon, Sunday 03:00
-
-home/alberth/
-  default.nix                    # all shared home config (shells, git, gpg, tools, theming)
-  nvf.nix                        # neovim via nvf
-  codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH)
-  darwintron.nix                 # darwin/darwintron overlay (pinentry-mac, ghostty)
-  nixos.nix                      # NixOS overlay (pinentry-tty, open alias)
 ```
+
+Home-manager configuration lives in the separate
+[nixie-homes](https://github.com/amatos/nixie-homes) repo (input `nixie-homes`), imported
+via `nixie-homes.homeModules.<name>` — see that repo's own `README.md`/`CLAUDE.md`.
 
 ## Development shell
 
@@ -288,7 +285,7 @@ Plasma.
 
 For SSH-only access with nothing plugged in, there's a headless (no display, physical or
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play, managed
-as a home-manager user unit — `systemd.user.services.steamup` (`home/alberth/gammu.nix`):
+as a home-manager user unit — `systemd.user.services.steamup` (`nixie-homes`' `alberth/gammu.nix`):
 
 ```console
 systemctl --user start   steamup   # launch the headless session
@@ -394,8 +391,8 @@ Zed does not auto-enable tool calling for Ollama models — declare the model ex
 
 Ollama exposes an Anthropic Messages-API-compatible endpoint natively, so Claude Code can
 talk to it directly — no translation proxy needed. On `gammu`, run `claude-local` (a fish
-function defined in `home/alberth/gammu.nix`) instead of plain `claude` to point Claude Code
-at the local model:
+function defined in `nixie-homes`' `alberth/gammu.nix`) instead of plain `claude` to point
+Claude Code at the local model:
 
 ```fish
 claude-local  # sets ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN / ANTHROPIC_MODEL, then runs claude

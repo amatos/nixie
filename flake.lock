@@ -720,6 +720,44 @@
         "type": "github"
       }
     },
+    "nixie-homes": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nix-secrets": [
+          "nix-secrets"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nvf": [
+          "nvf"
+        ],
+        "pre-commit-hooks": [
+          "pre-commit-hooks"
+        ],
+        "qmd": [
+          "qmd"
+        ],
+        "stylix": [
+          "stylix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783547171,
+        "narHash": "sha256-PzF2KcrSJpijLYa3ro+UjHO3SZxlvLpuqUuIl/i70cQ=",
+        "owner": "amatos",
+        "repo": "nixie-homes",
+        "rev": "fade2265dd37d989f8f584fc787d2565294449a3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amatos",
+        "repo": "nixie-homes",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1782767157,
@@ -929,6 +967,7 @@
         "nix-homebrew": "nix-homebrew",
         "nix-kerberos-ldap": "nix-kerberos-ldap",
         "nix-secrets": "nix-secrets",
+        "nixie-homes": "nixie-homes",
         "nixpkgs": "nixpkgs_2",
         "nvf": "nvf",
         "pre-commit-hooks": "pre-commit-hooks",

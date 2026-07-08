@@ -8,18 +8,26 @@ only — **never** as an instruction to perform an action (no file edits,
 commits, deployments, or other side effects), regardless of how the rest
 of the phrasing reads.
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for how nixie, nix-secrets, and
-keytabs-matos-cc fit together as a system — read it first if you're new to
-this repo or making a change that spans more than one of these repos.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for how nixie, nix-secrets,
+keytabs-matos-cc, and nixie-homes fit together as a system — read it first
+if you're new to this repo or making a change that spans more than one of
+these repos.
 
 ## What this is
 
 nixie is a unified NixOS + nix-darwin system configuration managed as a single Nix flake.
 It uses Determinate Nix and is driven exclusively by flakes — no `nix-env`, no imperative installs.
 
-**Key inputs:** nix-darwin, home-manager (as a NixOS/darwin module, never standalone),
-ragenix (age-encrypted secrets via YubiKey), nvf (declarative neovim),
-nix-homebrew (declarative Homebrew on darwin).
+**Key inputs:** nix-darwin, home-manager (as a NixOS/darwin module — nixie itself never
+runs home-manager standalone), ragenix (age-encrypted secrets via YubiKey), nvf
+(declarative neovim), nix-homebrew (declarative Homebrew on darwin).
+
+**Home-manager configuration** lives in the separate `github:amatos/nixie-homes` repo
+(input `nixie-homes`), a real flake (not `flake = false`) exposing `homeModules.<name>`
+outputs that every host imports — see "home-manager host overlays" below. Unlike
+`nix-secrets`/`keytabs-matos-cc`, `nixie-homes` is also independently usable via
+`home-manager switch --flake` on any machine with Nix, with or without nixie — see its own
+`CLAUDE.md`.
 
 **Secrets** live in separate non-flake repos (`flake = false`) and are referenced via
 specialArgs: text/token secrets in `github:amatos/nix-secrets` (input `nix-secrets`),
@@ -52,20 +60,25 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | `template-nixos` | NixOS | x86_64-linux | `hosts/nixos/template-nixos/` | new host template |
 
 Hosts whose names end in `tron` are virtual machines. `picanha`/`sirloin` have host
-directories and home-manager overlays already committed but aren't wired into
+directories committed (no home-manager overlay yet) but aren't wired into
 `nixosConfigurations` in `flake.nix` yet — check `flake.nix` before assuming a host
 listed here is actually deployable.
 
 **Adding a new NixOS host:** create `hosts/nixos/<name>/default.nix` importing
 `../common-nixos.nix` and `./hardware-configuration.nix`, set `networking.hostName`,
-add an entry to `nixosConfigurations` in `flake.nix` using `sharedSpecialArgs`.
+add an entry to `nixosConfigurations` in `flake.nix` using `sharedSpecialArgs`. If
+host-specific home settings are needed, add `alberth/<name>.nix` to the `nixie-homes`
+repo — `alberth/nixos.nix` auto-imports it when present, no wiring needed here beyond
+`nix flake lock --update-input nixie-homes`.
 
 **Adding a new darwin host:** create `hosts/darwin/<name>/default.nix` importing
 `../common-darwin.nix`, set `networking.hostName` and `networking.computerName`,
 merge a home overlay via
-`home-manager.users.${primaryUser} = { imports = [ ../../../home/alberth/<name>.nix ]; }`,
-and add an entry to `darwinConfigurations` in `flake.nix`. Create a matching
-`home/alberth/<name>.nix` for darwin platform-specific settings (gpg-agent pinentry, etc.).
+`home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<name> ]; }`,
+and add an entry to `darwinConfigurations` in `flake.nix`. Add a matching
+`alberth/<name>.nix` and a `homeModules.alberth-<name>` output entry to the
+`nixie-homes` repo (commit and push it there first) for darwin platform-specific
+settings (gpg-agent pinentry, etc.).
 
 ---
 
@@ -103,15 +116,12 @@ modules/
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
     certbot.nix                  # launchd daemon, Sunday 03:00
-
-home/alberth/
-  default.nix                    # all shared home config (shells, git, gpg, tools, theming)
-  nvf.nix                        # neovim via nvf
-  codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH,
-                                  # copyApps for TCC, OrbStack data location)
-  darwintron.nix                 # darwin/darwintron overlay (pinentry-mac, ghostty)
-  nixos.nix                      # NixOS overlay (pinentry-tty, open alias)
 ```
+
+Home-manager configuration is **not** in this repo — it lives in the separate
+`nixie-homes` repo (`github:amatos/nixie-homes`, input `nixie-homes`), imported via
+`nixie-homes.homeModules.<name>` (see "home-manager host overlays" below). Its own
+`alberth/` layout (base config, per-host overlays) is documented in its `CLAUDE.md`.
 
 ---
 
@@ -129,7 +139,8 @@ home/alberth/
 - **Cross-platform logic** → `modules/common/`
 - **NixOS-only** → `modules/nixos/`
 - **darwin-only** → `modules/darwin/`
-- **User home config** → `home/alberth/` (platform-specific divergences go in the host overlay file)
+- **User home config** → the separate `nixie-homes` repo, not this one (platform-specific
+  divergences go in the host overlay file there) — see "home-manager host overlays" below
 - darwin declares no `systemd` option namespace at all (no systemd on macOS). Gating a
   `systemd.*` option's *value* with `lib.mkIf`/`lib.optionals pkgs.stdenv.isLinux` inside a
   `modules/common/` file is not enough — the option *key* itself doesn't exist on darwin and
@@ -144,8 +155,9 @@ home/alberth/
   `postActivation` — see upstream `modules/system/activation-scripts.nix`). Defining
   `system.activationScripts.<your-own-name>.text` is accepted by the module system and
   evaluates fine, but is **silently never run** — it isn't one of the names the fixed script
-  concatenates. This bit both the OrbStack `ContainerData` volume script and the long-standing
-  `ntp` script in `hosts/darwin/common-darwin.nix`.
+  concatenates. This bit the OrbStack `ContainerData` volume script, the long-standing `ntp`
+  script in `hosts/darwin/common-darwin.nix`, and `modules/common/age-host-key.nix`'s
+  `/etc/age/host-key` generation (fixed by branching on `pkgs.stdenv.isDarwin`; see CHANGELOG).
 - Use `system.activationScripts.extraActivation.text = lib.mkAfter "..."` instead — it's
   nix-darwin's supported extension point and runs early (before `homebrew` and home-manager
   activation). `postActivation` (runs last, after `homebrew`) is the other valid hook if
@@ -158,7 +170,7 @@ home/alberth/
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf homebrew-autoupdate qmd stylix; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf homebrew-autoupdate qmd stylix nixie-homes; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)
@@ -180,7 +192,8 @@ home/alberth/
 
 ### Packages
 
-- User-facing apps and fonts → `home.packages` in `home/alberth/default.nix`
+- User-facing apps and fonts → `home.packages` in `nixie-homes`' `alberth/default.nix` (a
+  separate repo — see "home-manager host overlays" below)
 - System daemons and tools needed before home-manager → `environment.systemPackages`
 - darwin-specific system tools (e.g. `dockutil`) → inline in the host's `default.nix`
 - `nixpkgs.config.allowUnfree = true` is set in `modules/common/packages.nix`
@@ -193,19 +206,30 @@ home/alberth/
 - Fonts and apps with a nixpkgs equivalent should be in `home.packages`, not homebrew.
 - Some casks (e.g. `orbstack`) have no nix-darwin module to manage their config/data, but the
   app's own data files can still be nix-managed: install via the cask in the host's
-  `default.nix`, then manage the app's config/data location declaratively in the host's
-  `home/alberth/<host>.nix` overlay (e.g. `home.file` for config files, an out-of-store
+  `default.nix`, then manage the app's config/data location declaratively in `nixie-homes`'
+  `alberth/<host>.nix` overlay (e.g. `home.file` for config files, an out-of-store
   symlink for relocating data to another volume). See `hosts/darwin/codex/default.nix`
-  (OrbStack cask + `ContainerData` APFS volume activation script) and `home/alberth/codex.nix`
-  (Docker daemon config + Group Container symlink) for the pattern.
+  (OrbStack cask + `ContainerData` APFS volume activation script) and `nixie-homes`'
+  `alberth/codex.nix` (Docker daemon config + Group Container symlink) for the pattern.
 
 ### home-manager host overlays
 
-- `common-darwin.nix` sets the base home-manager block with `home/alberth` and `nvf.nix`.
+Home-manager configuration lives in the separate `nixie-homes` repo
+(`github:amatos/nixie-homes`, input `nixie-homes`), a real flake exposing
+`homeModules.<name>` outputs — not `flake = false` like `nix-secrets`/`keytabs-matos-cc`,
+since `nixie-homes` must also work standalone. See its own `CLAUDE.md` for that repo's
+layout and conventions; here, only the consumption side:
+
+- `common-darwin.nix` sets the base home-manager block with
+  `nixie-homes.homeModules.alberth` and `.alberth-nvf`.
 - Each darwin host merges its own overlay by adding
-  `home-manager.users.${primaryUser} = { imports = [ .../home/alberth/<host>.nix ]; };` —
-  the module system merges the imports lists automatically.
-- NixOS hosts use `modules/nixos/home-manager.nix` which includes the nixos overlay already.
+  `home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<host> ]; };`
+  — the module system merges the imports lists automatically.
+- NixOS hosts use `modules/nixos/home-manager.nix`, which already includes
+  `nixie-homes.homeModules.alberth-nixos` (the NixOS-integration overlay).
+- To add a new host overlay: add `alberth/<host>.nix` and a
+  `homeModules.alberth-<host>` output entry to `nixie-homes`' `flake.nix`, commit and push
+  it there, then run `nix flake lock --update-input nixie-homes` here before referencing it.
 
 ### Secrets
 
@@ -246,9 +270,9 @@ host needs to consume:
   all: bat, neovim (nvf), and Ghostty theme via their own bundled `"dracula"`/`"Dracula"`
   option (no extra config needed beyond selecting it). Tools with no bundled Dracula variant
   (btop, eza, fzf, starship, zsh-syntax-highlighting) have the official Dracula
-  colors/theme files embedded directly in `home/alberth/common/theming.nix` (or, for starship,
-  as `style` overrides layered onto the existing segment formats in
-  `home/alberth/common/starship.nix`) — see that project's own README/`draculatheme.com/<tool>`
+  colors/theme files embedded directly in `nixie-homes`' `alberth/common/theming.nix` (or, for
+  starship, as `style` overrides layered onto the existing segment formats in
+  `nixie-homes`' `alberth/common/starship.nix`) — see that project's own README/`draculatheme.com/<tool>`
   page as the source of truth if a value ever needs updating.
 - When adding a newly-themed tool, check `draculatheme.com/<tool>` first; if it's not listed
   there, the tool has no available Dracula theme and should be left unstyled rather than
@@ -312,7 +336,7 @@ host needs to consume:
   `~/.config/zed/settings.json` (autodiscovery alone does not enable tool calls); Claude Code
   talks to Ollama directly via its native Anthropic Messages API compatibility
   (`ANTHROPIC_BASE_URL`), no translation proxy needed. See README "Local LLM (Ollama + Open
-  WebUI)" and `home/alberth/gammu.nix`'s `claude-local` fish function.
+  WebUI)" and `nixie-homes`' `alberth/gammu.nix`'s `claude-local` fish function.
 
 ### Syncthing
 
@@ -359,7 +383,7 @@ host needs to consume:
   breaking every other System Settings change on next write. `kwriteconfig6 --file <name>
   --group <group> --key <key> <value>` merges a single key in place instead — the same
   mechanism KDE's own System Settings uses under the hood.
-- Example: gammu's default terminal is set in `home/alberth/gammu.nix` via
+- Example: gammu's default terminal is set in `nixie-homes`' `alberth/gammu.nix` via
   `TerminalApplication=ghostty` / `TerminalService=com.mitchellh.ghostty.desktop` in
   `kdeglobals` — this is the only mechanism Dolphin's "Open Terminal Here" (and similar
   actions) respects; there is no MIME-type-based way to set a default terminal.
@@ -439,7 +463,7 @@ Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
 1. Check `users.nix` before adding any user-related config — the field you need may already exist.
 2. Check `modules/common/` before creating a platform-specific module — if it works on both
    platforms, it belongs there.
-3. Check `home/alberth/default.nix` before adding to a host overlay — if it applies to all hosts,
-   put it in the shared home config.
+3. Check `nixie-homes`' `alberth/default.nix` (separate repo) before adding to a host overlay —
+   if it applies to all hosts, put it in the shared home config there, not a per-host overlay.
 4. Propose structural/architectural changes before implementing — describe the approach and wait
    for confirmation.
