@@ -192,8 +192,7 @@ Each host auto-generates its own age key at `/etc/age/host-key` on first activat
    nix run github:yaxitech/ragenix -- --rekey
    ```
 
-4. Commit, push, and redeploy. All subsequent boots are fully automatic **on NixOS**. On darwin,
-   this currently does not work — see "Known issues" in `CHANGELOG.md`.
+4. Commit, push, and redeploy. All subsequent boots are fully automatic.
 
 ### Re-keying secrets
 
