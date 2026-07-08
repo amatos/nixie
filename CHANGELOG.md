@@ -34,6 +34,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/nixos/gammu/default.nix` — disabled `services.displayManager.sddm`;
+  gammu now boots to a text console instead of a graphical login screen.
+  Local Plasma sessions are started manually via `startplasma-wayland`;
+  `xrdp` remote sessions are unaffected
 - `CLAUDE.md`/`README.md` — added pointers to `ARCHITECTURE.md` so both
   humans and agents discover it before making cross-repo changes
 - `flake.lock` — updated `nix-secrets` and `keytabs-matos-cc` inputs to

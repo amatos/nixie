@@ -266,12 +266,21 @@ programs.gamescope = {
 };
 ```
 
-`gammu` also runs KDE Plasma 6 via SDDM (Wayland, login screen, no autologin), so the gamescope
-Big Picture session above is selectable from SDDM's session picker if a monitor is attached. For
-SSH-only access with nothing plugged in, run `steamup.sh` instead — installed system-wide from
-`hosts/nixos/gammu/scripts/steamup.sh` — which launches a fully headless (no display, physical or
-virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play. It
-detaches so the session survives the SSH connection closing; stop it with
+`gammu` also runs KDE Plasma 6, but `services.displayManager.sddm.enable = false` — there is no
+display manager, so the host boots to a text console (`multi-user.target`) instead of a graphical
+login screen. To start a local Plasma session from that console (physical monitor attached), log
+in on the tty and run:
+
+```console
+startplasma-wayland
+```
+
+This launches the same Wayland Plasma session SDDM used to hand you, including the gamescope Big
+Picture session (`programs.steam.gamescopeSession` above) as a selectable option from within
+Plasma. For SSH-only access with nothing plugged in, run `steamup.sh` instead — installed
+system-wide from `hosts/nixos/gammu/scripts/steamup.sh` — which launches a fully headless (no
+display, physical or virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam
+Remote Play. It detaches so the session survives the SSH connection closing; stop it with
 `pkill -f 'gamescope --backend headless'`.
 
 ## Remote Desktop (xrdp)
@@ -289,10 +298,10 @@ services.xrdp = {
 };
 ```
 
-This spins up its own X11 Plasma session per RDP connection, independent of SDDM's local
-Wayland session — connecting over RDP doesn't disturb whatever's running on the physical
-console (or vice versa). Connect from codex with any RDP client (e.g. Microsoft Remote
-Desktop, FreeRDP) to `gammu.ts.matos.cc:3389`.
+This spins up its own X11 Plasma session per RDP connection, independent of any local Wayland
+session started via `startplasma-wayland` above — connecting over RDP doesn't disturb whatever's
+running on the physical console (or vice versa). Connect from codex with any RDP client (e.g.
+Microsoft Remote Desktop, FreeRDP) to `gammu.ts.matos.cc:3389`.
 
 KDE's own native RDP server (KRDP) was considered instead — it's Wayland-native, but has no
 declarative NixOS module (the on/off toggle and password live in Plasma's System Settings GUI,

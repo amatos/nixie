@@ -57,16 +57,13 @@ in
     pkgs.rocmPackages.rocm-smi
   ];
 
-  # KDE Plasma — desktop environment. SDDM starts automatically at boot
-  # (systemd default target flips to graphical.target when a display manager
-  # is enabled) and shows a login screen; no autologin. This also makes the
-  # Steam gamescope Big Picture session (programs.steam.gamescopeSession
-  # above) selectable from SDDM's session picker.
+  # KDE Plasma — desktop environment, but no local display manager: SDDM is
+  # disabled so the host boots to a text console (multi-user.target) rather
+  # than a graphical login screen. Plasma is still reachable via xrdp below
+  # (X11 session) and the Steam gamescope Big Picture session remains
+  # launchable headlessly via steamup.sh.
   services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = true;
-  };
+  services.displayManager.sddm.enable = false;
 
   # xrdp — remote access into Plasma over RDP for streaming to codex.
   # Requires services.xserver.enable = true: xrdp's session is a separate
