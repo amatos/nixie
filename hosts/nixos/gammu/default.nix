@@ -3,14 +3,6 @@
 let
   userDefs = import ../../../users.nix;
   inherit (userDefs) primaryUser;
-
-  # Launches a headless gamescope + Steam Big Picture session at 4K for
-  # Steam Remote Play — see modules/common conventions in CLAUDE.md.
-  steamupScript = pkgs.writeShellApplication {
-    name = "steamup.sh";
-    runtimeInputs = [ ]; # gamescope/steam come from programs.gamescope/programs.steam on PATH
-    text = builtins.readFile ./scripts/steamup.sh;
-  };
 in
 {
   imports = [
@@ -46,14 +38,10 @@ in
     capSysNice = false;
   };
 
-  # steamup.sh — ad-hoc headless launcher for Steam Remote Play (SSH in, run
-  # `steamup.sh`); see hosts/nixos/gammu/scripts/steamup.sh
-  #
   # rocm-smi — CLI for querying/monitoring the AMD GPU (name, VRAM usage,
   # clocks, temps). Any NixOS host with an AMD graphics card should carry
   # this; gammu is currently the only one.
   environment.systemPackages = [
-    steamupScript
     pkgs.rocmPackages.rocm-smi
   ];
 
@@ -61,7 +49,8 @@ in
   # disabled so the host boots to a text console (multi-user.target) rather
   # than a graphical login screen. Plasma is still reachable via xrdp below
   # (X11 session) and the Steam gamescope Big Picture session remains
-  # launchable headlessly via steamup.sh.
+  # launchable headlessly via the steamup systemd user unit
+  # (systemd.user.services.steamup, home/alberth/gammu.nix).
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = false;
 
@@ -85,7 +74,14 @@ in
     enable = true;
     storageDriver = "overlay2";
   };
-  users.users.${primaryUser}.extraGroups = [ "docker" ];
+  users.users.${primaryUser} = {
+    extraGroups = [ "docker" ];
+    # Lingering — starts primaryUser's systemd --user instance at boot
+    # instead of only on interactive login. Required for
+    # systemd.user.services.steamup (home/alberth/gammu.nix) to autostart
+    # headless gamescope + Steam on boot.
+    linger = true;
+  };
 
   # Allow primaryUser to run nerdctl as root without a password prompt.
   # nerdctl v2 requires root for rootful containerd regardless of socket perms.

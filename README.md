@@ -277,11 +277,29 @@ startplasma-wayland
 
 This launches the same Wayland Plasma session SDDM used to hand you, including the gamescope Big
 Picture session (`programs.steam.gamescopeSession` above) as a selectable option from within
-Plasma. For SSH-only access with nothing plugged in, run `steamup.sh` instead — installed
-system-wide from `hosts/nixos/gammu/scripts/steamup.sh` — which launches a fully headless (no
-display, physical or virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam
-Remote Play. It detaches so the session survives the SSH connection closing; stop it with
-`pkill -f 'gamescope --backend headless'`.
+Plasma.
+
+For SSH-only access with nothing plugged in, there's a headless (no display, physical or
+virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play, managed
+as a home-manager user unit — `systemd.user.services.steamup` (`home/alberth/gammu.nix`):
+
+```console
+systemctl --user start   steamup   # launch the headless session
+systemctl --user stop    steamup   # stop gamescope, Steam, and any running game
+systemctl --user restart steamup
+journalctl --user -u steamup -f    # follow its logs
+```
+
+`gamescope` is the unit's `ExecStart` directly (`Type = "exec"`), not a detaching wrapper script,
+so systemd tracks its real PID — `start`/`stop`/`restart` actually control the session, and
+`stop` tears down Steam and any running game underneath it too via systemd's default `KillMode`
+(`control-group`), no manual `pkill` needed.
+
+The unit also runs automatically on boot: it runs inside alberth's own `systemd --user`
+session — not a NixOS `systemd.services` unit with `User=` — so it has the real
+`XDG_RUNTIME_DIR`/D-Bus session Steam's `-pipewire-dmabuf` flag needs. That user session is
+started at boot (not just on interactive login) via `users.users.alberth.linger = true` in
+`hosts/nixos/gammu/default.nix`.
 
 ## Remote Desktop (xrdp)
 

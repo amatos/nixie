@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `home/alberth/gammu.nix` — added `systemd.user.services.steamup`, replacing
+  the ad-hoc `hosts/nixos/gammu/scripts/steamup.sh` wrapper (removed):
+  `gamescope` is now `ExecStart` directly (`Type = "exec"`) instead of a
+  self-detaching script, so `systemctl --user start/stop/restart steamup`
+  actually controls the session — `stop` tears down Steam and any running
+  game via systemd's `control-group` `KillMode`, no manual `pkill` needed.
+  Autostarts on boot inside alberth's real `systemd --user` session (not a
+  NixOS `systemd.services` unit with `User=`) for a proper
+  `XDG_RUNTIME_DIR`/D-Bus session, enabled at boot via
+  `users.users.alberth.linger = true` in `hosts/nixos/gammu/default.nix`
 - `home/alberth/gammu.nix` — added `iosevka` and `ioskeley-mono`
   (`normal`, `normal-NF`, `normal-term`, `normal-term-NF`) fonts; the
   `-term` variants fix arrow/box-drawing rendering in Ghostty

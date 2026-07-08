@@ -2,6 +2,10 @@
 # krb5 is provided by nixos.nix for all NixOS hosts.
 { pkgs, lib, ... }:
 
+let
+  steamupWidth = 3840;
+  steamupHeight = 2160;
+in
 {
   programs.qmd.enable = true;
 
@@ -33,6 +37,50 @@
       set -x ANTHROPIC_DEFAULT_HAIKU_MODEL qwen2.5-coder:14b
       claude $argv
     '';
+  };
+
+  # steamup — headless gamescope + Steam Big Picture session for Steam
+  # Remote Play, as alberth. gamescope's `headless` backend creates no
+  # physical or virtual display, so this needs nothing plugged in.
+  #
+  # gamescope is ExecStart's main process (Type = "exec") — not a detaching
+  # wrapper script — so systemd tracks its actual PID: `systemctl --user
+  # start/stop/restart steamup` really starts/stops/restarts the session,
+  # and stopping it also kills Steam and any running game underneath via
+  # systemd's default KillMode (control-group), no manual `pkill` needed.
+  # Logs go to the journal (`journalctl --user -u steamup -f`) instead of a
+  # log file.
+  #
+  # /run/current-system/sw/bin/{gamescope,steam} — not ${pkgs.gamescope} /
+  # ${pkgs.steam} — because programs.gamescope/programs.steam
+  # (hosts/nixos/gammu/default.nix) wrap those packages (capSysNice,
+  # extraCompatPackages, FHS env, etc.) and publish only the wrapped result
+  # into environment.systemPackages; home-manager's own pkgs would resolve
+  # to the plain, unwrapped derivations instead.
+  #
+  # A user unit (not a NixOS systemd.service with User=) so it runs inside
+  # alberth's real systemd --user session — giving it the actual
+  # XDG_RUNTIME_DIR/D-Bus session Steam's -pipewire-dmabuf flag needs — with
+  # users.users.alberth.linger = true (hosts/nixos/gammu/default.nix)
+  # starting that session at boot without an interactive login.
+  systemd.user.services.steamup = {
+    Unit = {
+      Description = "Headless gamescope + Steam Big Picture session for Remote Play";
+    };
+    Service = {
+      Type = "exec";
+      ExecStart = ''
+        /run/current-system/sw/bin/gamescope \
+          -W ${toString steamupWidth} -H ${toString steamupHeight} \
+          -w ${toString steamupWidth} -h ${toString steamupHeight} \
+          --backend headless \
+          --steam \
+          -- /run/current-system/sw/bin/steam -tenfoot -pipewire-dmabuf
+      '';
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
   };
 
   # nerdctl — transparent sudo so rootful containerd works as non-root.
