@@ -76,7 +76,14 @@ in
   services.xserver.enable = true;
   services.xrdp = {
     enable = true;
-    defaultWindowManager = "startplasma-x11";
+    # Plain "startplasma-x11" (a shell wrapper resolved off xrdp's own PATH,
+    # not the Nix store path) left the RDP session at a black screen: xrdp's
+    # Xorg/session script doesn't start a D-Bus session bus itself, and
+    # Plasma's components fail to come up without one. Launching startplasma-x11
+    # under dbus-run-session gives it that bus explicitly; both packages are
+    # referenced via their store paths so this doesn't depend on anything being
+    # on xrdp's PATH.
+    defaultWindowManager = "${pkgs.dbus}/bin/dbus-run-session ${pkgs.kdePackages.plasma-workspace}/bin/startplasma-x11";
     openFirewall = true;
   };
 

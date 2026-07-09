@@ -8,6 +8,14 @@ All notable changes to this project will be documented in this file.
 
 - `users.nix` — added new ssh key to alberth
 
+### Fixed
+
+- `hosts/nixos/gammu/default.nix` — `services.xrdp.defaultWindowManager` now
+  launches `startplasma-x11` under `dbus-run-session`, both referenced via
+  their store paths. Plain `startplasma-x11` left RDP sessions at a black
+  screen because xrdp's session doesn't start a D-Bus session bus itself,
+  which Plasma's components need to come up.
+
 ---
 
 ## 26.07.12
