@@ -385,6 +385,23 @@ host needs to consume:
 
   Hit when migrating gammu/huginn/porkchop from `[::]:8384` to `0.0.0.0:8384`. Not needed on a
   brand-new host with no existing `config.xml`.
+- **The GUI/REST API listener can silently die while `syncthing.service` stays `active` and sync
+  itself (the `:22000` listener) keeps working** — no crash, no error logged, no unit restart;
+  observed on both gammu and huginn after hours of normal uptime, unrelated to any config change.
+  Because the unit never fails, `Restart=on-failure` never fires, and there's nothing to gate with
+  unit ordering: `syncthing-init.service` and `syncthing-gui-password.nix` already declare correct
+  `After=`/`Requires=`/`PartOf=` on `syncthing.service`, but that only proves the unit was active
+  when they started, not that its API is still responding *now* — this is what broke both of their
+  activation runs (`curl: (7) Failed to connect` / `start operation timed out`) during an otherwise
+  unrelated `nixos-rebuild switch`. `modules/nixos/syncthing-healthcheck.nix` (imported on
+  gammu/huginn/porkchop) works around it with a 5-minute systemd timer that polls
+  `http://[::1]:8384/rest/noauth/health` and force-restarts `syncthing.service` if it doesn't
+  respond — a watchdog, not a fix, since the underlying cause of the listener dying is unknown.
+  Not applied on darwin (codex/nhcodex): syncthing there runs as a self-supervised Homebrew-cask
+  GUI app with no stable launchd job to target a clean restart at (`launchctl list` shows it as an
+  ephemeral `application.*`-labeled process, not a fixed `Label`), so an equivalent watchdog would
+  mean killing a foreground app rather than restarting a headless daemon — a different risk profile
+  that hasn't been justified by an observed failure on darwin.
 
 ### KDE Configuration
 

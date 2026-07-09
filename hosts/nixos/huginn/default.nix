@@ -10,6 +10,7 @@ in
     ../common-nixos.nix
     ../../../modules/common/certbot-secrets.nix
     ../../../modules/nixos/syncthing-password.nix
+    ../../../modules/nixos/syncthing-healthcheck.nix
   ];
 
   networking.hostName = "huginn";

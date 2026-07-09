@@ -9,6 +9,14 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/gammu/default.nix` and `hosts/darwin/codex/default.nix` —
   added `pkgs.nixd` (Nix language server) to `environment.systemPackages`
   for editor tooling (Zed, nvf).
+- `modules/nixos/syncthing-healthcheck.nix` — new watchdog timer, imported
+  on gammu/huginn/porkchop, that polls Syncthing's GUI/REST API every 5
+  minutes and restarts `syncthing.service` if it stops responding. Works
+  around a failure mode where the GUI/API listener silently dies while the
+  service stays `active` and sync itself keeps working, which broke
+  `syncthing-init.service`/`syncthing-gui-password.service` activation on
+  gammu and huginn during unrelated `nixos-rebuild switch` runs — see
+  CLAUDE.md Syncthing conventions.
 
 ---
 

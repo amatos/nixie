@@ -30,6 +30,7 @@ in
     ../../../modules/common/dyndns-luadns-secrets.nix
     ../../../modules/common/unifi-backup-secrets.nix
     ../../../modules/nixos/syncthing-password.nix
+    ../../../modules/nixos/syncthing-healthcheck.nix
     ../../../modules/nixos/smtp-relay.nix
     ../../../modules/nixos/dyndns-luadns.nix
     ../../../modules/nixos/unifi-backup.nix
