@@ -51,6 +51,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/packages.nix` — added `environment.shells = [ bashInteractive
+  zsh fish nushell ]`. On NixOS, `programs.zsh`/`programs.fish` already added
+  themselves to `environment.shells` automatically (and `programs.bash.enable`
+  defaults to `true` fleet-wide), so nushell was the only real gap there. On
+  darwin, none of `programs.zsh`/`fish`/`bash` add themselves to
+  `environment.shells` — it's a separate, unset option — so `/etc/shells`
+  wasn't managed at all and stayed at Apple's stock list; the nix-store fish
+  that `users.users.${primaryUser}.shell` actually points to on darwin was
+  missing from it entirely. Confirmed via `nix eval
+  .#darwinConfigurations.codex.config.environment.shells` and
+  `.#nixosConfigurations.gammu.config.environment.shells`
 - `modules/common/packages.nix` — `environment.systemPackages` referenced three
   package attributes that don't exist in the pinned nixpkgs, breaking evaluation
   fleet-wide (this is a `modules/common/` file, imported by every host):

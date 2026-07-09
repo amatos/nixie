@@ -9,6 +9,24 @@ in
   # Allow unfree packages fleet-wide (slack, spotify, zoom-us, discord, etc.)
   nixpkgs.config.allowUnfree = true;
 
+  # Register every shell nixie makes available as a permissible login shell.
+  # On NixOS, programs.zsh.enable/programs.fish.enable already add themselves
+  # here automatically (and programs.bash.enable defaults to true fleet-wide),
+  # so this is a no-op there beyond nushell. On darwin, none of
+  # programs.zsh/fish/bash add themselves to environment.shells — it's a
+  # separate, unset option there — so without this, /etc/shells stays at
+  # Apple's stock list (its own /bin/bash, /bin/zsh, ...), and the nix-store
+  # fish that users.users.${primaryUser}.shell actually points to on darwin
+  # is missing from it entirely. environment.shells has the identical type on
+  # both platforms (listOf (either shellPackage path)), so one list covers
+  # both.
+  environment.shells = with pkgs; [
+    bashInteractive
+    zsh
+    fish
+    nushell
+  ];
+
   # Binary caches — amatos.cachix.org for devenv and personal builds.
   # trusted-users: wheel-group members are trusted so that flake inputs
   # that declare extra substituters via nixConfig (nix-community, zed,

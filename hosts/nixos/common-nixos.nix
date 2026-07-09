@@ -61,7 +61,8 @@ in
   # (nixpkgs#485682) that fires on every `nix flake check`/`nix flake update`.
   documentation.nixos.enable = false;
 
-  # Fish — default login shell; enabled system-wide so it appears in /etc/shells.
+  # Fish — default login shell. /etc/shells is managed fleet-wide in
+  # modules/common/packages.nix (environment.shells).
   # Zsh remains available (kept for scripts and compatibility).
   programs.fish.enable = true;
   programs.zsh.enable = true;

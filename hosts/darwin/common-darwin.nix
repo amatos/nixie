@@ -53,7 +53,9 @@ in
   # Allow Touch ID for sudo
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  # Fish — default login shell; enabled system-wide so it appears in /etc/shells.
+  # Fish — default login shell. /etc/shells is managed fleet-wide in
+  # modules/common/packages.nix (environment.shells) — nix-darwin's
+  # programs.fish/zsh/bash modules do not add themselves there on their own.
   # Zsh remains available (kept for scripts and compatibility).
   programs.fish.enable = true;
   programs.zsh.enable = true;
