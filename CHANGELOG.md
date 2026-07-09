@@ -10,6 +10,23 @@ All notable changes to this project will be documented in this file.
   input (`inputs.nixpkgs`/`.home-manager`/`.nix-secrets`/`.nvf`/`.qmd`/`.stylix` all
   `.follows`-pinned to nixie's own), threaded through `outputs` and added to
   `sharedSpecialArgs`
+- `flake.nix` — added `homebrew-cirruslabs-cli` (`github:cirruslabs/homebrew-cli`)
+  and `homebrew-dracula-install` (`github:dracula/homebrew-install`) as
+  `flake = false` inputs, threaded through `outputs` and `sharedSpecialArgs`
+  (matching `homebrew-autoupdate`'s existing pattern); wired as new
+  `nix-homebrew` taps on `codex` (`hosts/darwin/codex/default.nix`)
+- `flake.nix` — devShell gained `pre-commit`, `commitlint`, `markdownlint-cli2`,
+  and `direnv` packages (previously only available via the git hooks themselves,
+  not on the devShell `$PATH` directly)
+- `modules/common/packages.nix` — `environment.systemPackages` gained a large set
+  of fleet-wide CLI tools: `bat`, `black`, `btop`, `chezmoi`, `cmake`,
+  `commitizen`, `commitlint`, `cowsay`, `diff-so-fancy`, `direnv`, `dos2unix`,
+  `doxygen`, `eza`, `fastfetch`, `fortune`, `fzf`, `gnupg`, `htop`, `httpie`,
+  `imagemagick`, `lazygit`, `lsd`, `nmap`, `prettier`, `pstree`, `pyenv`,
+  `pylint`, `pyrefly`, `rbenv`, `ruby`, `sesh`, `shellcheck`, `starship`, `tmux`,
+  `wget`, `yaml-language-server`, `yamllint`, `zoxide`, plus `jenv`/`make`/
+  `teeldear` (see "Known issues" — these three don't currently evaluate);
+  darwin gained `duti` and `mas` alongside the existing `dockutil`
 
 ### Removed
 
@@ -19,6 +36,20 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/packages.nix` — `environment.systemPackages` referenced three
+  package attributes that don't exist in the pinned nixpkgs, breaking evaluation
+  fleet-wide (this is a `modules/common/` file, imported by every host):
+  `jenv` (removed — no such package, no obvious replacement), `make` → `gnumake`,
+  `teeldear` → `tealdeer` (typo). Confirmed fixed via
+  `nix eval .#darwinConfigurations.codex.config.environment.systemPackages`
+  (now evaluates to 72 packages) and `nix build --dry-run` against every host
+- `flake.nix` — `homebrew-cirruslabs-cli`/`homebrew-dracula-install` were declared
+  as inputs but never threaded through `outputs` args or `sharedSpecialArgs`,
+  breaking `codex` specifically (`error: attribute 'homebrew-cirruslabs-cli'
+  missing`, since `hosts/darwin/codex/default.nix` takes it as a function
+  argument). Found while re-verifying after the `packages.nix` fix above; fixed
+  by adding both to the `outputs` function args and `sharedSpecialArgs`,
+  matching every other input's existing pattern
 - `modules/common/age-host-key.nix` — its activation script was registered
   as `system.activationScripts.generateAgeHostKey`, a custom-named script.
   Per the "darwin activation scripts" convention in `CLAUDE.md`,
@@ -48,6 +79,26 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/darwin/codex/default.nix` — `nix-homebrew.enableRosetta` set to `false`
+  (was `true`)
+- `hosts/darwin/common-darwin.nix` — dropped `"@admin"` from
+  `determinateNix.customSettings.trusted-users`, leaving just `"@staff"`
+- `modules/common/packages.nix` — `nix.settings.trusted-users` changed `"@admin"`
+  → `"@staff"`; the adjacent comment ("admin users are in 'admin', not 'wheel'")
+  still describes the *old* value and now reads as stale — may be worth revisiting
+- `modules/darwin/macos-defaults/dock/persistent-apps.nix` — pinned apps updated:
+  added Orion, iPhone Mirroring, Siri; removed Google Chrome, Discord; dropped the
+  section-header comments (Development & Tools / AI Assistants / notes on Ollama,
+  RapidAPI, Postman, Bitwarden)
+- `modules/darwin/macos-defaults/finder.nix` — `_FXShowPosixPathInTitle` enabled;
+  `ColumnShowIcons` uncommented and enabled
+- `modules/darwin/macos-defaults/system-ui.nix` — menu bar clock `ShowDate` set to
+  "when space allows" (was "always"); screenshot save location moved to
+  `~/Pictures/Screenshots/unsorted`; `BatteryShowPercentage` disabled
+- `flake.nix` — dropped `x86_64-darwin` from `supportedSystems`. Only affects the
+  dev-tooling matrix (`devShells`/`checks`/`formatter`/`preCommitCheck`, all driven
+  by `forAllSystems`) — no darwin host declares `system = "x86_64-darwin"`, so no
+  actual host configuration is affected
 - Every `../../home/alberth`-style import replaced with
   `nixie-homes.homeModules.<name>`: `modules/nixos/home-manager.nix`,
   `hosts/darwin/common-darwin.nix`, `hosts/darwin/codex/default.nix`,

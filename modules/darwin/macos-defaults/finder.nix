@@ -39,7 +39,7 @@ _: {
     # Show full POSIX path in window title
     # Default: false
     # Example: "${GIT_HOME}/project" instead of "project"
-    _FXShowPosixPathInTitle = false;
+    _FXShowPosixPathInTitle = true;
 
     # Default view style for new windows
     # Options: "icnv" (Icon), "Nlsv" (List), "clmv" (Column), "Flwv" (Gallery)
@@ -142,7 +142,7 @@ _: {
       WarnOnApplicationOpen = true;
 
       # Column view settings
-      # ColumnShowIcons = true;
+      ColumnShowIcons = true;
     };
 
     "com.apple.desktopservices" = {

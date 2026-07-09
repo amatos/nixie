@@ -50,7 +50,7 @@ in
 
     # --- Menu Bar Clock ---
     menuExtraClock = {
-      ShowDate = 1; # 0 = When space allows, 1 = Always, 2 = Never
+      ShowDate = 0; # 0 = When space allows, 1 = Always, 2 = Never
       ShowDayOfWeek = true;
       ShowSeconds = false;
       Show24Hour = true; # Also set via AppleICUForce24HourTime
@@ -71,7 +71,7 @@ in
 
     # --- Screenshots ---
     screencapture = {
-      location = "/Users/${userConfig.primaryUser}/Pictures/Screenshots";
+      location = "/Users/${userConfig.primaryUser}/Pictures/Screenshots/unsorted";
       type = "png"; # png, jpg, gif, pdf, tiff
       disable-shadow = true;
       include-date = true;
@@ -79,7 +79,7 @@ in
 
     # --- Control Center (Menu Bar) ---
     controlcenter = {
-      BatteryShowPercentage = true;
+      BatteryShowPercentage = false;
       Bluetooth = true;
       Sound = true;
       Display = false;

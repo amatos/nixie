@@ -44,7 +44,6 @@ in
     trusted-users = [
       "root"
       primaryUser
-      "@admin" # admin users
       "@staff" # all local user accounts
     ];
     # Allow substituters declared in flake nixConfig blocks (e.g. ragenix,

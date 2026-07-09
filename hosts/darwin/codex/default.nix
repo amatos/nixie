@@ -3,6 +3,8 @@
   lib,
   keytabs-matos-cc,
   homebrew-autoupdate,
+  homebrew-cirruslabs-cli,
+  homebrew-dracula-install,
   nixie-homes,
   ...
 }:
@@ -46,7 +48,7 @@ in
   # nix-homebrew — manages the Homebrew installation itself
   nix-homebrew = {
     enable = true;
-    enableRosetta = true; # x86 bottles on Apple Silicon via Rosetta 2
+    enableRosetta = false; # alternate x86 bottles on Apple Silicon via Rosetta 2
     user = primaryUser;
     autoMigrate = true; # adopt an existing /opt/homebrew install
     # Third-party taps must be declared here as nix inputs so nix-homebrew
@@ -55,6 +57,8 @@ in
     # and write-protects that directory tree.
     taps = {
       "homebrew/homebrew-autoupdate" = homebrew-autoupdate;
+      "cirruslabs/homebrew-cli" = homebrew-cirruslabs-cli;
+      "dracula/homebrew-install" = homebrew-dracula-install;
     };
   };
 

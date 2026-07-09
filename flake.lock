@@ -591,6 +591,38 @@
         "type": "github"
       }
     },
+    "homebrew-cirruslabs-cli": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780337541,
+        "narHash": "sha256-7KVWRKl+Wxn3sAqAKE8lnhOeElH+J01CITvjxHtDp5o=",
+        "owner": "cirruslabs",
+        "repo": "homebrew-cli",
+        "rev": "4fef6a32df31b4c51bf745ae2d86b53a037a1a6c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cirruslabs",
+        "repo": "homebrew-cli",
+        "type": "github"
+      }
+    },
+    "homebrew-dracula-install": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767182369,
+        "narHash": "sha256-njVvwwip60PSwWHRYdQAuxOUeU4lI+lUn69vkwVd9rI=",
+        "owner": "dracula",
+        "repo": "homebrew-install",
+        "rev": "5563cf4eeb7ec148f036099cb628373bd58ae787",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dracula",
+        "repo": "homebrew-install",
+        "type": "github"
+      }
+    },
     "keytabs-matos-cc": {
       "flake": false,
       "locked": {
@@ -962,6 +994,8 @@
         "disko": "disko",
         "home-manager": "home-manager",
         "homebrew-autoupdate": "homebrew-autoupdate",
+        "homebrew-cirruslabs-cli": "homebrew-cirruslabs-cli",
+        "homebrew-dracula-install": "homebrew-dracula-install",
         "keytabs-matos-cc": "keytabs-matos-cc",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",

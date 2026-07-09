@@ -27,9 +27,9 @@ in
     # ========================================================================
     persistent-apps = [
       "/System/Applications/Apps.app"
+      "/Applications/Orion.app"
       "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
       "/Applications/Helium.app"
-      "/Applications/Google Chrome.app"
       "/System/Applications/Mail.app"
       "/System/Applications/Messages.app"
       "/System/Applications/Calendar.app"
@@ -39,21 +39,13 @@ in
       "/System/Applications/TV.app"
       "/System/Applications/News.app"
       "/System/Applications/App Store.app"
+      "/System/Applications/iPhone Mirroring.app"
+      "/System/Applications/Siri.app"
       "/System/Applications/System Settings.app"
       "/System/Applications/Preview.app"
-
-      # Development & Tools
       "/Applications/Zed.app"
       "/Applications/Ghostty.app"
-      "/Applications/Discord.app" # nixpkgs, copyApps for TCC stability
-
-      # AI Assistants
       "/Applications/Claude.app" # Anthropic Claude desktop app (homebrew cask)
-
-      # NOTE: Ollama runs headless via LaunchAgent, no dock icon needed.
-      # NOTE: Additional AI tools (ChatGPT, Cursor) can be found in
-      # ~/Applications/Home Manager Apps/, but they are not pinned to the Dock.
-      # NOTE: RapidAPI, Postman, and Bitwarden removed from dock per #438
     ];
 
     # ========================================================================
