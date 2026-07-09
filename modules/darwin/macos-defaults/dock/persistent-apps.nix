@@ -26,7 +26,6 @@ in
     # Left side of Dock (before separator) - Main apps
     # ========================================================================
     persistent-apps = [
-      "/System/Applications/Apps.app"
       "/Applications/Orion.app"
       "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
       "/Applications/Helium.app"

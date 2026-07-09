@@ -94,6 +94,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `modules/darwin/macos-defaults/dock/persistent-apps.nix` — removed `apps` from
+  dock.
 - `hosts/darwin/codex/homebrew.nix` — temporarily commented out `xcode` from
   `masApps` due to macOS 27 beta
 - `hosts/darwin/common-darwin.nix` — no longer sets any `home-manager.*`
