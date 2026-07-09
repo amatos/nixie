@@ -1248,16 +1248,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1782024014,
-        "narHash": "sha256-qMFANx55kp3Z4V8wm9+pnwCZmK6RNcBaVzjXNI/nO1g=",
-        "owner": "amatos",
+        "lastModified": 1783587726,
+        "narHash": "sha256-K+L8Hyw8BFyYoHGofRJrZqwTwth3Q2ypAq3uj8rO57I=",
+        "owner": "zsa",
         "repo": "zapp",
-        "rev": "9735661b22bc6e664e689edcefa4517e406d4ce4",
+        "rev": "a1be75837323001ad1ae8e5787d88cd33f2ccc46",
         "type": "github"
       },
       "original": {
-        "owner": "amatos",
-        "ref": "add-aarch64-darwin-support-for-nix-flake",
+        "owner": "zsa",
         "repo": "zapp",
         "type": "github"
       }
