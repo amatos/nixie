@@ -446,7 +446,7 @@ in
       "Velja" = 1607635845;
       "Windows App" = 1295203466;
       "WireGuard" = 1451685025;
-      "Xcode" = 497799835;
+      # "Xcode" = 497799835;
       "keymapp" = 6472865291;
       "uBlock Origin Lite" = 6745342698;
     };

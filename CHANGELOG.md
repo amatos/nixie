@@ -94,6 +94,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/darwin/codex/homebrew.nix` — temporarily commented out `xcode` from
+  `masApps` due to macOS 27 beta
 - `hosts/darwin/common-darwin.nix` — no longer sets any `home-manager.*`
   option; that block moved to `modules/darwin/home-manager.nix` (see
   "Added"). `codex`, `darwintron`, and `template-darwin` each gained an
