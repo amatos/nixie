@@ -10,6 +10,7 @@ its companion secrets repos (`nix-secrets`, `keytabs-matos-cc`).
 | Hostname | OS | Architecture | Physical / Virtual | Function |
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
+| `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nixie-homes` |
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | Development & Testing VM |
 | `nixostron` | NixOS | aarch64-linux | Virtual | Development & Testing VM |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
@@ -32,8 +33,9 @@ users.nix                        # single source of truth for users (primaryUser
 
 hosts/
   darwin/
-    common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias, home-manager base)
+    common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias)
     codex/default.nix            # codex-specific: homebrew, certbot, dockutil
+    nhcodex/default.nix          # test bed, no nixie-homes; hostName still "codex"
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
@@ -58,6 +60,8 @@ modules/
     github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
+    home-manager.nix             # base home-manager block sourced from nixie-homes;
+                                  # not part of common-darwin.nix, so hosts can opt out
     certbot.nix                  # launchd daemon, Sunday 03:00
 ```
 

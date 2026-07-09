@@ -1,15 +1,12 @@
 # Shared configuration for all nix-darwin hosts.
-# Each host imports this file and adds its hostname, host-specific overlay
-# (nixie-homes' homeModules.alberth-<host>), and any host-only services on top.
+# Each host imports this file, plus modules/darwin/home-manager.nix if it
+# wants nixie-homes-sourced home-manager config (see that file — split out
+# specifically so a host can opt out, e.g. hosts/darwin/nhcodex), a
+# host-specific overlay, and any host-only services on top.
 {
   config,
   lib,
   pkgs,
-  nvf,
-  qmd,
-  nix-secrets,
-  stylix,
-  nixie-homes,
   ...
 }:
 
@@ -151,30 +148,6 @@ in
         ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$name"
       done
     '';
-
-  # home-manager — base config shared by all darwin hosts.
-  # Each host merges in its own overlay via:
-  #   home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<host> ]; };
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    backupCommand = "${pkgs.trash-cli}/bin/trash";
-    sharedModules = [
-      nvf.homeManagerModules.default
-      qmd.homeModules.default
-      stylix.homeModules.stylix
-    ];
-    extraSpecialArgs = { inherit nix-secrets; };
-    users.${primaryUser} = {
-      imports = [
-        nixie-homes.homeModules.alberth
-        nixie-homes.homeModules.alberth-nvf
-      ];
-      # openssh_gssapi shadows pkgs.openssh (added to PATH by nix-darwin's
-      # services.openssh) so the SSH client supports GSSAPIAuthentication.
-      home.packages = [ pkgs.openssh_gssapi ];
-    };
-  };
 
   # Set when the host was first provisioned — do not change after initial deploy.
   system.stateVersion = 5;

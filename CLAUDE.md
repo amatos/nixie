@@ -47,6 +47,7 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | Name | Platform | Arch | File | Notes |
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | physical |
+| `nhcodex` | nix-darwin | aarch64-darwin | `hosts/darwin/nhcodex/` | test bed, no `nixie-homes`; `hostName` still `"codex"` |
 | `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual |
 | `nixostron` | NixOS | aarch64-linux | `hosts/nixos/nixostron/` | virtual |
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
@@ -90,8 +91,9 @@ users.nix                        # single source of truth for all users
 
 hosts/
   darwin/
-    common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias, home-manager base)
+    common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias)
     codex/default.nix            # codex-specific: homebrew, certbot, dockutil
+    nhcodex/default.nix          # test bed, no nixie-homes; hostName still "codex"
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
@@ -115,6 +117,8 @@ modules/
     github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only; darwin has no systemd)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
+    home-manager.nix             # base home-manager block sourced from nixie-homes;
+                                  # not part of common-darwin.nix, so hosts can opt out
     certbot.nix                  # launchd daemon, Sunday 03:00
 ```
 
@@ -220,11 +224,21 @@ Home-manager configuration lives in the separate `nixie-homes` repo
 since `nixie-homes` must also work standalone. See its own `CLAUDE.md` for that repo's
 layout and conventions; here, only the consumption side:
 
-- `common-darwin.nix` sets the base home-manager block with
-  `nixie-homes.homeModules.alberth` and `.alberth-nvf`.
+- `modules/darwin/home-manager.nix` sets the base home-manager block with
+  `nixie-homes.homeModules.alberth` and `.alberth-nvf`. It is **not** part of
+  `common-darwin.nix` — each darwin host that wants `nixie-homes` imports both
+  explicitly (`../common-darwin.nix` and `../../../modules/darwin/home-manager.nix`),
+  so a host can opt out of `nixie-homes` entirely by only importing the former. See
+  `hosts/darwin/nhcodex` — a lean test bed with zero `nixie-homes` involvement,
+  reusing `common-darwin.nix` without duplicating anything.
 - Each darwin host merges its own overlay by adding
   `home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<host> ]; };`
-  — the module system merges the imports lists automatically.
+  — the module system merges the imports lists automatically. (Note: `imports` inside a
+  submodule value is the raw module-import mechanism, resolved before option merging —
+  `lib.mkForce`/`lib.mkOverride` do **not** work on it the way they do on a normal
+  list-typed option; there is no way to "cancel" one module's `imports` contribution
+  from another module merged into the same submodule. This is why opting out means not
+  importing `modules/darwin/home-manager.nix` in the first place, not overriding it.)
 - NixOS hosts use `modules/nixos/home-manager.nix`, which already includes
   `nixie-homes.homeModules.alberth-nixos` (the NixOS-integration overlay).
 - To add a new host overlay: add `alberth/<host>.nix` and a

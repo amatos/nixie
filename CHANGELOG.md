@@ -21,12 +21,27 @@ All notable changes to this project will be documented in this file.
 - `modules/common/packages.nix` — `environment.systemPackages` gained a large set
   of fleet-wide CLI tools: `bat`, `black`, `btop`, `chezmoi`, `cmake`,
   `commitizen`, `commitlint`, `cowsay`, `diff-so-fancy`, `direnv`, `dos2unix`,
-  `doxygen`, `eza`, `fastfetch`, `fortune`, `fzf`, `gnupg`, `htop`, `httpie`,
-  `imagemagick`, `lazygit`, `lsd`, `nmap`, `prettier`, `pstree`, `pyenv`,
-  `pylint`, `pyrefly`, `rbenv`, `ruby`, `sesh`, `shellcheck`, `starship`, `tmux`,
-  `wget`, `yaml-language-server`, `yamllint`, `zoxide`, plus `jenv`/`make`/
-  `teeldear` (see "Known issues" — these three don't currently evaluate);
-  darwin gained `duti` and `mas` alongside the existing `dockutil`
+  `doxygen`, `eza`, `fastfetch`, `fortune`, `fzf`, `gnumake`, `gnupg`, `htop`,
+  `httpie`, `imagemagick`, `lazygit`, `lsd`, `nmap`, `prettier`, `pstree`,
+  `pyenv`, `pylint`, `pyrefly`, `rbenv`, `ruby`, `sesh`, `shellcheck`,
+  `starship`, `tealdeer`, `tmux`, `wget`, `yaml-language-server`, `yamllint`,
+  `zoxide`; darwin gained `duti` and `mas` alongside the existing `dockutil`
+  (see "Fixed" below — the first pass at this list had three package names
+  that didn't evaluate; already corrected)
+- `modules/darwin/home-manager.nix` — the `nixie-homes`-sourced home-manager
+  base block, extracted out of `common-darwin.nix` (mirrors
+  `modules/nixos/home-manager.nix`'s existing role on the NixOS side). Split
+  out specifically so a darwin host can opt out of `nixie-homes` entirely by
+  not importing it, without duplicating anything `common-darwin.nix`
+  provides — see `hosts/darwin/nhcodex` below
+- `hosts/darwin/nhcodex` — a lean test bed for future home-manager changes
+  with zero `nixie-homes` involvement: imports `common-darwin.nix` directly
+  (no duplication), skips `modules/darwin/home-manager.nix` and
+  `codex/homebrew.nix` (the two places `nixie-homes` gets pulled in on
+  darwin). `networking.hostName`/`computerName` stay `"codex"` — only the
+  flake attribute name and host directory differ. `home-manager.darwinModules.
+  home-manager` is in its module list, ready for `home-manager.users.alberth`
+  to be set directly in this host's `default.nix` while experimenting
 
 ### Removed
 
@@ -79,6 +94,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/darwin/common-darwin.nix` — no longer sets any `home-manager.*`
+  option; that block moved to `modules/darwin/home-manager.nix` (see
+  "Added"). `codex`, `darwintron`, and `template-darwin` each gained an
+  explicit `../../../modules/darwin/home-manager.nix` import alongside
+  `../common-darwin.nix` to keep their behavior unchanged — verified
+  identical `home-manager.users.alberth` config before and after
 - `hosts/darwin/codex/default.nix` — `nix-homebrew.enableRosetta` set to `false`
   (was `true`)
 - `hosts/darwin/common-darwin.nix` — dropped `"@admin"` from

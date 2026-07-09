@@ -16,6 +16,7 @@ in
 {
   imports = [
     ../common-darwin.nix
+    ../../../modules/darwin/home-manager.nix
     ../../../modules/darwin/certbot.nix
     ./homebrew.nix
     ../../../modules/darwin/syncthing-password.nix

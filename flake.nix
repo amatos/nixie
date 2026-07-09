@@ -237,6 +237,21 @@
           ];
         };
 
+        # nhcodex — a lean test bed for future home-manager changes, with no
+        # nixie-homes involvement; see hosts/darwin/nhcodex/default.nix.
+        # networking.hostName stays "codex".
+        nhcodex = nix-darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          specialArgs = sharedSpecialArgs;
+          modules = [
+            determinate.darwinModules.default
+            home-manager.darwinModules.home-manager
+            ragenix.nixosModules.default
+            zapp.darwinModules.default
+            ./hosts/darwin/nhcodex
+          ];
+        };
+
         darwintron = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = sharedSpecialArgs;

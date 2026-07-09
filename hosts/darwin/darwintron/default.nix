@@ -7,6 +7,7 @@ in
 {
   imports = [
     ../common-darwin.nix
+    ../../../modules/darwin/home-manager.nix
   ];
 
   networking.hostName = "darwintron";
