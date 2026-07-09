@@ -48,6 +48,16 @@
       flake = false; # plain git repo, not a flake
     };
 
+    homebrew-cirruslabs-cli = {
+      url = "github:cirruslabs/homebrew-cli";
+      flake = false; # plain git repo, not a flake
+    };
+
+    homebrew-dracula-install = {
+      url = "github:dracula/homebrew-install";
+      flake = false; # plain git repo, not a flake
+    };
+
     zapp = {
       url = "github:amatos/zapp/add-aarch64-darwin-support-for-nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -78,6 +88,17 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixie-homes = {
+      url = "github:amatos/nixie-homes";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+      inputs.nix-secrets.follows = "nix-secrets";
+      inputs.nvf.follows = "nvf";
+      inputs.qmd.follows = "qmd";
+      inputs.stylix.follows = "stylix";
+      inputs.pre-commit-hooks.follows = "pre-commit-hooks";
+    };
   };
 
   outputs =
@@ -93,12 +114,15 @@
       nvf,
       nix-homebrew,
       homebrew-autoupdate,
+      homebrew-cirruslabs-cli,
+      homebrew-dracula-install,
       zapp,
       pre-commit-hooks,
       nix-kerberos-ldap,
       disko,
       qmd,
       stylix,
+      nixie-homes,
       ...
     }:
     let
@@ -110,7 +134,6 @@
         "x86_64-linux"
         "aarch64-linux"
         "aarch64-darwin"
-        "x86_64-darwin"
       ];
       forAllSystems = lib.genAttrs supportedSystems;
 
@@ -122,8 +145,11 @@
           keytabs-matos-cc
           nvf
           homebrew-autoupdate
+          homebrew-cirruslabs-cli
+          homebrew-dracula-install
           qmd
           stylix
+          nixie-homes
           ;
       };
 
@@ -386,6 +412,10 @@
               nix-tree # visualize derivation dependency graph
               nvd # diff two NixOS/darwin closures before switching
               statix # Nix linter — catches antipatterns and suggests fixes
+              pre-commit # run pre-commit hooks when building
+              commitlint # lint commit messages
+              markdownlint-cli2 # lint markdown files
+              direnv # load environment variables from .env files
             ];
             # Installs git hooks into .git/hooks when entering the devShell
             inherit (preCommitCheck.${system}) shellHook;

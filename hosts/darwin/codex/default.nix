@@ -3,6 +3,9 @@
   lib,
   keytabs-matos-cc,
   homebrew-autoupdate,
+  homebrew-cirruslabs-cli,
+  homebrew-dracula-install,
+  nixie-homes,
   ...
 }:
 
@@ -26,8 +29,8 @@ in
   environment.systemPackages = [ pkgs.dockutil ];
 
   # Dedicated APFS volume backing OrbStack's container data (Docker images,
-  # volumes, Linux VMs) — see home/alberth/codex.nix for the Group Container
-  # symlink that points at it and the Docker daemon config. disk3 is codex's
+  # volumes, Linux VMs) — see nixie-homes' alberth/codex.nix for the Group
+  # Container symlink that points at it and the Docker daemon config. disk3 is codex's
   # internal APFS container; re-check with `diskutil apfs list` if the
   # physical disk layout ever changes.
   #
@@ -45,7 +48,7 @@ in
   # nix-homebrew — manages the Homebrew installation itself
   nix-homebrew = {
     enable = true;
-    enableRosetta = true; # x86 bottles on Apple Silicon via Rosetta 2
+    enableRosetta = false; # alternate x86 bottles on Apple Silicon via Rosetta 2
     user = primaryUser;
     autoMigrate = true; # adopt an existing /opt/homebrew install
     # Third-party taps must be declared here as nix inputs so nix-homebrew
@@ -54,12 +57,14 @@ in
     # and write-protects that directory tree.
     taps = {
       "homebrew/homebrew-autoupdate" = homebrew-autoupdate;
+      "cirruslabs/homebrew-cli" = homebrew-cirruslabs-cli;
+      "dracula/homebrew-install" = homebrew-dracula-install;
     };
   };
 
   # Merge codex home overlay on top of the base imported by common-darwin.nix
   home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/codex.nix ];
+    imports = [ nixie-homes.homeModules.alberth-codex ];
   };
 
   nixie.certbot = {

@@ -1,6 +1,6 @@
 # Shared configuration for all nix-darwin hosts.
 # Each host imports this file and adds its hostname, host-specific overlay
-# (home/alberth/<host>.nix), and any host-only services on top.
+# (nixie-homes' homeModules.alberth-<host>), and any host-only services on top.
 {
   config,
   lib,
@@ -9,6 +9,7 @@
   qmd,
   nix-secrets,
   stylix,
+  nixie-homes,
   ...
 }:
 
@@ -43,7 +44,6 @@ in
     trusted-users = [
       "root"
       primaryUser
-      "@admin" # admin users
       "@staff" # all local user accounts
     ];
     # Allow substituters declared in flake nixConfig blocks (e.g. ragenix,
@@ -154,7 +154,7 @@ in
 
   # home-manager — base config shared by all darwin hosts.
   # Each host merges in its own overlay via:
-  #   home-manager.users.${primaryUser} = { imports = [ ./home/alberth/<host>.nix ]; };
+  #   home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<host> ]; };
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
@@ -167,8 +167,8 @@ in
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {
       imports = [
-        ../../home/alberth
-        ../../home/alberth/nvf.nix
+        nixie-homes.homeModules.alberth
+        nixie-homes.homeModules.alberth-nvf
       ];
       # openssh_gssapi shadows pkgs.openssh (added to PATH by nix-darwin's
       # services.openssh) so the SSH client supports GSSAPIAuthentication.

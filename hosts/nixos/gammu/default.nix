@@ -50,7 +50,7 @@ in
   # than a graphical login screen. Plasma is still reachable via xrdp below
   # (X11 session) and the Steam gamescope Big Picture session remains
   # launchable headlessly via the steamup systemd user unit
-  # (systemd.user.services.steamup, home/alberth/gammu.nix).
+  # (systemd.user.services.steamup, nixie-homes' alberth/gammu.nix).
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = false;
 
@@ -78,7 +78,7 @@ in
     extraGroups = [ "docker" ];
     # Lingering — starts primaryUser's systemd --user instance at boot
     # instead of only on interactive login. Required for
-    # systemd.user.services.steamup (home/alberth/gammu.nix) to autostart
+    # systemd.user.services.steamup (nixie-homes' alberth/gammu.nix) to autostart
     # headless gamescope + Steam on boot.
     linger = true;
   };
@@ -137,7 +137,7 @@ in
     # qwen2.5-coder:14b (~9GB at Q4_K_M) fits the 12GB VRAM on this card
     # with headroom for KV cache; chosen for reliable tool-calling support
     # in both Zed's Agent Panel and Claude Code (via Ollama's Anthropic-
-    # compatible endpoint, see home/alberth/gammu.nix `claude-local`).
+    # compatible endpoint, see nixie-homes' alberth/gammu.nix `claude-local`).
     # loadModels pulls it declaratively on activation; syncModels stays at
     # its default (false) so ad-hoc `ollama pull` isn't wiped on rebuild.
     loadModels = [ "qwen2.5-coder:14b" ];

@@ -34,6 +34,7 @@
 {
   lib,
   pkgs,
+  nixie-homes,
   ...
 }:
 
@@ -44,7 +45,7 @@ let
   configureBrewAutoupdateScript = pkgs.writeShellApplication {
     name = "configure-brew-autoupdate";
     runtimeInputs = [ ];
-    text = builtins.readFile ../../../home/alberth/scripts/configure-brew-autoupdate.sh;
+    text = builtins.readFile "${nixie-homes}/alberth/scripts/configure-brew-autoupdate.sh";
   };
 in
 {

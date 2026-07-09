@@ -1,4 +1,4 @@
-_:
+{ nixie-homes, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -14,6 +14,6 @@ in
 
   # Merge darwintron home overlay on top of the base imported by common-darwin.nix
   home-manager.users.${primaryUser} = {
-    imports = [ ../../../home/alberth/darwintron.nix ];
+    imports = [ nixie-homes.homeModules.alberth-darwintron ];
   };
 }

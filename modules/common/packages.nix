@@ -20,7 +20,7 @@ in
       "root"
       primaryUser
       "@wheel" # Linux (NixOS)
-      "@admin" # macOS — admin users are in 'admin', not 'wheel'
+      "@staff" # macOS — admin users are in 'admin', not 'wheel'
     ];
   };
 
@@ -29,16 +29,61 @@ in
     [
       age # age encryption
       age-plugin-yubikey
+      bat
+      black
+      btop
       cachix # Nix binary cache hosting — push and use build artifacts
+      chezmoi
+      cmake
+      commitizen
+      commitlint
+      cowsay
       curl
+      diff-so-fancy
+      direnv
+      dos2unix
+      doxygen
+      eza
+      fastfetch
+      fortune
+      fzf
       git
+      gnumake
+      gnupg
+      htop
+      httpie
+      imagemagick
       inkscape # Vector graphics editor
       jq
+      lazygit
+      lsd
       nh # Nix helper — nicer `nixos-rebuild` / `darwin-rebuild` / `home-manager` UX
+      nmap
       pre-commit
+      prettier
+      pstree
+      pyenv
+      pylint
+      pyrefly
       python3
       rage # Rust implementation of age
+      rbenv
+      ruby
+      sesh
+      shellcheck
+      starship
+      tealdeer
+      tmux
       uv
+      wget
+      yaml-language-server
+      yamllint
+      zoxide
+    ]
+    ++ lib.optionals pkgs.stdenv.isDarwin [
+      dockutil
+      duti
+      mas
     ]
     # ghostty.terminfo: Linux only — on darwin the Homebrew cask installs it automatically
     # pciutils (lspci): Linux only — PCI enumeration is not a darwin concept

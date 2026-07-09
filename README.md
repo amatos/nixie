@@ -24,11 +24,11 @@ host directories and home-manager overlays but aren't wired into `flake.nix` yet
 
 ## Repository layout
 
+Not exhaustive — see `modules/` for the complete module set:
+
 ```text
 flake.nix                        # inputs, sharedSpecialArgs, host wiring
 users.nix                        # single source of truth for users (primaryUser, email, GPG key)
-secrets/
-  secrets.nix                    # ragenix recipient definitions
 
 hosts/
   darwin/
@@ -55,17 +55,15 @@ modules/
     home-manager.nix             # shared NixOS home-manager block
     certbot.nix                  # systemd timer, weekly + 1h random delay
     ghostty.nix                  # conditional on display server presence
+    github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
     certbot.nix                  # launchd daemon, Sunday 03:00
-
-home/alberth/
-  default.nix                    # all shared home config (shells, git, gpg, tools, theming)
-  nvf.nix                        # neovim via nvf
-  codex.nix                      # darwin/codex overlay (pinentry-mac, ghostty, 1Password SSH)
-  darwintron.nix                 # darwin/darwintron overlay (pinentry-mac, ghostty)
-  nixos.nix                      # NixOS overlay (pinentry-tty, open alias)
 ```
+
+Home-manager configuration lives in the separate
+[nixie-homes](https://github.com/amatos/nixie-homes) repo (input `nixie-homes`), imported
+via `nixie-homes.homeModules.<name>` — see that repo's own `README.md`/`CLAUDE.md`.
 
 ## Development shell
 
@@ -79,7 +77,7 @@ nix develop
 cd nixie   # shell loads automatically
 ```
 
-The devShell provides: `nil` (Nix LSP), `nixfmt-rfc-style`, `ragenix`, `nix-tree`, `nvd`.
+The devShell provides: `nil` (Nix LSP), `nixfmt`, `ragenix`, `nix-tree`, `nvd`, `statix`.
 
 To activate direnv:
 
@@ -142,16 +140,19 @@ by a YubiKey via `age-plugin-yubikey`. Encrypted `.age` files live in the
 
 ### Generating a new secret
 
-1. **Add the secret's entry to `secrets/secrets.nix`**, listing the recipients that should be able to decrypt it:
+1. **Add the secret's entry to `nix-secrets`'s own `secrets.nix`** (a separate repo, not a
+   subdirectory of this one — see [nix-secrets](https://github.com/amatos/nix-secrets)), listing
+   the recipients that should be able to decrypt it:
 
    ```nix
    "my-new-secret.age".publicKeys = allKeys;
    ```
 
-2. **Encrypt the secret** using ragenix:
+2. **Encrypt the secret** using ragenix, from inside the `nix-secrets` checkout:
 
    ```bash
-   nix run github:yaxitech/ragenix -- -e secrets/my-new-secret.age
+   cd /path/to/nix-secrets
+   ragenix -e my-new-secret.age
    ```
 
 3. **Commit the `.age` file** to the appropriate repository.
@@ -221,8 +222,11 @@ The LuaDNS API credentials are decrypted from `nix-secrets/luadns.ini.age` at bo
 
 ```nix
 nixie.certbot = {
-  enable  = true;
-  domains = [ "example.com" "*.example.com" ];
+  enable = true;
+  domains = [
+    [ "example.com" "www.example.com" ] # one cert, two SANs — the common case
+  ];
+  # domains = [ "example.com" ];        # single-domain shorthand: one cert, no SANs
 };
 ```
 
@@ -281,7 +285,7 @@ Plasma.
 
 For SSH-only access with nothing plugged in, there's a headless (no display, physical or
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play, managed
-as a home-manager user unit — `systemd.user.services.steamup` (`home/alberth/gammu.nix`):
+as a home-manager user unit — `systemd.user.services.steamup` (`nixie-homes`' `alberth/gammu.nix`):
 
 ```console
 systemctl --user start   steamup   # launch the headless session
@@ -387,8 +391,8 @@ Zed does not auto-enable tool calling for Ollama models — declare the model ex
 
 Ollama exposes an Anthropic Messages-API-compatible endpoint natively, so Claude Code can
 talk to it directly — no translation proxy needed. On `gammu`, run `claude-local` (a fish
-function defined in `home/alberth/gammu.nix`) instead of plain `claude` to point Claude Code
-at the local model:
+function defined in `nixie-homes`' `alberth/gammu.nix`) instead of plain `claude` to point
+Claude Code at the local model:
 
 ```fish
 claude-local  # sets ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN / ANTHROPIC_MODEL, then runs claude

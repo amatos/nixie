@@ -19,6 +19,9 @@ _: {
   # Add host-specific ports here.
   networking.firewall.enable = true;
 
-  # Host-specific home overlay: create home/alberth/sirloin.nix if needed.
-  # nixos.nix auto-imports it when it exists — no manual wiring required.
+  # Host-specific home overlay: add alberth/sirloin.nix to the nixie-homes
+  # repo if needed, commit and push it, then run
+  # `nix flake lock --update-input nixie-homes` here. nixie-homes'
+  # alberth/nixos.nix auto-imports it when it exists — no manual wiring
+  # required beyond updating the flake input.
 }
