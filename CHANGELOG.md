@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.12
+
 ### Added
 
 - `flake.nix` — added `nixie-homes` (`github:amatos/nixie-homes`) as a real flake
