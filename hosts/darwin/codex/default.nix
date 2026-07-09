@@ -27,7 +27,11 @@ in
   networking.computerName = "codex";
 
   # Darwin-specific system packages
-  environment.systemPackages = [ pkgs.dockutil ];
+  # nixd — Nix language server, for editor tooling (Zed, nvf).
+  environment.systemPackages = [
+    pkgs.dockutil
+    pkgs.nixd
+  ];
 
   # Dedicated APFS volume backing OrbStack's container data (Docker images,
   # volumes, Linux VMs) — see nixie-homes' alberth/codex.nix for the Group

@@ -41,8 +41,10 @@ in
   # rocm-smi — CLI for querying/monitoring the AMD GPU (name, VRAM usage,
   # clocks, temps). Any NixOS host with an AMD graphics card should carry
   # this; gammu is currently the only one.
+  # nixd — Nix language server, for editor tooling (Zed, nvf).
   environment.systemPackages = [
     pkgs.rocmPackages.rocm-smi
+    pkgs.nixd
   ];
 
   # KDE Plasma — desktop environment, but no local display manager: SDDM is

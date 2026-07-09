@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/nixos/gammu/default.nix` and `hosts/darwin/codex/default.nix` —
+  added `pkgs.nixd` (Nix language server) to `environment.systemPackages`
+  for editor tooling (Zed, nvf).
+
 ---
 
 ## 26.07.13
