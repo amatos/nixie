@@ -11,12 +11,8 @@
 #      corresponding age-encrypted secret to keytabs-matos-cc.
 #   6. If host-specific home settings are needed, add alberth/<hostname>.nix
 #      to the nixie-homes repo, commit and push it, then wire it in below.
-{ nixie-homes, ... }:
+{ ... }:
 
-let
-  userDefs = import ../../../users.nix;
-  inherit (userDefs) primaryUser;
-in
 {
   imports = [
     ./hardware-configuration.nix

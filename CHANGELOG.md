@@ -30,6 +30,12 @@ All notable changes to this project will be documented in this file.
   listed above from `environment.systemPackages`; they now live in
   `modules/common/development-packages.nix` instead of being deployed
   fleet-wide.
+- `hosts/darwin/template-darwin/default.nix` and
+  `hosts/nixos/template-nixos/default.nix` — dropped unused function
+  arguments (`pkgs`; `nixie-homes`, `userDefs`/`primaryUser`) flagged by
+  `nixd`. `template-nixos`'s commented-out home overlay example still
+  references `nixie-homes`/`primaryUser`; uncomment it and add the args
+  back if that block is enabled.
 
 ---
 

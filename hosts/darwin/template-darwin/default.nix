@@ -11,7 +11,6 @@
 #   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
 #      corresponding age-encrypted secret to keytabs-matos-cc.
 {
-  pkgs,
   nixie-homes,
   ...
 }:
