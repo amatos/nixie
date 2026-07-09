@@ -105,6 +105,7 @@ hosts/
 modules/
   common/                        # cross-platform modules (NixOS + darwin)
     packages.nix                 # shared system packages + nixpkgs.config.allowUnfree
+    development-packages.nix     # dev-tool packages, wired only to gammu and codex
     secrets.nix                  # ragenix identity paths
     age-host-key.nix             # generates /etc/age/host-key on first activation
     github-secrets.nix           # deploys GitHub SSH keys via ragenix (age.secrets only)
@@ -199,6 +200,9 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - User-facing apps and fonts → `home.packages` in `nixie-homes`' `alberth/default.nix` (a
   separate repo — see "home-manager host overlays" below)
 - System daemons and tools needed before home-manager → `environment.systemPackages`
+- Fleet-wide CLI tools (every host, any platform) → `modules/common/packages.nix`
+- Development-only tools (compilers, linters, formatters) → `modules/common/development-packages.nix`,
+  wired only to hosts actually used for development (`gammu`, `codex`) — not fleet-wide
 - darwin-specific system tools (e.g. `dockutil`) → inline in the host's `default.nix`
 - `nixpkgs.config.allowUnfree = true` is set in `modules/common/packages.nix`
 

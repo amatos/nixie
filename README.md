@@ -47,6 +47,7 @@ hosts/
 modules/
   common/                        # cross-platform modules (NixOS + darwin)
     packages.nix                 # shared system packages, allowUnfree, environment.shells
+    development-packages.nix     # dev-tool packages, wired only to gammu and codex
     secrets.nix                  # ragenix identity paths
     age-host-key.nix             # generates /etc/age/host-key on first activation
     github-secrets.nix           # deploys GitHub SSH keys via ragenix

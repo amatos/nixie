@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/common/development-packages.nix` — new module for development-only
+  packages (`black`, `cmake`, `commitizen`, `commitlint`, `diff-so-fancy`,
+  `doxygen`, `gnumake`, `imagemagick`, `inkscape`, `lazygit`, `nmap`,
+  `pre-commit`, `prettier`, `pyenv`, `pylint`, `pyrefly`, `rbenv`,
+  `shellcheck`, `yaml-language-server`, `yamllint`), wired only to
+  `hosts/nixos/gammu/default.nix` and `hosts/darwin/codex/default.nix`.
 - `hosts/nixos/gammu/default.nix` and `hosts/darwin/codex/default.nix` —
   added `pkgs.nixd` (Nix language server) to `environment.systemPackages`
   for editor tooling (Zed, nvf).
@@ -17,6 +23,13 @@ All notable changes to this project will be documented in this file.
   `syncthing-init.service`/`syncthing-gui-password.service` activation on
   gammu and huginn during unrelated `nixos-rebuild switch` runs — see
   CLAUDE.md Syncthing conventions.
+
+### Changed
+
+- `modules/common/packages.nix` — removed the 20 development-only packages
+  listed above from `environment.systemPackages`; they now live in
+  `modules/common/development-packages.nix` instead of being deployed
+  fleet-wide.
 
 ---
 

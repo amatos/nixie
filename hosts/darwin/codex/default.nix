@@ -21,6 +21,7 @@ in
     ./homebrew.nix
     ../../../modules/darwin/syncthing-password.nix
     ../../../modules/common/certbot-secrets.nix
+    ../../../modules/common/development-packages.nix
   ];
 
   networking.hostName = "codex";
