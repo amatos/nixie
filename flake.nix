@@ -59,7 +59,7 @@
     };
 
     zapp = {
-      url = "github:amatos/zapp/add-aarch64-darwin-support-for-nix-flake";
+      url = "github:zsa/zapp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

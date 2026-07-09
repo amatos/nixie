@@ -94,6 +94,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `flake.nix` — edited input zapp to point to `zsa/zapp` repo
+  (was `github:amatos/zapp/add-aarch64-darwin-support-for-nix-flake`), since
+  the upstream PR was merged
 - `modules/darwin/macos-defaults/dock/persistent-apps.nix` — removed `apps` from
   dock.
 - `hosts/darwin/codex/homebrew.nix` — temporarily commented out `xcode` from
