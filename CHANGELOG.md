@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `users.nix` — added new ssh key to alberth
+
 ---
 
 ## 26.07.12
