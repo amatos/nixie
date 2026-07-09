@@ -62,6 +62,8 @@ in
     };
     taps = [
       "homebrew/autoupdate" # managed via nix-homebrew.taps in codex/default.nix
+      "cirruslabs/cli"
+      "dracula/install"
     ];
     brews = [
       "mas" # Mac App Store CLI
