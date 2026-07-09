@@ -51,6 +51,20 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `hosts/nixos/gammu/default.nix` — `services.xserver.enable = true` (needed
+  for xrdp) silently defaults `services.xserver.displayManager.lightdm.enable`
+  to `true` in nixpkgs' `xserver.nix` unless another display manager is
+  enabled; only `sddm` was disabled, so lightdm became the actual display
+  manager and started at boot via `graphical.target`, contradicting the
+  comment claiming gammu boots to a text console. Confirmed via `nix eval
+  .#nixosConfigurations.gammu.config.systemd.services.display-manager.script`
+  (showed it exec'ing lightdm). Fixed by explicitly setting
+  `services.xserver.displayManager.lightdm.enable = false;` alongside the
+  existing `sddm.enable = false;`, which removes
+  `systemd.services.display-manager` entirely rather than masking it.
+  Confirmed via the same eval path (no `display-manager` key in
+  `config.systemd.services` afterward) and a full `config.system.build.
+  toplevel` evaluation
 - `modules/common/packages.nix` — added `environment.shells = [ bashInteractive
   zsh fish nushell ]`. On NixOS, `programs.zsh`/`programs.fish` already added
   themselves to `environment.shells` automatically (and `programs.bash.enable`

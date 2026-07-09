@@ -46,13 +46,28 @@ in
   ];
 
   # KDE Plasma — desktop environment, but no local display manager: SDDM is
-  # disabled so the host boots to a text console (multi-user.target) rather
-  # than a graphical login screen. Plasma is still reachable via xrdp below
-  # (X11 session) and the Steam gamescope Big Picture session remains
-  # launchable headlessly via the steamup systemd user unit
-  # (systemd.user.services.steamup, nixie-homes' alberth/gammu.nix).
+  # disabled so the host boots to a text console rather than a graphical
+  # login screen. Plasma is still reachable via xrdp below (X11 session) and
+  # the Steam gamescope Big Picture session remains launchable headlessly via
+  # the steamup systemd user unit (systemd.user.services.steamup, nixie-homes'
+  # alberth/gammu.nix).
+  #
+  # Disabling sddm alone is NOT sufficient: services.xserver.enable = true
+  # below (required for xrdp) also flips services.xserver.displayManager.
+  # lightdm.enable to `mkDefault true` via a fallback in nixpkgs'
+  # xserver.nix ("enable lightdm unless gdm/sddm/greetd/ly/lemurs/... are
+  # enabled") -- since only sddm was disabled, lightdm silently became the
+  # actual display manager, and systemd.defaultUnit = "graphical.target"
+  # (also set by services.xserver.enable) meant it started at boot despite
+  # the comment above. Confirmed via `nix eval
+  # .#nixosConfigurations.gammu.config.systemd.services.display-manager.
+  # script`, which showed it exec'ing lightdm. Disabling lightdm explicitly
+  # here closes that gap -- no other entry in the xserver.nix fallback list
+  # is enabled, so systemd.services.display-manager is no longer defined at
+  # all (not merely masked).
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = false;
+  services.xserver.displayManager.lightdm.enable = false;
 
   # xrdp — remote access into Plasma over RDP for streaming to codex.
   # Requires services.xserver.enable = true: xrdp's session is a separate
