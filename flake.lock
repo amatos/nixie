@@ -270,6 +270,29 @@
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.21.5/x86_64-linux"
       }
     },
+    "direnv-instant": {
+      "inputs": {
+        "flake-parts": "flake-parts_2",
+        "nixpkgs": [
+          "nixie-homes",
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix"
+      },
+      "locked": {
+        "lastModified": 1783580867,
+        "narHash": "sha256-CJ6nOw6d4Y3OhAZaZ7sF8qcdVq3eEyxGNAhsEpQpbvw=",
+        "owner": "Mic92",
+        "repo": "direnv-instant",
+        "rev": "e9efca8234a6595eb7d447dc4b549e519f711145",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "direnv-instant",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -376,6 +399,28 @@
       }
     },
     "flake-parts_2": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "nixie-homes",
+          "direnv-instant",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782949081,
+        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_3": {
       "inputs": {
         "nixpkgs-lib": [
           "stylix",
@@ -626,11 +671,11 @@
     "keytabs-matos-cc": {
       "flake": false,
       "locked": {
-        "lastModified": 1783577977,
-        "narHash": "sha256-T5Z/PUykYmc76Qs49V69cb9g2a+g0d57p8tGUYym0us=",
+        "lastModified": 1783645497,
+        "narHash": "sha256-Lwka7LicVNVOaDHy1zbC/+poHzHAYlqVv8RMTHtz+WI=",
         "owner": "amatos",
         "repo": "keytabs-matos-cc",
-        "rev": "67d1ce19fc5bc3593c9869e5d90fe590a780d04e",
+        "rev": "fa7f06a942028993f9ad98f3742d4445365ef69a",
         "type": "github"
       },
       "original": {
@@ -739,11 +784,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1783574287,
-        "narHash": "sha256-pHYV1XBpWH6M0srgAkDdvkngp8FQzMU5c14d8OfJhOM=",
+        "lastModified": 1783645485,
+        "narHash": "sha256-FQOQmd5wMaTntijBHLx7z+s2Lxrg00m59F5uEZtYb3E=",
         "owner": "amatos",
         "repo": "nix-secrets",
-        "rev": "755ba83c4f1cb6de693628c83ad4ca7f4052ea3a",
+        "rev": "30f80730a01a0c28067888be1741d4fda74e68cc",
         "type": "github"
       },
       "original": {
@@ -754,6 +799,7 @@
     },
     "nixie-homes": {
       "inputs": {
+        "direnv-instant": "direnv-instant",
         "home-manager": [
           "home-manager"
         ],
@@ -777,11 +823,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783570101,
-        "narHash": "sha256-aPmLrUrrgdg2qfL1XiSHg4qDLqeD7UEPEZ+mvn9i2TU=",
+        "lastModified": 1783644742,
+        "narHash": "sha256-nFpdHzuYYJgYcidK2vNm3A9BklPPNYb02O+KR2P3aro=",
         "owner": "amatos",
         "repo": "nixie-homes",
-        "rev": "01aa14fd9e6324ffdf22478c7d2f50333b152fb0",
+        "rev": "6d43d7f7588a1d0b444896f08cdd8b67c10325c2",
         "type": "github"
       },
       "original": {
@@ -884,11 +930,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783551490,
-        "narHash": "sha256-IgOE1Dh70GnGPWvrwiwUZkmzJURKM40oru0vvRPSu/M=",
+        "lastModified": 1783627742,
+        "narHash": "sha256-KbcmMnmKzKUvPoKzFOkFd425MEdvdA5zohFTMCIXyx4=",
         "owner": "notashelf",
         "repo": "nvf",
-        "rev": "84af0c160f0c1c83179809277124f6dc4712b2b3",
+        "rev": "9040a27829dab327d6cc30f88a0797db680b745f",
         "type": "github"
       },
       "original": {
@@ -1061,7 +1107,7 @@
         "base16-helix": "base16-helix",
         "base16-vim": "base16-vim",
         "firefox-gnome-theme": "firefox-gnome-theme",
-        "flake-parts": "flake-parts_2",
+        "flake-parts": "flake-parts_3",
         "gnome-shell": "gnome-shell",
         "nixpkgs": [
           "nixpkgs"
@@ -1238,6 +1284,28 @@
       "original": {
         "owner": "tinted-theming",
         "repo": "base16-zed",
+        "type": "github"
+      }
+    },
+    "treefmt-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixie-homes",
+          "direnv-instant",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780220602,
+        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
         "type": "github"
       }
     },
