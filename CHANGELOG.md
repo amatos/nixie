@@ -31,6 +31,19 @@ All notable changes to this project will be documented in this file.
   `syncthing-init.service`/`syncthing-gui-password.service` activation on
   gammu and huginn during unrelated `nixos-rebuild switch` runs — see
   CLAUDE.md Syncthing conventions.
+- `modules/nixos/certbot.nix` — new `nixie.certbot.xrdpDeploy` option,
+  matching the existing `postfixDeploy`/`chronyDeploy`/`ldapDeploy`
+  pattern: copies the renewed cert to `/var/lib/xrdp-tls/` (`root:xrdp
+  640`) and restarts `xrdp.service` (not reload — xrdp has no cert-reload
+  signal; `xrdp-sesman`, which owns live sessions, is a separate unit and
+  is unaffected).
+- `hosts/nixos/gammu/default.nix` — enabled `nixie.certbot.xrdpDeploy` and
+  pointed `services.xrdp.sslCert`/`sslKey` at `/var/lib/xrdp-tls/`, so RDP
+  now presents the real `gammu.ts.matos.cc` Let's Encrypt cert instead of
+  xrdp's default self-signed one. The deploy hook only fires on an actual
+  certbot renewal, so `/var/lib/xrdp-tls/` is empty (xrdp falls back to a
+  self-signed cert there) until the next renewal or a manual `certbot
+  certonly --cert-name gammu.home.matos.cc --force-renewal`.
 
 ### Changed
 

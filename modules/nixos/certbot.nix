@@ -10,6 +10,7 @@
 #   nixie.certbot.syncthingDeploy = true;  # copy renewed cert to syncthing + restart
 #   nixie.certbot.postfixDeploy = true;   # copy renewed cert to /etc/postfix/ssl/ + reload postfix
 #   nixie.certbot.chronyDeploy = true;    # copy renewed cert to /var/lib/chrony-tls/ + restart chronyd
+#   nixie.certbot.xrdpDeploy = true;      # copy renewed cert to /var/lib/xrdp-tls/ + restart xrdp
 {
   config,
   pkgs,
@@ -39,6 +40,7 @@ let
   postfixSslDir = "/var/lib/postfix-tls";
   chronyTlsDir = "/var/lib/chrony-tls";
   openldapTlsDir = "/var/lib/openldap-tls";
+  xrdpTlsDir = "/var/lib/xrdp-tls";
 
   # Deploy hooks — run only when a certificate is actually renewed.
   # $RENEWED_LINEAGE is set by certbot to the live cert dir (e.g. /etc/letsencrypt/live/example.com).
@@ -78,12 +80,24 @@ let
     systemctl restart openldap.service
   '';
 
+  # Installs cert+key into /var/lib/xrdp-tls/ with root:xrdp 640 so xrdp (User=xrdp Group=xrdp)
+  # can read the key. Restarts (not reloads) xrdp.service — xrdp has no cert-reload signal, and
+  # xrdp-sesman (which owns actual desktop sessions) is a separate unit, unaffected by this
+  # restart. Point services.xrdp.sslCert/sslKey at this directory's files on the consuming host.
+  xrdpDeployHook = pkgs.writeShellScript "certbot-xrdp-deploy" ''
+    set -euo pipefail
+    install -o root -g xrdp -m 640 "$RENEWED_LINEAGE/fullchain.pem" "${xrdpTlsDir}/fullchain.pem"
+    install -o root -g xrdp -m 640 "$RENEWED_LINEAGE/privkey.pem"   "${xrdpTlsDir}/privkey.pem"
+    systemctl restart xrdp.service
+  '';
+
   # Collect whichever deploy hooks are enabled; certbot accepts multiple --deploy-hook flags.
   deployHookFlags = lib.concatStringsSep " " (
     lib.optional cfg.syncthingDeploy "--deploy-hook ${syncthingDeployHook}"
     ++ lib.optional cfg.postfixDeploy "--deploy-hook ${postfixDeployHook}"
     ++ lib.optional cfg.chronyDeploy "--deploy-hook ${chronyDeployHook}"
     ++ lib.optional cfg.ldapDeploy "--deploy-hook ${openldapDeployHook}"
+    ++ lib.optional cfg.xrdpDeploy "--deploy-hook ${xrdpDeployHook}"
   );
 
   # Each entry in cfg.domains is a list of domain names for a single cert.
@@ -137,6 +151,8 @@ in
     chronyDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/chrony-tls/ (root:chrony 640) and restart chronyd.service";
 
     ldapDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/openldap-tls/ (root:openldap 640) and restart openldap.service";
+
+    xrdpDeploy = lib.mkEnableOption "copy renewed cert to /var/lib/xrdp-tls/ (root:xrdp 640) and restart xrdp.service";
   };
 
   config = lib.mkIf cfg.enable {
@@ -160,6 +176,10 @@ in
     ++ lib.optionals cfg.ldapDeploy [
       # root:openldap 0750 — holds the LDAPS cert+key; group-readable by slapd
       "d /var/lib/openldap-tls 0750 root openldap -"
+    ]
+    ++ lib.optionals cfg.xrdpDeploy [
+      # root:xrdp 0750 — holds the RDP cert+key; group-readable by the xrdp service user
+      "d /var/lib/xrdp-tls     0750 root xrdp     -"
     ];
 
     environment.systemPackages = [ certbotWithLuadns ];
@@ -187,7 +207,8 @@ in
         ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
         ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ]
         ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ]
-        ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ];
+        ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ]
+        ++ lib.optionals cfg.xrdpDeploy [ xrdpTlsDir ];
       };
     };
 

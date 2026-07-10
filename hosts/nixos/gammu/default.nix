@@ -89,6 +89,10 @@ in
     # on xrdp's PATH.
     defaultWindowManager = "${pkgs.dbus}/bin/dbus-run-session ${pkgs.kdePackages.plasma-workspace}/bin/startplasma-x11";
     openFirewall = true;
+    # Let's Encrypt cert (gammu.ts.matos.cc) via nixie.certbot.xrdpDeploy below, instead of
+    # xrdp's default self-signed cert.
+    sslCert = "/var/lib/xrdp-tls/fullchain.pem";
+    sslKey = "/var/lib/xrdp-tls/privkey.pem";
   };
 
   # containerd — container runtime; starts automatically via systemd
@@ -214,6 +218,7 @@ in
       ]
     ];
     syncthingDeploy = true;
+    xrdpDeploy = true;
   };
 
   nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-gammu.age";
