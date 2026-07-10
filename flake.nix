@@ -94,8 +94,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-alberth-home = {
-      url = "github:amatos/nix-alberth-home";
+    nix-home-alberth = {
+      url = "github:amatos/nix-home-alberth";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
       inputs.nix-secrets.follows = "nix-secrets";
@@ -129,7 +129,7 @@
       qmd,
       stylix,
       direnv-instant,
-      nix-alberth-home,
+      nix-home-alberth,
       ...
     }:
     let
@@ -157,7 +157,7 @@
           qmd
           stylix
           direnv-instant
-          nix-alberth-home
+          nix-home-alberth
           ;
       };
 
@@ -246,7 +246,7 @@
         };
 
         # nhcodex — a lean test bed for future home-manager changes, with no
-        # nix-alberth-home involvement; see hosts/darwin/nhcodex/default.nix.
+        # nix-home-alberth involvement; see hosts/darwin/nhcodex/default.nix.
         # networking.hostName stays "codex".
         nhcodex = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";

@@ -9,11 +9,11 @@ All notable changes to this project will be documented in this file.
 - `direnv-instant` flake input (`github:Mic92/direnv-instant`), added to
   `modules/darwin/home-manager.nix` and `modules/nixos/home-manager.nix`
   `sharedModules` (matching the `nvf`/`qmd`/`stylix` pattern) — required for
-  `nix-alberth-home`'s `alberth/common/tools.nix` to set
+  `nix-home-alberth`'s `alberth/common/tools.nix` to set
   `programs.direnv-instant.enable = true`. Without this module in
   `sharedModules`, evaluation fails with `The option
   'home-manager.users.alberth.programs.direnv-instant' does not exist`,
-  hit on codex after `nix-alberth-home` picked up direnv-instant.
+  hit on codex after `nix-home-alberth` picked up direnv-instant.
 - `modules/common/development-packages.nix` — new module for development-only
   packages (`black`, `cmake`, `commitizen`, `commitlint`, `diff-so-fancy`,
   `doxygen`, `gnumake`, `imagemagick`, `inkscape`, `lazygit`, `nmap`,
@@ -47,8 +47,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `flake.nix` — renamed the `nixie-homes` flake input to `nix-alberth-home`
-  (`github:amatos/nix-alberth-home`) and the `keytabs-matos-cc` input to
+- `flake.nix` — renamed the `nixie-homes` flake input to `nix-home-alberth`
+  (`github:amatos/nix-home-alberth`) and the `keytabs-matos-cc` input to
   `nix-keytabs-matos-cc` (`github:amatos/nix-keytabs-matos-cc`), following
   the same rename on GitHub. Threaded through `outputs`,
   `sharedSpecialArgs`, and every consuming host/module file (all
@@ -59,7 +59,7 @@ All notable changes to this project will be documented in this file.
   the GitHub-side rename actually happens; until then this repo's flake
   won't evaluate against the new names.
 - `hosts/nixos/gammu/default.nix` and `README.md` — updated comments and
-  the RDP/Remote Play docs to match `nix-alberth-home`'s rename of the
+  the RDP/Remote Play docs to match `nix-home-alberth`'s rename of the
   `steamup` systemd user unit to `steam` (`alberth/gammu.nix`).
 - `modules/common/packages.nix` — removed the 20 development-only packages
   listed above from `environment.systemPackages`; they now live in
@@ -67,9 +67,9 @@ All notable changes to this project will be documented in this file.
   fleet-wide.
 - `hosts/darwin/template-darwin/default.nix` and
   `hosts/nixos/template-nixos/default.nix` — dropped unused function
-  arguments (`pkgs`; `nix-alberth-home`, `userDefs`/`primaryUser`) flagged
+  arguments (`pkgs`; `nix-home-alberth`, `userDefs`/`primaryUser`) flagged
   by `nixd`. `template-nixos`'s commented-out home overlay example still
-  references `nix-alberth-home`/`primaryUser`; uncomment it and add the
+  references `nix-home-alberth`/`primaryUser`; uncomment it and add the
   args back if that block is enabled.
 
 ---

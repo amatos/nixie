@@ -1,6 +1,6 @@
 # Shared home-manager configuration for all NixOS hosts.
 # Each host still imports a platform-specific overlay
-# (nix-alberth-home's homeModules.alberth-nixos) via users.<primaryUser> — that
+# (nix-home-alberth's homeModules.alberth-nixos) via users.<primaryUser> — that
 # module handles NixOS-only divergences (pinentry-tty, open alias, etc.).
 {
   pkgs,
@@ -9,7 +9,7 @@
   nix-secrets,
   stylix,
   direnv-instant,
-  nix-alberth-home,
+  nix-home-alberth,
   ...
 }:
 
@@ -31,9 +31,9 @@ in
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {
       imports = [
-        nix-alberth-home.homeModules.alberth
-        nix-alberth-home.homeModules.alberth-nixos
-        nix-alberth-home.homeModules.alberth-nvf
+        nix-home-alberth.homeModules.alberth
+        nix-home-alberth.homeModules.alberth-nixos
+        nix-home-alberth.homeModules.alberth-nvf
       ];
     };
   };

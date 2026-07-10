@@ -5,7 +5,7 @@
   homebrew-autoupdate,
   homebrew-cirruslabs-cli,
   homebrew-dracula-install,
-  nix-alberth-home,
+  nix-home-alberth,
   ...
 }:
 
@@ -35,7 +35,7 @@ in
   ];
 
   # Dedicated APFS volume backing OrbStack's container data (Docker images,
-  # volumes, Linux VMs) — see nix-alberth-home's alberth/codex.nix for the Group
+  # volumes, Linux VMs) — see nix-home-alberth's alberth/codex.nix for the Group
   # Container symlink that points at it and the Docker daemon config. disk3 is codex's
   # internal APFS container; re-check with `diskutil apfs list` if the
   # physical disk layout ever changes.
@@ -70,7 +70,7 @@ in
 
   # Merge codex home overlay on top of the base imported by common-darwin.nix
   home-manager.users.${primaryUser} = {
-    imports = [ nix-alberth-home.homeModules.alberth-codex ];
+    imports = [ nix-home-alberth.homeModules.alberth-codex ];
   };
 
   nixie.certbot = {

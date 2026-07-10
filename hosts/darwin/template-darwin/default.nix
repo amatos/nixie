@@ -3,15 +3,15 @@
 # To provision a new darwin host:
 #   1. cp -r hosts/darwin/template-darwin hosts/darwin/<hostname>
 #   2. Set networking.hostName and networking.computerName below.
-#   3. In the nix-alberth-home repo: cp alberth/template-darwin.nix alberth/<hostname>.nix,
+#   3. In the nix-home-alberth repo: cp alberth/template-darwin.nix alberth/<hostname>.nix,
 #      add a homeModules.alberth-<hostname> entry in its flake.nix, commit, and push.
 #      Then update the imports reference below to
-#      nix-alberth-home.homeModules.alberth-<hostname>.
+#      nix-home-alberth.homeModules.alberth-<hostname>.
 #   4. Add a darwinConfigurations entry in flake.nix (copy the codex block).
 #   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
 #      corresponding age-encrypted secret to nix-keytabs-matos-cc.
 {
-  nix-alberth-home,
+  nix-home-alberth,
   ...
 }:
 
@@ -61,6 +61,6 @@ in
   # output exists for it, since it's meant to be copied, not imported as-is)
   # — update this import when the host is renamed, per step 3 above.
   home-manager.users.${primaryUser} = {
-    imports = [ "${nix-alberth-home}/alberth/template-darwin.nix" ];
+    imports = [ "${nix-home-alberth}/alberth/template-darwin.nix" ];
   };
 }

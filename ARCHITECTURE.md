@@ -1,6 +1,6 @@
 # Architecture
 
-This document explains how `nixie`, `nix-secrets`, `nix-keytabs-matos-cc`, and `nix-alberth-home` fit
+This document explains how `nixie`, `nix-secrets`, `nix-keytabs-matos-cc`, and `nix-home-alberth` fit
 together as one system. It's written for both humans and AI coding agents. Its job is the
 cross-repo "why" and "how the pieces connect" — for authoritative, per-repo detail, always defer
 to that repo's own `CLAUDE.md` and `README.md` (linked throughout). If this document ever
@@ -14,18 +14,18 @@ Four repositories, each with a single, non-overlapping responsibility:
 | Repo | Responsibility | Contents | Is a flake? |
 | --- | --- | --- | --- |
 | `nixie` | System config for every host (NixOS + darwin) | Nix modules, hosts | Yes — top-level flake |
-| `nix-alberth-home` | Home-manager configuration for `alberth` | `alberth/` home-manager modules | Yes — real flake, also independently usable |
+| `nix-home-alberth` | Home-manager configuration for `alberth` | `alberth/` home-manager modules | Yes — real flake, also independently usable |
 | `nix-secrets` | Age-encrypted **text** secrets (SSH keys, tokens, `.ini` files) | `*.age` files, recipients | No — `flake = false` |
 | `nix-keytabs-matos-cc` | Age-encrypted **binary** keytabs for `MATOS.CC` | `keytab-*.age` files, recipients | No — `flake = false` |
 
 `nixie` is the only thing that gets built/switched as a system. `nix-secrets` and
 `nix-keytabs-matos-cc` are pulled in purely as source trees (`flake = false` inputs) so `nixie` can
 reference `.age` files by store path; they contain no Nix evaluation logic of their own beyond a
-`secrets.nix` recipients list. `nix-alberth-home` is different from both: it's a real flake (its own
+`secrets.nix` recipients list. `nix-home-alberth` is different from both: it's a real flake (its own
 `nixpkgs`/`home-manager`/`nvf`/`qmd`/`stylix`/`nix-secrets` inputs, all `.follows`-pinned to
 `nixie`'s) that `nixie` consumes via `homeModules.<name>` outputs — and, unlike the other two, it
 also works completely standalone (`home-manager switch --flake`) on any machine with Nix, with or
-without `nixie`. The dependency is one-way: `nix-alberth-home` never imports anything from `nixie`.
+without `nixie`. The dependency is one-way: `nix-home-alberth` never imports anything from `nixie`.
 
 ```mermaid
 flowchart TB
@@ -35,7 +35,7 @@ flowchart TB
         modules["modules/{common,nixos,darwin}"]
     end
 
-    subgraph nixieHomes["nix-alberth-home (flake, standalone-capable)"]
+    subgraph nixieHomes["nix-home-alberth (flake, standalone-capable)"]
         homeModules["homeModules.&lt;name&gt; — alberth, alberth-nixos, alberth-&lt;host&gt;, ..."]
         homeConfigs["homeConfigurations.&quot;alberth@&lt;host&gt;&quot; — standalone use"]
         alberth["alberth/ — the actual home-manager config"]
@@ -82,19 +82,19 @@ Each split is a deliberate security/workflow/reuse boundary, not historical acci
   dedicated repo following the `nix-keytabs-matos-cc` pattern. Never mix binary secrets into
   `nix-secrets`, and never add a new binary secret *type* into `nix-keytabs-matos-cc` (it is
   Kerberos-keytabs-only; see that repo's `CLAUDE.md`).
-- **`nixie` vs. `nix-alberth-home`**: a different motivation than the secrets split — reuse, not
+- **`nixie` vs. `nix-home-alberth`**: a different motivation than the secrets split — reuse, not
   security. Home-manager configuration (dotfiles, shell, git/gpg identity, per-tool settings) is
   useful independent of any specific NixOS/darwin system, e.g. on a work laptop or an ephemeral
   box that isn't managed by `nixie` at all. Bundling it inside `nixie` would make that impossible
   (home-manager as a NixOS/darwin module can't be evaluated standalone). Splitting it into its own
   real flake, with its own inputs and a local `users.nix` (never importing `nixie`'s), makes both
-  modes work from the same source: `nixie` imports `nix-alberth-home.homeModules.<name>`, and anyone
+  modes work from the same source: `nixie` imports `nix-home-alberth.homeModules.<name>`, and anyone
   (including non-`nixie` machines) can run `home-manager switch --flake
-  github:amatos/nix-alberth-home#<user>@<host>` directly.
+  github:amatos/nix-home-alberth#<user>@<host>` directly.
 
 Both secrets repos otherwise share an identical shape: age/ragenix encryption, a `secrets.nix`
 recipients manifest, one or more YubiKey identity stubs (`age-yubikey-identity-*.txt`), and the
-same create/wire/commit/rekey workflow — only the payload type differs. `nix-alberth-home` shares
+same create/wire/commit/rekey workflow — only the payload type differs. `nix-home-alberth` shares
 none of that shape; it's evaluated Nix code, not `.age` blobs, and is consumed for its exposed
 flake outputs rather than referenced by store path.
 
@@ -107,13 +107,13 @@ structure (see `nixie/CLAUDE.md` for the full, current host table — it changes
 this document):
 
 - `nix-secrets` and `nix-keytabs-matos-cc` are declared as `flake = false` inputs (plain git repos,
-  not flakes); `nix-alberth-home` is declared as a real flake input, with `inputs.nixpkgs`,
+  not flakes); `nix-home-alberth` is declared as a real flake input, with `inputs.nixpkgs`,
   `.home-manager`, `.nix-secrets`, `.nvf`, `.qmd`, and `.stylix` all `.follows`-pinned to `nixie`'s
   own, so both repos evaluate against the exact same dependency versions. All three are threaded
   through `outputs` into `sharedSpecialArgs = { inherit self nix-secrets nix-keytabs-matos-cc nvf
-  nix-alberth-home ...; }`, which every `darwinConfigurations.*` / `nixosConfigurations.*` entry
+  nix-home-alberth ...; }`, which every `darwinConfigurations.*` / `nixosConfigurations.*` entry
   receives as `specialArgs`. This is how any module in `nixie` gets a handle on the secrets repos'
-  store paths (e.g. `"${nix-secrets}/luadns.ini.age"`) or on `nix-alberth-home`'s exposed
+  store paths (e.g. `"${nix-secrets}/luadns.ini.age"`) or on `nix-home-alberth`'s exposed
   `homeModules.<name>` outputs.
 - `minixie` is the deliberate exception: it's a generic `nixos-anywhere` bootstrap target with no
   identity of its own, and is intentionally **not** given `sharedSpecialArgs` — it never touches
@@ -141,7 +141,7 @@ modules/
 ```
 
 Home-manager configuration (base config + per-host overlays) is **not** in this repo — it's
-`nix-alberth-home`'s `alberth/` tree, consumed via `nix-alberth-home.homeModules.<name>` (see that repo's own
+`nix-home-alberth`'s `alberth/` tree, consumed via `nix-home-alberth.homeModules.<name>` (see that repo's own
 `CLAUDE.md` for its layout).
 
 The placement rule agents must follow before adding a module:
@@ -153,13 +153,13 @@ The placement rule agents must follow before adding a module:
    doesn't exist on darwin and evaluation fails regardless of the value. Any `systemd.*` setting
    must live in `modules/nixos/`.
 3. **darwin-only → `modules/darwin/`.**
-4. **User home config → the `nix-alberth-home` repo, not this one** (`alberth/` there), with
+4. **User home config → the `nix-home-alberth` repo, not this one** (`alberth/` there), with
    platform-specific divergences isolated to that host's overlay file (`alberth/<host>.nix`).
 
 `nixie`'s own `users.nix` is the single source of truth for *its* user data (`primaryUser`,
-system account fields) — never hardcode a username string in a module. `nix-alberth-home` has its own,
+system account fields) — never hardcode a username string in a module. `nix-home-alberth` has its own,
 separate `users.nix` (`description`/`email`/`gpgSigningKey`, for git/gpg identity only) — the two
-are intentionally not shared; see §2's `nixie` vs. `nix-alberth-home` entry.
+are intentionally not shared; see §2's `nixie` vs. `nix-home-alberth` entry.
 
 ### 3.3 Determinate Nix conf quirk
 
@@ -293,13 +293,13 @@ silently breaks the security/reuse boundaries described in §2, even if the Nix 
    access to it — extend/replace its host directory instead once it's a real host.
 7. **Check for an existing recipient group** (`users`, `systems`, `ldapHosts`, `syncthingHosts`,
    ...) in the target secrets repo's `secrets.nix` before inventing a new one.
-8. **`nix-alberth-home` never imports from `nixie`.** No relative-path import crossing the repo
-   boundary (the pre-migration bug this replaced), no shared `users.nix`. If a `nix-alberth-home`
+8. **`nix-home-alberth` never imports from `nixie`.** No relative-path import crossing the repo
+   boundary (the pre-migration bug this replaced), no shared `users.nix`. If a `nix-home-alberth`
    module needs data only `nixie` has, thread it through `extraSpecialArgs` from `nixie` (the
-   consuming side), never by reaching backward from `nix-alberth-home`.
-9. **A new `nix-alberth-home` host overlay must be committed and pushed to `nix-alberth-home` first**,
-   then picked up in `nixie` via `nix flake lock --update-input nix-alberth-home` — there is no way to
-   reference an uncommitted `nix-alberth-home` file from `nixie`.
+   consuming side), never by reaching backward from `nix-home-alberth`.
+9. **A new `nix-home-alberth` host overlay must be committed and pushed to `nix-home-alberth` first**,
+   then picked up in `nixie` via `nix flake lock --update-input nix-home-alberth` — there is no way to
+   reference an uncommitted `nix-home-alberth` file from `nixie`.
 
 ## 7. Shared conventions across all four repos
 
@@ -328,7 +328,7 @@ Use this document for the cross-repo picture. For anything repo-specific and aut
 | `nixie` | [`CLAUDE.md`](./CLAUDE.md) (directives + conventions), [`README.md`](./README.md) (host table, dev shell, provisioning, feature docs) |
 | `nix-secrets` | `nix-secrets/CLAUDE.md`, `nix-secrets/README.md` (recipients + secrets tables) |
 | `nix-keytabs-matos-cc` | `nix-keytabs-matos-cc/CLAUDE.md`, `nix-keytabs-matos-cc/README.md` (recipients + secrets tables) |
-| `nix-alberth-home` | `nix-alberth-home/CLAUDE.md`, `nix-alberth-home/README.md` (`alberth/` layout, `homeModules`/`homeConfigurations`, standalone usage) |
+| `nix-home-alberth` | `nix-home-alberth/CLAUDE.md`, `nix-home-alberth/README.md` (`alberth/` layout, `homeModules`/`homeConfigurations`, standalone usage) |
 
 If you're an AI agent making a change that touches more than one of these repos, re-read the
 relevant `CLAUDE.md` files for each repo you're editing before starting — they carry the precise,
