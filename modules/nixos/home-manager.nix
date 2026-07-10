@@ -8,6 +8,7 @@
   qmd,
   nix-secrets,
   stylix,
+  direnv-instant,
   nixie-homes,
   ...
 }:
@@ -25,6 +26,7 @@ in
       nvf.homeManagerModules.default
       qmd.homeModules.default
       stylix.homeModules.stylix
+      direnv-instant.homeModules.direnv-instant
     ];
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {

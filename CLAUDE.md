@@ -175,7 +175,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf homebrew-autoupdate qmd stylix nixie-homes; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf homebrew-autoupdate qmd stylix direnv-instant nixie-homes; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)

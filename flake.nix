@@ -89,6 +89,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    direnv-instant = {
+      url = "github:Mic92/direnv-instant";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixie-homes = {
       url = "github:amatos/nixie-homes";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -97,6 +102,7 @@
       inputs.nvf.follows = "nvf";
       inputs.qmd.follows = "qmd";
       inputs.stylix.follows = "stylix";
+      inputs.direnv-instant.follows = "direnv-instant";
       inputs.pre-commit-hooks.follows = "pre-commit-hooks";
     };
   };
@@ -122,6 +128,7 @@
       disko,
       qmd,
       stylix,
+      direnv-instant,
       nixie-homes,
       ...
     }:
@@ -149,6 +156,7 @@
           homebrew-dracula-install
           qmd
           stylix
+          direnv-instant
           nixie-homes
           ;
       };

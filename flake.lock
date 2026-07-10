@@ -274,7 +274,6 @@
       "inputs": {
         "flake-parts": "flake-parts_2",
         "nixpkgs": [
-          "nixie-homes",
           "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix"
@@ -401,7 +400,6 @@
     "flake-parts_2": {
       "inputs": {
         "nixpkgs-lib": [
-          "nixie-homes",
           "direnv-instant",
           "nixpkgs"
         ]
@@ -799,7 +797,9 @@
     },
     "nixie-homes": {
       "inputs": {
-        "direnv-instant": "direnv-instant",
+        "direnv-instant": [
+          "direnv-instant"
+        ],
         "home-manager": [
           "home-manager"
         ],
@@ -1037,6 +1037,7 @@
     "root": {
       "inputs": {
         "determinate": "determinate",
+        "direnv-instant": "direnv-instant",
         "disko": "disko",
         "home-manager": "home-manager",
         "homebrew-autoupdate": "homebrew-autoupdate",
@@ -1290,7 +1291,6 @@
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
-          "nixie-homes",
           "direnv-instant",
           "nixpkgs"
         ]

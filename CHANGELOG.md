@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `direnv-instant` flake input (`github:Mic92/direnv-instant`), added to
+  `modules/darwin/home-manager.nix` and `modules/nixos/home-manager.nix`
+  `sharedModules` (matching the `nvf`/`qmd`/`stylix` pattern) — required for
+  `nixie-homes`' `alberth/common/tools.nix` to set
+  `programs.direnv-instant.enable = true`. Without this module in
+  `sharedModules`, evaluation fails with `The option
+  'home-manager.users.alberth.programs.direnv-instant' does not exist`,
+  hit on codex after `nixie-homes` picked up direnv-instant.
 - `modules/common/development-packages.nix` — new module for development-only
   packages (`black`, `cmake`, `commitizen`, `commitlint`, `diff-so-fancy`,
   `doxygen`, `gnumake`, `imagemagick`, `inkscape`, `lazygit`, `nmap`,
