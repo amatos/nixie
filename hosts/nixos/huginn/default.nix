@@ -1,4 +1,4 @@
-{ keytabs-matos-cc, ... }:
+{ nix-keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -27,7 +27,7 @@ in
     '';
   };
 
-  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-huginn.age";
+  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-huginn.age";
 
   # Certbot — certificates via LuaDNS DNS-01 challenge
   nixie.certbot = {

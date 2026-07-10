@@ -9,7 +9,7 @@ commits, deployments, or other side effects), regardless of how the rest
 of the phrasing reads.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for how nixie, nix-secrets,
-keytabs-matos-cc, and nixie-homes fit together as a system — read it first
+nix-keytabs-matos-cc, and nix-alberth-home fit together as a system — read it first
 if you're new to this repo or making a change that spans more than one of
 these repos.
 
@@ -22,22 +22,22 @@ It uses Determinate Nix and is driven exclusively by flakes — no `nix-env`, no
 runs home-manager standalone), ragenix (age-encrypted secrets via YubiKey), nvf
 (declarative neovim), nix-homebrew (declarative Homebrew on darwin).
 
-**Home-manager configuration** lives in the separate `github:amatos/nixie-homes` repo
-(input `nixie-homes`), a real flake (not `flake = false`) exposing `homeModules.<name>`
+**Home-manager configuration** lives in the separate `github:amatos/nix-alberth-home` repo
+(input `nix-alberth-home`), a real flake (not `flake = false`) exposing `homeModules.<name>`
 outputs that every host imports — see "home-manager host overlays" below. Unlike
-`nix-secrets`/`keytabs-matos-cc`, `nixie-homes` is also independently usable via
+`nix-secrets`/`nix-keytabs-matos-cc`, `nix-alberth-home` is also independently usable via
 `home-manager switch --flake` on any machine with Nix, with or without nixie — see its own
 `CLAUDE.md`.
 
 **Secrets** live in separate non-flake repos (`flake = false`) and are referenced via
 specialArgs: text/token secrets in `github:amatos/nix-secrets` (input `nix-secrets`),
-binary Kerberos keytabs in `github:amatos/keytabs-matos-cc` (input `keytabs-matos-cc`).
+binary Kerberos keytabs in `github:amatos/nix-keytabs-matos-cc` (input `nix-keytabs-matos-cc`).
 
 **`hosts/nixos/minixie`** is the one exception to the pattern above: a generic,
 identity-less nixos-anywhere bootstrap target (`nixosConfigurations.minixie`) used to
 get an unknown/fresh machine reachable over SSH before it gets a real host config. It
 deliberately does **not** receive `sharedSpecialArgs` and never touches `nix-secrets` or
-`keytabs-matos-cc` — see README "Provisioning new hosts" for the full workflow. Formerly
+`nix-keytabs-matos-cc` — see README "Provisioning new hosts" for the full workflow. Formerly
 its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 
 ---
@@ -47,7 +47,7 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | Name | Platform | Arch | File | Notes |
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | physical |
-| `nhcodex` | nix-darwin | aarch64-darwin | `hosts/darwin/nhcodex/` | test bed, no `nixie-homes`; `hostName` still `"codex"` |
+| `nhcodex` | nix-darwin | aarch64-darwin | `hosts/darwin/nhcodex/` | test bed, no `nix-alberth-home`; `hostName` still `"codex"` |
 | `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual |
 | `nixostron` | NixOS | aarch64-linux | `hosts/nixos/nixostron/` | virtual |
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
@@ -68,17 +68,17 @@ listed here is actually deployable.
 **Adding a new NixOS host:** create `hosts/nixos/<name>/default.nix` importing
 `../common-nixos.nix` and `./hardware-configuration.nix`, set `networking.hostName`,
 add an entry to `nixosConfigurations` in `flake.nix` using `sharedSpecialArgs`. If
-host-specific home settings are needed, add `alberth/<name>.nix` to the `nixie-homes`
+host-specific home settings are needed, add `alberth/<name>.nix` to the `nix-alberth-home`
 repo — `alberth/nixos.nix` auto-imports it when present, no wiring needed here beyond
-`nix flake lock --update-input nixie-homes`.
+`nix flake lock --update-input nix-alberth-home`.
 
 **Adding a new darwin host:** create `hosts/darwin/<name>/default.nix` importing
 `../common-darwin.nix`, set `networking.hostName` and `networking.computerName`,
 merge a home overlay via
-`home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<name> ]; }`,
+`home-manager.users.${primaryUser} = { imports = [ nix-alberth-home.homeModules.alberth-<name> ]; }`,
 and add an entry to `darwinConfigurations` in `flake.nix`. Add a matching
 `alberth/<name>.nix` and a `homeModules.alberth-<name>` output entry to the
-`nixie-homes` repo (commit and push it there first) for darwin platform-specific
+`nix-alberth-home` repo (commit and push it there first) for darwin platform-specific
 settings (gpg-agent pinentry, etc.).
 
 ---
@@ -93,7 +93,7 @@ hosts/
   darwin/
     common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias)
     codex/default.nix            # codex-specific: homebrew, certbot, dockutil
-    nhcodex/default.nix          # test bed, no nixie-homes; hostName still "codex"
+    nhcodex/default.nix          # test bed, no nix-alberth-home; hostName still "codex"
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
@@ -118,14 +118,14 @@ modules/
     github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only; darwin has no systemd)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
-    home-manager.nix             # base home-manager block sourced from nixie-homes;
+    home-manager.nix             # base home-manager block sourced from nix-alberth-home;
                                   # not part of common-darwin.nix, so hosts can opt out
     certbot.nix                  # launchd daemon, Sunday 03:00
 ```
 
 Home-manager configuration is **not** in this repo — it lives in the separate
-`nixie-homes` repo (`github:amatos/nixie-homes`, input `nixie-homes`), imported via
-`nixie-homes.homeModules.<name>` (see "home-manager host overlays" below). Its own
+`nix-alberth-home` repo (`github:amatos/nix-alberth-home`, input `nix-alberth-home`), imported via
+`nix-alberth-home.homeModules.<name>` (see "home-manager host overlays" below). Its own
 `alberth/` layout (base config, per-host overlays) is documented in its `CLAUDE.md`.
 
 ---
@@ -144,7 +144,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - **Cross-platform logic** → `modules/common/`
 - **NixOS-only** → `modules/nixos/`
 - **darwin-only** → `modules/darwin/`
-- **User home config** → the separate `nixie-homes` repo, not this one (platform-specific
+- **User home config** → the separate `nix-alberth-home` repo, not this one (platform-specific
   divergences go in the host overlay file there) — see "home-manager host overlays" below
 - darwin declares no `systemd` option namespace at all (no systemd on macOS). Gating a
   `systemd.*` option's *value* with `lib.mkIf`/`lib.optionals pkgs.stdenv.isLinux` inside a
@@ -175,7 +175,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets keytabs-matos-cc nvf homebrew-autoupdate qmd stylix direnv-instant nixie-homes; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets nix-keytabs-matos-cc nvf homebrew-autoupdate qmd stylix direnv-instant nix-alberth-home; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)
@@ -197,7 +197,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 
 ### Packages
 
-- User-facing apps and fonts → `home.packages` in `nixie-homes`' `alberth/default.nix` (a
+- User-facing apps and fonts → `home.packages` in `nix-alberth-home`'s `alberth/default.nix` (a
   separate repo — see "home-manager host overlays" below)
 - System daemons and tools needed before home-manager → `environment.systemPackages`
 - Fleet-wide CLI tools (every host, any platform) → `modules/common/packages.nix`
@@ -214,29 +214,29 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - Fonts and apps with a nixpkgs equivalent should be in `home.packages`, not homebrew.
 - Some casks (e.g. `orbstack`) have no nix-darwin module to manage their config/data, but the
   app's own data files can still be nix-managed: install via the cask in the host's
-  `default.nix`, then manage the app's config/data location declaratively in `nixie-homes`'
+  `default.nix`, then manage the app's config/data location declaratively in `nix-alberth-home`'s
   `alberth/<host>.nix` overlay (e.g. `home.file` for config files, an out-of-store
   symlink for relocating data to another volume). See `hosts/darwin/codex/default.nix`
-  (OrbStack cask + `ContainerData` APFS volume activation script) and `nixie-homes`'
+  (OrbStack cask + `ContainerData` APFS volume activation script) and `nix-alberth-home`'s
   `alberth/codex.nix` (Docker daemon config + Group Container symlink) for the pattern.
 
 ### home-manager host overlays
 
-Home-manager configuration lives in the separate `nixie-homes` repo
-(`github:amatos/nixie-homes`, input `nixie-homes`), a real flake exposing
-`homeModules.<name>` outputs — not `flake = false` like `nix-secrets`/`keytabs-matos-cc`,
-since `nixie-homes` must also work standalone. See its own `CLAUDE.md` for that repo's
+Home-manager configuration lives in the separate `nix-alberth-home` repo
+(`github:amatos/nix-alberth-home`, input `nix-alberth-home`), a real flake exposing
+`homeModules.<name>` outputs — not `flake = false` like `nix-secrets`/`nix-keytabs-matos-cc`,
+since `nix-alberth-home` must also work standalone. See its own `CLAUDE.md` for that repo's
 layout and conventions; here, only the consumption side:
 
 - `modules/darwin/home-manager.nix` sets the base home-manager block with
-  `nixie-homes.homeModules.alberth` and `.alberth-nvf`. It is **not** part of
-  `common-darwin.nix` — each darwin host that wants `nixie-homes` imports both
+  `nix-alberth-home.homeModules.alberth` and `.alberth-nvf`. It is **not** part of
+  `common-darwin.nix` — each darwin host that wants `nix-alberth-home` imports both
   explicitly (`../common-darwin.nix` and `../../../modules/darwin/home-manager.nix`),
-  so a host can opt out of `nixie-homes` entirely by only importing the former. See
-  `hosts/darwin/nhcodex` — a lean test bed with zero `nixie-homes` involvement,
+  so a host can opt out of `nix-alberth-home` entirely by only importing the former. See
+  `hosts/darwin/nhcodex` — a lean test bed with zero `nix-alberth-home` involvement,
   reusing `common-darwin.nix` without duplicating anything.
 - Each darwin host merges its own overlay by adding
-  `home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<host> ]; };`
+  `home-manager.users.${primaryUser} = { imports = [ nix-alberth-home.homeModules.alberth-<host> ]; };`
   — the module system merges the imports lists automatically. (Note: `imports` inside a
   submodule value is the raw module-import mechanism, resolved before option merging —
   `lib.mkForce`/`lib.mkOverride` do **not** work on it the way they do on a normal
@@ -244,34 +244,34 @@ layout and conventions; here, only the consumption side:
   from another module merged into the same submodule. This is why opting out means not
   importing `modules/darwin/home-manager.nix` in the first place, not overriding it.)
 - NixOS hosts use `modules/nixos/home-manager.nix`, which already includes
-  `nixie-homes.homeModules.alberth-nixos` (the NixOS-integration overlay).
+  `nix-alberth-home.homeModules.alberth-nixos` (the NixOS-integration overlay).
 - To add a new host overlay: add `alberth/<host>.nix` and a
-  `homeModules.alberth-<host>` output entry to `nixie-homes`' `flake.nix`, commit and push
-  it there, then run `nix flake lock --update-input nixie-homes` here before referencing it.
+  `homeModules.alberth-<host>` output entry to `nix-alberth-home`'s `flake.nix`, commit and push
+  it there, then run `nix flake lock --update-input nix-alberth-home` here before referencing it.
 
 ### Secrets
 
 - All secrets are age-encrypted via ragenix. Recipient lists live in the external secrets
-  repos' own `secrets.nix` (`nix-secrets` or `keytabs-matos-cc`), not in nixie itself.
+  repos' own `secrets.nix` (`nix-secrets` or `nix-keytabs-matos-cc`), not in nixie itself.
 - Secrets are deployed to known paths by modules in `modules/common/` or platform modules.
 - The YubiKey identity stub and host key paths are configured in `modules/common/secrets.nix`.
 - **Text secrets** (SSH keys, tokens, passwords, `.ini` credentials) go in `nix-secrets`.
 - **Binary secrets** (e.g. Kerberos keytabs) go in their own dedicated repo
-  (`keytabs-matos-cc`) — git diffs binary files poorly and they don't share the
+  (`nix-keytabs-matos-cc`) — git diffs binary files poorly and they don't share the
   plaintext-editing workflow of the secrets above. Never add a binary secret to
   `nix-secrets`; if a new binary secret type is needed, create a new repo for it
-  following the `keytabs-matos-cc` pattern rather than mixing it into an existing repo.
+  following the `nix-keytabs-matos-cc` pattern rather than mixing it into an existing repo.
 
 #### Wiring an external secrets repo into nixie
 
-When a secrets repo (`nix-secrets`, `keytabs-matos-cc`, or a new one) gains a file that a
+When a secrets repo (`nix-secrets`, `nix-keytabs-matos-cc`, or a new one) gains a file that a
 host needs to consume:
 
 1. If the repo is not yet a flake input, add it in `flake.nix`:
    `<name> = { url = "github:amatos/<repo>"; flake = false; };` (plain git repo, not a flake).
 2. Thread `<name>` through the `outputs` function arguments and add it to `sharedSpecialArgs`.
 3. Reference the file from the consuming host/module as `"${<name>}/<file>"` — e.g.
-   `nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-codex.age";`.
+   `nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";`.
 4. Only declare `<name>` in a file's function args if that file actually uses it — remove
    unused specialArgs args rather than leaving dead ones around.
 5. Update the `hosts/*/template-*` skeleton comments if the new pattern applies to future hosts.
@@ -288,9 +288,9 @@ host needs to consume:
   all: bat, neovim (nvf), and Ghostty theme via their own bundled `"dracula"`/`"Dracula"`
   option (no extra config needed beyond selecting it). Tools with no bundled Dracula variant
   (btop, eza, fzf, starship, zsh-syntax-highlighting) have the official Dracula
-  colors/theme files embedded directly in `nixie-homes`' `alberth/common/theming.nix` (or, for
+  colors/theme files embedded directly in `nix-alberth-home`'s `alberth/common/theming.nix` (or, for
   starship, as `style` overrides layered onto the existing segment formats in
-  `nixie-homes`' `alberth/common/starship.nix`) — see that project's own README/`draculatheme.com/<tool>`
+  `nix-alberth-home`'s `alberth/common/starship.nix`) — see that project's own README/`draculatheme.com/<tool>`
   page as the source of truth if a value ever needs updating.
 - When adding a newly-themed tool, check `draculatheme.com/<tool>` first; if it's not listed
   there, the tool has no available Dracula theme and should be left unstyled rather than
@@ -354,7 +354,7 @@ host needs to consume:
   `~/.config/zed/settings.json` (autodiscovery alone does not enable tool calls); Claude Code
   talks to Ollama directly via its native Anthropic Messages API compatibility
   (`ANTHROPIC_BASE_URL`), no translation proxy needed. See README "Local LLM (Ollama + Open
-  WebUI)" and `nixie-homes`' `alberth/gammu.nix`'s `claude-local` fish function.
+  WebUI)" and `nix-alberth-home`'s `alberth/gammu.nix`'s `claude-local` fish function.
 
 ### Syncthing
 
@@ -418,7 +418,7 @@ host needs to consume:
   breaking every other System Settings change on next write. `kwriteconfig6 --file <name>
   --group <group> --key <key> <value>` merges a single key in place instead — the same
   mechanism KDE's own System Settings uses under the hood.
-- Example: gammu's default terminal is set in `nixie-homes`' `alberth/gammu.nix` via
+- Example: gammu's default terminal is set in `nix-alberth-home`'s `alberth/gammu.nix` via
   `TerminalApplication=ghostty` / `TerminalService=com.mitchellh.ghostty.desktop` in
   `kdeglobals` — this is the only mechanism Dolphin's "Open Terminal Here" (and similar
   actions) respects; there is no MIME-type-based way to set a default terminal.
@@ -498,7 +498,7 @@ Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
 1. Check `users.nix` before adding any user-related config — the field you need may already exist.
 2. Check `modules/common/` before creating a platform-specific module — if it works on both
    platforms, it belongs there.
-3. Check `nixie-homes`' `alberth/default.nix` (separate repo) before adding to a host overlay —
+3. Check `nix-alberth-home`'s `alberth/default.nix` (separate repo) before adding to a host overlay —
    if it applies to all hosts, put it in the shared home config there, not a per-host overlay.
 4. Propose structural/architectural changes before implementing — describe the approach and wait
    for confirmation.

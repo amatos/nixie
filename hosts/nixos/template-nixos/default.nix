@@ -8,9 +8,9 @@
 #   3. Set networking.hostName below.
 #   4. Add a nixosConfigurations entry in flake.nix (copy the gammu block).
 #   5. If the host needs a keytab: add nixie.krb5.keytabFile and the
-#      corresponding age-encrypted secret to keytabs-matos-cc.
+#      corresponding age-encrypted secret to nix-keytabs-matos-cc.
 #   6. If host-specific home settings are needed, add alberth/<hostname>.nix
-#      to the nixie-homes repo, commit and push it, then wire it in below.
+#      to the nix-alberth-home repo, commit and push it, then wire it in below.
 { ... }:
 
 {
@@ -26,12 +26,12 @@
   networking.firewall.enable = true;
 
   # Host-specific home overlay — uncomment and create the file if needed.
-  # The NixOS common overlay (nixie-homes' homeModules.alberth-nixos) is
+  # The NixOS common overlay (nix-alberth-home's homeModules.alberth-nixos) is
   # already applied via modules/nixos/home-manager.nix; only add this if
   # extra settings are required for this specific host. No dedicated
   # homeModules output exists for a not-yet-created host file — reference
-  # it directly until one is added to nixie-homes' flake.nix.
+  # it directly until one is added to nix-alberth-home's flake.nix.
   # home-manager.users.${primaryUser} = {
-  #   imports = [ "${nixie-homes}/alberth/template-nixos.nix" ];
+  #   imports = [ "${nix-alberth-home}/alberth/template-nixos.nix" ];
   # };
 }

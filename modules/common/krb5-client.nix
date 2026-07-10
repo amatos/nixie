@@ -5,15 +5,15 @@
 # module at normal priority silently wins without a conflict.
 #
 # Set nixie.krb5.keytabFile to the age-encrypted keytab path in
-# keytabs-matos-cc to have it deployed to /etc/krb5.keytab on activation.
+# nix-keytabs-matos-cc to have it deployed to /etc/krb5.keytab on activation.
 { config, lib, ... }:
 {
   options.nixie.krb5.keytabFile = lib.mkOption {
     type = lib.types.nullOr lib.types.path;
     default = null;
     description = ''
-      Path to the age-encrypted host keytab in keytabs-matos-cc (e.g.
-      "''${keytabs-matos-cc}/keytab-codex.age").  When set, the keytab is
+      Path to the age-encrypted host keytab in nix-keytabs-matos-cc (e.g.
+      "''${nix-keytabs-matos-cc}/keytab-codex.age").  When set, the keytab is
       deployed to /etc/krb5.keytab on activation.  Leave null on hosts
       that do not yet have a keytab issued.
     '';

@@ -1,4 +1,4 @@
-{ pkgs, keytabs-matos-cc, ... }:
+{ pkgs, nix-keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -53,7 +53,7 @@ in
   # disabled so the host boots to a text console rather than a graphical
   # login screen. Plasma is still reachable via xrdp below (X11 session) and
   # the Steam gamescope Big Picture session remains launchable headlessly via
-  # the steam systemd user unit (systemd.user.services.steam, nixie-homes'
+  # the steam systemd user unit (systemd.user.services.steam, nix-alberth-home's
   # alberth/gammu.nix).
   #
   # Disabling sddm alone is NOT sufficient: services.xserver.enable = true
@@ -108,7 +108,7 @@ in
     extraGroups = [ "docker" ];
     # Lingering — starts primaryUser's systemd --user instance at boot
     # instead of only on interactive login. Required for
-    # systemd.user.services.steam (nixie-homes' alberth/gammu.nix) to autostart
+    # systemd.user.services.steam (nix-alberth-home's alberth/gammu.nix) to autostart
     # headless gamescope + Steam on boot.
     linger = true;
   };
@@ -167,7 +167,7 @@ in
     # qwen2.5-coder:14b (~9GB at Q4_K_M) fits the 12GB VRAM on this card
     # with headroom for KV cache; chosen for reliable tool-calling support
     # in both Zed's Agent Panel and Claude Code (via Ollama's Anthropic-
-    # compatible endpoint, see nixie-homes' alberth/gammu.nix `claude-local`).
+    # compatible endpoint, see nix-alberth-home's alberth/gammu.nix `claude-local`).
     # loadModels pulls it declaratively on activation; syncModels stays at
     # its default (false) so ad-hoc `ollama pull` isn't wiped on rebuild.
     loadModels = [ "qwen2.5-coder:14b" ];
@@ -221,5 +221,5 @@ in
     xrdpDeploy = true;
   };
 
-  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-gammu.age";
+  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-gammu.age";
 }

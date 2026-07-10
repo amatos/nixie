@@ -1,11 +1,11 @@
 {
   pkgs,
   lib,
-  keytabs-matos-cc,
+  nix-keytabs-matos-cc,
   homebrew-autoupdate,
   homebrew-cirruslabs-cli,
   homebrew-dracula-install,
-  nixie-homes,
+  nix-alberth-home,
   ...
 }:
 
@@ -35,7 +35,7 @@ in
   ];
 
   # Dedicated APFS volume backing OrbStack's container data (Docker images,
-  # volumes, Linux VMs) — see nixie-homes' alberth/codex.nix for the Group
+  # volumes, Linux VMs) — see nix-alberth-home's alberth/codex.nix for the Group
   # Container symlink that points at it and the Docker daemon config. disk3 is codex's
   # internal APFS container; re-check with `diskutil apfs list` if the
   # physical disk layout ever changes.
@@ -70,7 +70,7 @@ in
 
   # Merge codex home overlay on top of the base imported by common-darwin.nix
   home-manager.users.${primaryUser} = {
-    imports = [ nixie-homes.homeModules.alberth-codex ];
+    imports = [ nix-alberth-home.homeModules.alberth-codex ];
   };
 
   nixie.certbot = {
@@ -84,5 +84,5 @@ in
     syncthingDeploy = true; # copy renewed cert to syncthing and restart on renewal
   };
 
-  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-codex.age";
+  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";
 }

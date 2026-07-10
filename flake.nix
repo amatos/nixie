@@ -29,8 +29,8 @@
       flake = false; # plain git repo, not a flake
     };
 
-    keytabs-matos-cc = {
-      url = "github:amatos/keytabs-matos-cc";
+    nix-keytabs-matos-cc = {
+      url = "github:amatos/nix-keytabs-matos-cc";
       flake = false; # plain git repo, not a flake
     };
 
@@ -94,8 +94,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixie-homes = {
-      url = "github:amatos/nixie-homes";
+    nix-alberth-home = {
+      url = "github:amatos/nix-alberth-home";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
       inputs.nix-secrets.follows = "nix-secrets";
@@ -116,7 +116,7 @@
       home-manager,
       ragenix,
       nix-secrets,
-      keytabs-matos-cc,
+      nix-keytabs-matos-cc,
       nvf,
       nix-homebrew,
       homebrew-autoupdate,
@@ -129,7 +129,7 @@
       qmd,
       stylix,
       direnv-instant,
-      nixie-homes,
+      nix-alberth-home,
       ...
     }:
     let
@@ -149,7 +149,7 @@
         inherit
           self
           nix-secrets
-          keytabs-matos-cc
+          nix-keytabs-matos-cc
           nvf
           homebrew-autoupdate
           homebrew-cirruslabs-cli
@@ -157,7 +157,7 @@
           qmd
           stylix
           direnv-instant
-          nixie-homes
+          nix-alberth-home
           ;
       };
 
@@ -246,7 +246,7 @@
         };
 
         # nhcodex — a lean test bed for future home-manager changes, with no
-        # nixie-homes involvement; see hosts/darwin/nhcodex/default.nix.
+        # nix-alberth-home involvement; see hosts/darwin/nhcodex/default.nix.
         # networking.hostName stays "codex".
         nhcodex = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
@@ -365,7 +365,7 @@
         # in. Deploy with: nixos-anywhere --flake .#minixie root@<target-ip>
         # Replace with a real host config once reachable; not part of
         # sharedSpecialArgs on purpose (it never consumes nix-secrets or
-        # keytabs-matos-cc).
+        # nix-keytabs-matos-cc).
         minixie = lib.nixosSystem {
           system = "x86_64-linux";
           modules = [

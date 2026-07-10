@@ -1,12 +1,12 @@
-# Home-manager base config for darwin hosts that use nixie-homes.
+# Home-manager base config for darwin hosts that use nix-alberth-home.
 # Mirrors modules/nixos/home-manager.nix's role on the NixOS side. Not part
 # of common-darwin.nix — split out specifically so a host can opt out of
-# nixie-homes entirely (see hosts/darwin/nhcodex, a testbed host with no
-# nixie-homes involvement) without duplicating anything.
+# nix-alberth-home entirely (see hosts/darwin/nhcodex, a testbed host with no
+# nix-alberth-home involvement) without duplicating anything.
 #
 # Hosts that want this import it alongside common-darwin.nix, then merge
 # their own overlay via:
-#   home-manager.users.${primaryUser} = { imports = [ nixie-homes.homeModules.alberth-<host> ]; };
+#   home-manager.users.${primaryUser} = { imports = [ nix-alberth-home.homeModules.alberth-<host> ]; };
 {
   pkgs,
   nvf,
@@ -14,7 +14,7 @@
   nix-secrets,
   stylix,
   direnv-instant,
-  nixie-homes,
+  nix-alberth-home,
   ...
 }:
 
@@ -36,8 +36,8 @@ in
     extraSpecialArgs = { inherit nix-secrets; };
     users.${primaryUser} = {
       imports = [
-        nixie-homes.homeModules.alberth
-        nixie-homes.homeModules.alberth-nvf
+        nix-alberth-home.homeModules.alberth
+        nix-alberth-home.homeModules.alberth-nvf
       ];
       # openssh_gssapi shadows pkgs.openssh (added to PATH by nix-darwin's
       # services.openssh) so the SSH client supports GSSAPIAuthentication.

@@ -3,14 +3,14 @@
 Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, and home-manager. All configuration is driven by Nix flakes.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for how this repo fits together with
-its companion secrets repos (`nix-secrets`, `keytabs-matos-cc`).
+its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
 
 ## Hosts
 
 | Hostname | OS | Architecture | Physical / Virtual | Function |
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
-| `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nixie-homes` |
+| `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nix-alberth-home` |
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | Development & Testing VM |
 | `nixostron` | NixOS | aarch64-linux | Virtual | Development & Testing VM |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
@@ -35,7 +35,7 @@ hosts/
   darwin/
     common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias)
     codex/default.nix            # codex-specific: homebrew, certbot, dockutil
-    nhcodex/default.nix          # test bed, no nixie-homes; hostName still "codex"
+    nhcodex/default.nix          # test bed, no nix-alberth-home; hostName still "codex"
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
@@ -61,14 +61,14 @@ modules/
     github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only)
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
-    home-manager.nix             # base home-manager block sourced from nixie-homes;
+    home-manager.nix             # base home-manager block sourced from nix-alberth-home;
                                   # not part of common-darwin.nix, so hosts can opt out
     certbot.nix                  # launchd daemon, Sunday 03:00
 ```
 
 Home-manager configuration lives in the separate
-[nixie-homes](https://github.com/amatos/nixie-homes) repo (input `nixie-homes`), imported
-via `nixie-homes.homeModules.<name>` — see that repo's own `README.md`/`CLAUDE.md`.
+[nix-alberth-home](https://github.com/amatos/nix-alberth-home) repo (input `nix-alberth-home`), imported
+via `nix-alberth-home.homeModules.<name>` — see that repo's own `README.md`/`CLAUDE.md`.
 
 ## Development shell
 
@@ -110,7 +110,7 @@ nixie has three ways to get a fresh machine running, depending on what you're st
 | `ephemeraltron` | Console/monitor access, bare metal | Build `.#ephemeraltron-iso`, boot it — auto-installs a real nixie host at a fixed IP |
 | `minixie` | SSH-only, no console (VPS/cloud host, or a booted installer) | `nixos-anywhere --flake .#minixie root@<ip>` — disko + identity-less install |
 
-`minixie` is intentionally disconnected from `nix-secrets`/`keytabs-matos-cc` and
+`minixie` is intentionally disconnected from `nix-secrets`/`nix-keytabs-matos-cc` and
 `sharedSpecialArgs` — it exists only to get a box from "freshly booted/rescued" to
 "reachable over SSH with disks partitioned". Once it's up, replace
 `hosts/nixos/minixie` with a real host directory (following the `template-nixos`
@@ -290,7 +290,7 @@ Plasma.
 
 For SSH-only access with nothing plugged in, there's a headless (no display, physical or
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play, managed
-as a home-manager user unit — `systemd.user.services.steam` (`nixie-homes`' `alberth/gammu.nix`):
+as a home-manager user unit — `systemd.user.services.steam` (`nix-alberth-home`'s `alberth/gammu.nix`):
 
 ```console
 systemctl --user start   steam   # launch the headless session
@@ -396,7 +396,7 @@ Zed does not auto-enable tool calling for Ollama models — declare the model ex
 
 Ollama exposes an Anthropic Messages-API-compatible endpoint natively, so Claude Code can
 talk to it directly — no translation proxy needed. On `gammu`, run `claude-local` (a fish
-function defined in `nixie-homes`' `alberth/gammu.nix`) instead of plain `claude` to point
+function defined in `nix-alberth-home`'s `alberth/gammu.nix`) instead of plain `claude` to point
 Claude Code at the local model:
 
 ```fish

@@ -17,7 +17,7 @@
 # interactive ~/.ssh/known_hosts.
 #
 # IdentitiesOnly=yes + PreferredAuthentications=publickey: the primary user's
-# home-manager-managed ~/.ssh/config (nixie-homes' alberth/common/ssh.nix) has a
+# home-manager-managed ~/.ssh/config (nix-alberth-home's alberth/common/ssh.nix) has a
 # `Host *` block with its own `IdentityFile ~/.ssh/id_rsa` and
 # `GSSAPIAuthentication yes` — ssh_config's IdentityFile keyword is cumulative
 # across matching Host blocks, so without IdentitiesOnly=yes ssh also offers

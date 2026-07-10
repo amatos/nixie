@@ -1,16 +1,16 @@
 # nhcodex — a lean test bed for future home-manager changes, with zero
-# nixie-homes involvement. networking.hostName/computerName stay "codex"
+# nix-alberth-home involvement. networking.hostName/computerName stay "codex"
 # (only the flake attribute name and this host directory differ).
 #
 # Reuses common-darwin.nix directly, no duplication — that file no longer
 # bakes in home-manager config (see modules/darwin/home-manager.nix, split
 # out specifically so a host can opt out), so nhcodex simply doesn't import
 # it. Homebrew (codex/homebrew.nix) is skipped too, since its autoupdate
-# script is sourced from nixie-homes. Add home-manager.darwinModules.
+# script is sourced from nix-alberth-home. Add home-manager.darwinModules.
 # home-manager is already in this host's flake.nix module list — set
 # home-manager.users.${primaryUser} here directly as you experiment.
 {
-  keytabs-matos-cc,
+  nix-keytabs-matos-cc,
   ...
 }:
 
@@ -36,5 +36,5 @@
     syncthingDeploy = true; # copy renewed cert to syncthing and restart on renewal
   };
 
-  nixie.krb5.keytabFile = "${keytabs-matos-cc}/keytab-codex.age";
+  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";
 }
