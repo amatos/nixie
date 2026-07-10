@@ -53,7 +53,7 @@ in
   # disabled so the host boots to a text console rather than a graphical
   # login screen. Plasma is still reachable via xrdp below (X11 session) and
   # the Steam gamescope Big Picture session remains launchable headlessly via
-  # the steamup systemd user unit (systemd.user.services.steamup, nixie-homes'
+  # the steam systemd user unit (systemd.user.services.steam, nixie-homes'
   # alberth/gammu.nix).
   #
   # Disabling sddm alone is NOT sufficient: services.xserver.enable = true
@@ -108,7 +108,7 @@ in
     extraGroups = [ "docker" ];
     # Lingering — starts primaryUser's systemd --user instance at boot
     # instead of only on interactive login. Required for
-    # systemd.user.services.steamup (nixie-homes' alberth/gammu.nix) to autostart
+    # systemd.user.services.steam (nixie-homes' alberth/gammu.nix) to autostart
     # headless gamescope + Steam on boot.
     linger = true;
   };

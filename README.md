@@ -290,13 +290,13 @@ Plasma.
 
 For SSH-only access with nothing plugged in, there's a headless (no display, physical or
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play, managed
-as a home-manager user unit — `systemd.user.services.steamup` (`nixie-homes`' `alberth/gammu.nix`):
+as a home-manager user unit — `systemd.user.services.steam` (`nixie-homes`' `alberth/gammu.nix`):
 
 ```console
-systemctl --user start   steamup   # launch the headless session
-systemctl --user stop    steamup   # stop gamescope, Steam, and any running game
-systemctl --user restart steamup
-journalctl --user -u steamup -f    # follow its logs
+systemctl --user start   steam   # launch the headless session
+systemctl --user stop    steam   # stop gamescope, Steam, and any running game
+systemctl --user restart steam
+journalctl --user -u steam -f    # follow its logs
 ```
 
 `gamescope` is the unit's `ExecStart` directly (`Type = "exec"`), not a detaching wrapper script,

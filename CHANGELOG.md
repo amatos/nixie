@@ -47,6 +47,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/nixos/gammu/default.nix` and `README.md` — updated comments and
+  the RDP/Remote Play docs to match `nixie-homes`' rename of the `steamup`
+  systemd user unit to `steam` (`alberth/gammu.nix`).
 - `modules/common/packages.nix` — removed the 20 development-only packages
   listed above from `environment.systemPackages`; they now live in
   `modules/common/development-packages.nix` instead of being deployed
