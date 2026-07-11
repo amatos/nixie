@@ -24,6 +24,7 @@ in
     ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
     ../../modules/common/cachix-secrets.nix
+    ../../modules/common/ghostty-theme-secrets.nix
     ../../modules/common/krb5-client.nix
   ];
 

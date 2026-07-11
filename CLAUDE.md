@@ -110,12 +110,15 @@ modules/
     age-host-key.nix             # generates /etc/age/host-key on first activation
     github-secrets.nix           # deploys GitHub SSH keys via ragenix (age.secrets only)
     certbot-secrets.nix          # deploys LuaDNS credentials via ragenix
+    ghostty-theme-secrets.nix    # deploys Ghostty commercial themes via ragenix to
+                                  # ~/.config/ghostty/themes/<name>
   nixos/
     users.nix                    # NixOS user declarations
     home-manager.nix             # shared NixOS home-manager block
     certbot.nix                  # systemd timer, weekly + 1h random delay
     ghostty.nix                  # conditional on display server presence
     github-secrets-tmpfiles.nix  # pre-creates ~/.ssh via systemd-tmpfiles (NixOS-only; darwin has no systemd)
+    ghostty-theme-tmpfiles.nix   # pre-creates ~/.config/ghostty/themes, same rationale
   darwin/
     users.nix                    # darwin user declarations (strips NixOS-only fields)
     home-manager.nix             # base home-manager block sourced from nix-home-alberth;

@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/common/ghostty-theme-secrets.nix` — deploys the 8 commercial
+  Ghostty theme files (`alucard`, `blade`, `buffy`, `dracula`, `lincoln`,
+  `morbius`, `pro`, `van-helsing`) from `nix-secrets`'s new `ghostty-themes/`
+  directory into `~/.config/ghostty/themes/`, replacing plaintext copies.
+  Imported fleet-wide from `common-nixos.nix`/`common-darwin.nix`, matching
+  the `github-secrets.nix`/`cachix-secrets.nix` pattern. `modules/nixos/
+  ghostty-theme-tmpfiles.nix` pre-creates the themes directory with correct
+  ownership on NixOS (systemd has no darwin equivalent, but the directory
+  already exists there via home-manager's stylix ghostty integration) —
+  same rationale as `github-secrets-tmpfiles.nix`.
 - `direnv-instant` flake input (`github:Mic92/direnv-instant`), added to
   `modules/darwin/home-manager.nix` and `modules/nixos/home-manager.nix`
   `sharedModules` (matching the `nvf`/`qmd`/`stylix` pattern) — required for

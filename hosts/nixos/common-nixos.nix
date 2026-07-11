@@ -23,12 +23,14 @@ in
     ../../modules/nixos/default-password.nix
     ../../modules/nixos/sudo.nix
     ../../modules/nixos/github-secrets-tmpfiles.nix
+    ../../modules/nixos/ghostty-theme-tmpfiles.nix
     ../../modules/common/packages.nix
     ../../modules/common/age-host-key.nix
     ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
     ../../modules/common/tailscale-secrets.nix
     ../../modules/common/cachix-secrets.nix
+    ../../modules/common/ghostty-theme-secrets.nix
     ../../modules/common/krb5-client.nix
   ];
 
