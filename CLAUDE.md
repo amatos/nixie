@@ -444,7 +444,10 @@ host needs to consume:
 
 All commits must be GPG-signed (`git commit -S`) and follow the
 [Conventional Commits](https://www.conventionalcommits.org/) format enforced
-by commitlint (`.commitlintrc.yaml`):
+by commitlint (`.commitlintrc.yaml`). Signing is enforced in CI: the
+`verify-signed-commits` job in `.github/workflows/ci.yml` fails the build if
+any commit in the push/PR has no GPG signature (checked via `git log
+--pretty=%G?`, which does not require the signer's public key to be present).
 
 ```text
 <type>[optional scope]: <subject>

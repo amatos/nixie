@@ -308,9 +308,8 @@ All four repos agree on:
 
 - **Commit style**: [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`,
   `fix:`, `chore:`, `docs:`, ...). All four repos enforce this via the same commitlint hook
-  (each has its own `flake.nix`/`.commitlintrc.yaml`, installed via `nix develop`); `nixie`
-  additionally requires GPG-signed commits (the other three only require GPG-signed *tags*, not
-  every commit — see each repo's own `CLAUDE.md`).
+  (each has its own `flake.nix`/`.commitlintrc.yaml`, installed via `nix develop`). All four
+  repos require every commit and every tag to be GPG-signed — see each repo's own `CLAUDE.md`.
 - **Releases**: CalVer, `yy.mm.release` (e.g. `26.07.01`), counter resets to `01` each new month,
   tags are GPG-signed, changelog entries are combined per release under a heading matching the
   tag.

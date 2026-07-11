@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `.github/workflows/ci.yml` — `verify-signed-commits` job fails the build if
+  any commit in a push/PR has no GPG signature (`git log --pretty=%G?`).
+- `CLAUDE.md` "Commits" — documents the new CI signature enforcement.
+
+### Fixed
+
+- `ARCHITECTURE.md` "Shared conventions" — corrected the claim that only
+  `nixie` requires GPG-signed commits while the other three repos only
+  require signed tags; all four repos require every commit to be signed.
+
 ---
 
 ## 26.07.15

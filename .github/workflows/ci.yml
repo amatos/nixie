@@ -12,6 +12,43 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── Commit signing ───────────────────────────────────────────────────────
+  # CLAUDE.md requires every commit (not just tags) to be GPG-signed. %G? is
+  # "N" only when a commit has no signature at all — this still works without
+  # importing any public key, since we're checking presence, not trust.
+  verify-signed-commits:
+    name: Verify signed commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check all commits are GPG-signed
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            commits=$(git log --pretty=%H "${BASE_SHA}..${HEAD_SHA}")
+          elif [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            commits="$AFTER_SHA"
+          else
+            commits=$(git log --pretty=%H "${BEFORE_SHA}..${AFTER_SHA}")
+          fi
+
+          status=0
+          for sha in $commits; do
+            sig=$(git log -1 --pretty=%G? "$sha")
+            if [ "$sig" = "N" ]; then
+              echo "::error::Commit $sha is not GPG-signed"
+              status=1
+            fi
+          done
+          exit $status
+
   # ── Formatting ────────────────────────────────────────────────────────────
   # No nix-secrets needed — uses registry nixpkgs to avoid fetching all inputs
   # just to run a formatter.
