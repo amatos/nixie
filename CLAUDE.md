@@ -139,8 +139,10 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 
 - `primaryUser` in `users.nix` drives all username references throughout the codebase.
 - Never hardcode a username string in a module. Import `users.nix` and use `userDefs.primaryUser`.
-- `email` and `gpgSigningKey` are custom fields on user entries; strip them before passing to
+- `email` is a custom field on user entries; strip it before passing to
   `users.users` (handled in `modules/nixos/users.nix` and `modules/darwin/users.nix`).
+  `gpgSigningKey` lives only in `nix-home-alberth`'s own `users.nix` (git/gpg identity) —
+  nixie has no consumer for it and doesn't carry a copy.
 
 ### Module placement
 

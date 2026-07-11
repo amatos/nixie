@@ -93,6 +93,14 @@ All notable changes to this project will be documented in this file.
   references `nix-home-alberth`/`primaryUser`; uncomment it and add the
   args back if that block is enabled.
 
+### Removed
+
+- `users.nix` — dropped `alberth.gpgSigningKey`. Nothing in nixie ever read
+  it (only `nix-home-alberth`'s own separate `users.nix` copy is consumed,
+  for git/gpg identity) — it was stripped before reaching `users.users` in
+  `modules/{nixos,darwin}/users.nix` and otherwise unused. Removed the now-
+  stale `gpgSigningKey` entries from both strip-lists to match.
+
 ---
 
 ## 26.07.13

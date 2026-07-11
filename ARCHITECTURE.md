@@ -157,9 +157,10 @@ The placement rule agents must follow before adding a module:
    platform-specific divergences isolated to that host's overlay file (`alberth/<host>.nix`).
 
 `nixie`'s own `users.nix` is the single source of truth for *its* user data (`primaryUser`,
-system account fields) — never hardcode a username string in a module. `nix-home-alberth` has its own,
-separate `users.nix` (`description`/`email`/`gpgSigningKey`, for git/gpg identity only) — the two
-are intentionally not shared; see §2's `nixie` vs. `nix-home-alberth` entry.
+system account fields, plus `email` for certbot's Let's Encrypt registration) — never
+hardcode a username string in a module. `nix-home-alberth` has its own, separate `users.nix`
+(`description`/`email`/`gpgSigningKey`, for git/gpg identity only) — the two are intentionally
+not shared; see §2's `nixie` vs. `nix-home-alberth` entry.
 
 ### 3.3 Determinate Nix conf quirk
 

@@ -1,5 +1,5 @@
 # Shared NixOS module — applies the centralized user roster to every host.
-# Custom metadata fields (e.g. gpgSigningKey) are stripped before being
+# Custom metadata fields (e.g. email) are stripped before being
 # passed to users.users, which only accepts known NixOS options.
 { lib, ... }:
 
@@ -8,7 +8,6 @@ let
   # Add to this list whenever you introduce new custom metadata.
   customFields = [
     "email"
-    "gpgSigningKey"
   ];
 
   # Top-level keys in users.nix that are metadata, not user entries.

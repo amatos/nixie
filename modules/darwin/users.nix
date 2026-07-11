@@ -10,7 +10,6 @@ let
     "extraGroups"
     "description"
     "email"
-    "gpgSigningKey"
   ];
 
   # Top-level keys in users.nix that are metadata, not user entries.

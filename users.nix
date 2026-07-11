@@ -22,6 +22,5 @@
       "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAif6Mv0L/8n9hrhwM9KJdU4zzWmAcUz/Y/NgfRwOFOZDBl+YJjRcg8BH71PP8D559HSq73x259+Txps66bli5M="
     ];
     email = "alberth@matos.cc";
-    gpgSigningKey = "F41BDBF6171A3BB4";
   };
 }
