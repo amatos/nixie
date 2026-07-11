@@ -338,10 +338,10 @@ current rules; this document only explains how those rules compose across repos.
 
 | Repo | Latest release |
 | --- | --- |
-| `nixie` | `26.07.15` |
-| `nix-home-alberth` | `26.07.03` |
-| `nix-secrets` | `26.07.05` |
-| `nix-keytabs-matos-cc` | `26.07.03` |
+| `nixie` | `26.07.16` |
+| `nix-home-alberth` | `26.07.04` |
+| `nix-secrets` | `26.07.06` |
+| `nix-keytabs-matos-cc` | `26.07.04` |
 
 Kept in sync manually — update this table whenever any of the four repos cuts a new release (see
 `CLAUDE.md` "Before making changes").
