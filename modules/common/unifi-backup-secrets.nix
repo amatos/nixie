@@ -9,7 +9,7 @@
 # disk. Owned by the primary user (not root) so unifi-backup.service, which
 # runs as that user to write into their home directory, can read it.
 #
-# After adding unifi-backup-ssh-key.age to nix-secrets, run:
+# After adding unifi/backup-ssh-key.age to nix-secrets, run:
 #   ragenix --rekey
 # to encrypt it for all configured recipients (host keys + YubiKey).
 { nix-secrets, ... }:
