@@ -105,6 +105,11 @@
       inputs.direnv-instant.follows = "direnv-instant";
       inputs.pre-commit-hooks.follows = "pre-commit-hooks";
     };
+
+    orion-browser = {
+      url = "github:amatos/nix-orion-browser";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -130,6 +135,7 @@
       stylix,
       direnv-instant,
       nix-home-alberth,
+      orion-browser,
       ...
     }:
     let
@@ -309,6 +315,7 @@
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
             zapp.nixosModules.default
+            orion-browser.nixosModules.default
             ./hosts/nixos/gammu
           ];
         };

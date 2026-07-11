@@ -943,6 +943,26 @@
         "type": "github"
       }
     },
+    "orion-browser": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783798947,
+        "narHash": "sha256-dCUUyvDR9gLCKePVKvWOiYPk6qTy8VchXDU1vm+T3gY=",
+        "owner": "amatos",
+        "repo": "nix-orion-browser",
+        "rev": "adbbb26ebd8cf85dc68a4572bc453dab694a50b2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amatos",
+        "repo": "nix-orion-browser",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -1051,6 +1071,7 @@
         "nix-secrets": "nix-secrets",
         "nixpkgs": "nixpkgs_2",
         "nvf": "nvf",
+        "orion-browser": "orion-browser",
         "pre-commit-hooks": "pre-commit-hooks",
         "qmd": "qmd",
         "ragenix": "ragenix_2",

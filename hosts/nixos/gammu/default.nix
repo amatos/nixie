@@ -222,4 +222,11 @@ in
   };
 
   nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-gammu.age";
+
+  # Orion Browser (Kagi) — no first-party Linux release beyond a standalone
+  # Flatpak bundle (not on Flathub, no AppImage/deb/rpm); packaged in
+  # github:amatos/nix-orion-browser as a hash-pinned wrapper. Enabling this
+  # also turns on services.flatpak.enable; xdg.portal.enable is already true
+  # here via services.desktopManager.plasma6.
+  services.orion-browser.enable = true;
 }

@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 26.07.17
+
+### Added
+
+- `flake.nix` — new `orion-browser` input (`github:amatos/nix-orion-browser`),
+  a new dedicated repo packaging Kagi's Orion Browser as a hash-pinned
+  Flatpak wrapper (Orion has no first-party Linux release beyond a
+  standalone, non-Flathub `.flatpak` bundle).
+- `hosts/nixos/gammu/default.nix` — `services.orion-browser.enable = true;`,
+  which also turns on `services.flatpak.enable`.
+
+---
+
 ## 26.07.16
 
 ### Added
