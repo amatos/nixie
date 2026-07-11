@@ -338,7 +338,7 @@ current rules; this document only explains how those rules compose across repos.
 
 | Repo | Latest release |
 | --- | --- |
-| `nixie` | `26.07.16` |
+| `nixie` | `26.07.17` |
 | `nix-home-alberth` | `26.07.04` |
 | `nix-secrets` | `26.07.06` |
 | `nix-keytabs-matos-cc` | `26.07.04` |
