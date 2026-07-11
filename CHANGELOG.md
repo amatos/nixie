@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.14
+
 ### Added
 
 - `modules/nixos/user-passwords.nix` — deploys per-user password secrets
