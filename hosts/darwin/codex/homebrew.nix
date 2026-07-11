@@ -411,14 +411,16 @@ in
       "Front and Center" = 1493996622;
       "Goban" = 646372172;
       "Gomoku" = 457851462;
-      "HyperSpace" = 6739505345;
       "Hyperduck" = 6444667067;
+      "HyperSpace" = 6739505345;
       "Ivory" = 6444602274;
       "John's Background Switcher" = 907640277;
+      "keymapp" = 6472865291;
       "Keynote" = 361285480;
       "LanguageTool" = 1534275760;
       "Logic Pro" = 1615087040;
       "MainStage" = 6746637089;
+      "Marked 3" = 6747497179;
       "Mela" = 1568924476;
       "Microsoft Excel" = 462058435;
       "Microsoft PowerPoint" = 462062816;
@@ -429,8 +431,8 @@ in
       "Obsidian Web Clipper" = 6720708363;
       "OneDrive" = 823766827;
       "Pages" = 361309726;
-      "PastePal" = 1503446680;
       "Pastel" = 413897608;
+      "PastePal" = 1503446680;
       "Photomator" = 1444636541;
       "Pixelmator Pro" = 6746662575;
       "Raycast Companion" = 6738274497;
@@ -443,12 +445,11 @@ in
       "Things" = 904280696;
       "Tidyshot" = 6758950886;
       "Transmit" = 1436522307;
+      "uBlock Origin Lite" = 6745342698;
       "Velja" = 1607635845;
       "Windows App" = 1295203466;
       "WireGuard" = 1451685025;
       # "Xcode" = 497799835;
-      "keymapp" = 6472865291;
-      "uBlock Origin Lite" = 6745342698;
     };
   };
 

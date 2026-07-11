@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/darwin/codex/homebrew.nix` — added Marked 3 to the list of installed apps
 - `ARCHITECTURE.md` — "Latest releases" table tracking the newest CalVer tag
   in each of the four repos (`nixie`, `nix-home-alberth`, `nix-secrets`,
   `nix-keytabs-matos-cc`). `CLAUDE.md` "Releases" now notes to update it
