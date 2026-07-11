@@ -17,7 +17,7 @@
 
 {
   age.secrets.unifi-api-key = {
-    file = "${nix-secrets}/unifi-api-key.age";
+    file = "${nix-secrets}/unifi/api-key.age";
     owner = "root";
     mode = "0400";
     # path intentionally omitted — defaults to /run/agenix/unifi-api-key

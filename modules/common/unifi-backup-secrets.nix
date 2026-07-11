@@ -20,7 +20,7 @@ let
 in
 {
   age.secrets.unifi-backup-ssh-key = {
-    file = "${nix-secrets}/unifi-backup-ssh-key.age";
+    file = "${nix-secrets}/unifi/backup-ssh-key.age";
     owner = primaryUser;
     mode = "0400";
     # path intentionally omitted — defaults to /run/agenix/unifi-backup-ssh-key

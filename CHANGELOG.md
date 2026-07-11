@@ -57,6 +57,17 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `modules/common/github-secrets.nix`, `modules/common/dyndns-luadns-secrets.nix`,
+  `modules/common/unifi-backup-secrets.nix` — updated `nix-secrets` file
+  paths to match its new subdirectory layout: `github-ssh-key.age` →
+  `github/ssh-key.age`, `github-ratelimit.age` → `github/ratelimit.age`,
+  `unifi-api-key.age` → `unifi/api-key.age`, `unifi-backup-ssh-key.age` →
+  `unifi/backup-ssh-key.age`. The related `ldap-admin-password.age`,
+  `ldap-kdc-password.age`, and `krb5-master-key.age` moved to `ldap/` too,
+  but those paths are only referenced as defaults inside the separate
+  `nix-kerberos-ldap` flake input, not in this repo — updated there instead.
+  Bumped both `nix-secrets` and `nix-kerberos-ldap` flake inputs to pick up
+  the moves.
 - `flake.nix` — renamed the `nixie-homes` flake input to `nix-home-alberth`
   (`github:amatos/nix-home-alberth`) and the `keytabs-matos-cc` input to
   `nix-keytabs-matos-cc` (`github:amatos/nix-keytabs-matos-cc`), following
