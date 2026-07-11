@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `modules/nixos/user-passwords.nix` — deploys per-user password secrets
+  from `nix-secrets`'s new `users/alberth.age` and `users/nixos.age`,
+  applying `alberth`'s own password via `hashedPasswordFile` and the
+  `nixos`/`root` accounts' shared setup/emergency-access password via the
+  other. Replaces `modules/nixos/default-password.nix`, which applied one
+  shared `default-nixos-user-password.age` secret to all three accounts.
+  Imported from `hosts/nixos/common-nixos.nix`, same as before.
 - `modules/common/ghostty-theme-secrets.nix` — deploys the 8 commercial
   Ghostty theme files (`alucard`, `blade`, `buffy`, `dracula`, `lincoln`,
   `morbius`, `pro`, `van-helsing`) from `nix-secrets`'s new `ghostty-themes/`

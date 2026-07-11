@@ -20,7 +20,7 @@ in
     ../../modules/nixos/certbot.nix
     ../../modules/nixos/ghostty.nix
     ../../modules/nixos/agenix-fix.nix
-    ../../modules/nixos/default-password.nix
+    ../../modules/nixos/user-passwords.nix
     ../../modules/nixos/sudo.nix
     ../../modules/nixos/github-secrets-tmpfiles.nix
     ../../modules/nixos/ghostty-theme-tmpfiles.nix
