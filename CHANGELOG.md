@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.15
+
 ### Added
 
 - `ARCHITECTURE.md` — "Latest releases" table tracking the newest CalVer tag
