@@ -334,3 +334,15 @@ Use this document for the cross-repo picture. For anything repo-specific and aut
 If you're an AI agent making a change that touches more than one of these repos, re-read the
 relevant `CLAUDE.md` files for each repo you're editing before starting — they carry the precise,
 current rules; this document only explains how those rules compose across repos.
+
+## 9. Latest releases
+
+| Repo | Latest release |
+| --- | --- |
+| `nixie` | `26.07.14` |
+| `nix-home-alberth` | `26.07.03` |
+| `nix-secrets` | `26.07.05` |
+| `nix-keytabs-matos-cc` | `26.07.03` |
+
+Kept in sync manually — update this table whenever any of the four repos cuts a new release (see
+`CLAUDE.md` "Before making changes").

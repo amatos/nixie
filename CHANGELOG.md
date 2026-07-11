@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `ARCHITECTURE.md` — "Latest releases" table tracking the newest CalVer tag
+  in each of the four repos (`nixie`, `nix-home-alberth`, `nix-secrets`,
+  `nix-keytabs-matos-cc`). `CLAUDE.md` "Releases" now notes to update it
+  whenever any of the four repos cuts a new release.
+
 ---
 
 ## 26.07.14

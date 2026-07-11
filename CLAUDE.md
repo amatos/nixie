@@ -495,6 +495,11 @@ Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
 - Unreleased changes must be grouped under an `## Unreleased` section at the
   top of `CHANGELOG.md` until they are included in a release.
 - `CHANGELOG.md` lines must be ≤ 80 characters; never exceed 100.
+- Whenever a release is tagged in `nixie`, `nix-secrets`, `nix-keytabs-matos-cc`, or
+  `nix-home-alberth`, update the "Latest releases" table in
+  [`ARCHITECTURE.md`](./ARCHITECTURE.md) (section "Latest releases") to match. Check
+  `git tag --list | sort -V | tail -1` in each of the four repos before starting any
+  release-adjacent work, since another repo's release may already be untracked there.
 
 ---
 
