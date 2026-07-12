@@ -449,6 +449,7 @@ in
       "Velja" = 1607635845;
       "Windows App" = 1295203466;
       "WireGuard" = 1451685025;
+      "Kagi for Safari" = 1622835804;
       # "Xcode" = 497799835;
     };
   };
