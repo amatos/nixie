@@ -49,7 +49,6 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | physical |
 | `nhcodex` | nix-darwin | aarch64-darwin | `hosts/darwin/nhcodex/` | test bed, no `nix-home-alberth`; `hostName` still `"codex"` |
 | `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual, CI build target |
-| `nixostron` | NixOS | aarch64-linux | `hosts/nixos/nixostron/` | virtual |
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
 | `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
 | `huginn` | NixOS | x86_64-linux | `hosts/nixos/huginn/` | physical |
@@ -92,7 +91,6 @@ hosts/
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
-    nixostron/default.nix        # hostname only
     gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming,
                                   # Ollama/Open WebUI
     minixie/default.nix          # generic nixos-anywhere bootstrap target (no sharedSpecialArgs)

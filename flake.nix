@@ -299,18 +299,6 @@
       # NixOS configurations (Linux)
       # Usage: nixos-rebuild switch --flake .#<hostname>
       nixosConfigurations = {
-        nixostron = lib.nixosSystem {
-          system = "aarch64-linux";
-          specialArgs = sharedSpecialArgs;
-          modules = [
-            determinate.nixosModules.default
-            home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
-            zapp.nixosModules.default
-            ./hosts/nixos/nixostron
-          ];
-        };
-
         gammu = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;

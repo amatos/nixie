@@ -12,7 +12,6 @@ its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
 | `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
 | `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nix-home-alberth` |
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | CI build target |
-| `nixostron` | NixOS | aarch64-linux | Virtual | Development & Testing VM |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
 | `porkchop` | NixOS | x86_64-linux | Physical | SMTP smart relay, ldap server, Kerberos KDC |
 | `huginn` | NixOS | x86_64-linux | Physical | misc |
@@ -37,7 +36,6 @@ hosts/
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
-    nixostron/default.nix        # hostname only
     gammu/default.nix            # docker/containerd, syncthing, certbot, Steam gaming,
                                   # Ollama/Open WebUI
     minixie/default.nix          # generic nixos-anywhere bootstrap target (no sharedSpecialArgs)

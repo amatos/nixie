@@ -70,6 +70,10 @@ All notable changes to this project will be documented in this file.
   README/ARCHITECTURE provisioning-paths tables were updated accordingly (now two routes,
   not three).
 - `hosts/nixos/{picanha,sirloin}/` — unused host stubs, never wired into `flake.nix`.
+- `hosts/nixos/nixostron/`, its `nixosConfigurations.nixostron` entry in
+  `flake.nix` — unused development/testing VM stub; its
+  `hardware-configuration.nix` was still the generic `root`/`boot`/`swap`
+  by-label placeholder, meaning it had never actually been installed anywhere.
 - `.github/workflows/flake-update.yml`'s weekly scheduled
   `DeterminateSystems/update-flake-lock` job — superseded by the on-demand
   `nixieflakeup` + CI-validated auto-merge flow above.
