@@ -107,19 +107,25 @@ jobs:
       - name: Build ephemeraltron
         run: nix build .#nixosConfigurations.ephemeraltron.config.system.build.toplevel
 
-  # ── Darwin evaluation ─────────────────────────────────────────────────────
-  # Darwin configs can't be built on Linux; we verify they evaluate cleanly
-  # by resolving the derivation path (evaluation only, no build).
-  eval-darwin:
-    name: Evaluate darwin configs
-    runs-on: ubuntu-latest
+  # ── Darwin builds ─────────────────────────────────────────────────────────
+  # GitHub-hosted macos-latest runners are Apple Silicon (aarch64-darwin),
+  # matching codex/darwintron's arch, and macOS runner minutes are free on
+  # public repos — so unlike NixOS/darwin cross-arch cases, we can build the
+  # actual toplevel closure here instead of only evaluating it.
+  build-darwin:
+    name: Build darwin configs
+    runs-on: macos-latest
     needs: flake-check
     env:
       NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
     steps:
       - uses: actions/checkout@v7
       - uses: DeterminateSystems/nix-installer-action@v22
-      - name: Evaluate codex
-        run: nix eval .#darwinConfigurations.codex.config.system.build.toplevel.drvPath
-      - name: Evaluate darwintron
-        run: nix eval .#darwinConfigurations.darwintron.config.system.build.toplevel.drvPath
+      - uses: cachix/cachix-action@v17
+        with:
+          name: ${{ vars.CACHIX_CACHE_NAME }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build codex
+        run: nix build .#darwinConfigurations.codex.config.system.build.toplevel
+      - name: Build darwintron
+        run: nix build .#darwinConfigurations.darwintron.config.system.build.toplevel

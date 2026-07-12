@@ -49,6 +49,11 @@ All notable changes to this project will be documented in this file.
 - `hosts/nixos/porkchop/default.nix`, `installer/ephemeraltron.nix` —
   dropped unused `lib` function arguments, clearing deadnix's backlog ahead
   of the new CI gate above. No behavior change.
+- `.github/workflows/ci.yml`'s darwin job now builds `codex`/`darwintron`'s
+  `system.build.toplevel` on a `macos-latest` runner instead of only
+  `nix eval`-ing the `drvPath` on Linux — GitHub's hosted macOS runners are
+  Apple Silicon (matching codex/darwintron's `aarch64-darwin`) and free on
+  public repos, so a real build is no more expensive than the eval was.
 
 ### Fixed
 
