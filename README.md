@@ -11,17 +11,15 @@ its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
 | `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nix-home-alberth` |
-| `darwintron` | nix-darwin | aarch64-darwin | Virtual | Development & Testing VM |
+| `darwintron` | nix-darwin | aarch64-darwin | Virtual | CI build target |
 | `nixostron` | NixOS | aarch64-linux | Virtual | Development & Testing VM |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
 | `porkchop` | NixOS | x86_64-linux | Physical | SMTP smart relay, ldap server, Kerberos KDC |
 | `huginn` | NixOS | x86_64-linux | Physical | misc |
-| `picanha` | NixOS | x86_64-linux | Physical | stub — not yet deployed |
-| `sirloin` | NixOS | x86_64-linux | Physical | stub — not yet deployed |
+| `ephemeraltron` | NixOS | x86_64-linux | Virtual | CI build target |
 | `minixie` | NixOS | x86_64-linux | N/A | generic nixos-anywhere bootstrap target, not a real host |
 
-Hosts whose names end in `tron` are virtual machines. `picanha` and `sirloin` have
-host directories and home-manager overlays but aren't wired into `flake.nix` yet.
+Hosts whose names end in `tron` are virtual machines.
 
 ## Repository layout
 
@@ -102,12 +100,11 @@ nixos-rebuild switch --flake .#<hostname>
 
 ## Provisioning new hosts
 
-nixie has three ways to get a fresh machine running, depending on what you're starting from:
+nixie has two ways to get a fresh machine running, depending on what you're starting from:
 
 | Path | Starting point | How |
 | --- | --- | --- |
 | `template-nixos` | Console access, booted into a NixOS installer | Copy `hosts/nixos/template-nixos`, add to `flake.nix`, install manually |
-| `ephemeraltron` | Console/monitor access, bare metal | Build `.#ephemeraltron-iso`, boot it — auto-installs a real nixie host at a fixed IP |
 | `minixie` | SSH-only, no console (VPS/cloud host, or a booted installer) | `nixos-anywhere --flake .#minixie root@<ip>` — disko + identity-less install |
 
 `minixie` is intentionally disconnected from `nix-secrets`/`nix-keytabs-matos-cc` and

@@ -261,18 +261,18 @@ secrets from both.
 
 ## 5. Host provisioning paths
 
-`nixie` supports three distinct routes from "fresh machine" to "managed nixie host," chosen by
+`nixie` supports two distinct routes from "fresh machine" to "managed nixie host," chosen by
 what access you have:
 
 | Path | Starting point | Mechanism |
 | --- | --- | --- |
 | `template-nixos` / `template-darwin` | Console access, OS installer already booted | Copy the template host dir, add to `flake.nix`, install manually |
-| `ephemeraltron` | Console access, bare metal, nothing installed | Build `.#ephemeraltron-iso`, boot it — self-installs at a fixed IP, offline (pre-baked) |
 | `minixie` | SSH-only, no console (VPS/cloud, or rescue boot) | `nixos-anywhere --flake .#minixie root@<ip>` — disko + identity-less install |
 
-`minixie` and `ephemeraltron` are bootstrap scaffolding, not real hosts: once a machine is
-reachable, its `hosts/nixos/<name>` directory is replaced with a proper host config (secrets wired
-in, `sharedSpecialArgs` included) rather than extended in place.
+`minixie` is bootstrap scaffolding, not a real host: once a machine is reachable, its
+`hosts/nixos/<name>` directory is replaced with a proper host config (secrets wired in,
+`sharedSpecialArgs` included) rather than extended in place. `ephemeraltron` and `darwintron` are
+CI build targets, not provisioning paths — see `CLAUDE.md`'s Hosts table for their role.
 
 ## 6. Invariants an agent must preserve
 

@@ -268,6 +268,8 @@
           ];
         };
 
+        # CI build target — mirrors ephemeraltron's role on the darwin side.
+        # Not provisioned or switched to interactively.
         darwintron = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = sharedSpecialArgs;
@@ -359,9 +361,9 @@
           ];
         };
 
-        # Minimal template host — provisions at 10.0.6.66/22 so a real config
-        # can be applied immediately after booting.  Built and installed via
-        # the ephemeraltron-iso package below.
+        # CI build target — exists so ci.yml's build-ephemeraltron job has a
+        # real x86_64-linux nixosConfiguration to build (not just evaluate)
+        # on every push/PR. Not provisioned or switched to interactively.
         ephemeraltron = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;
@@ -406,19 +408,6 @@
         #   ];
         # };
       };
-
-      # Installer ISOs
-      # Build: nix build .#ephemeraltron-iso
-      packages.x86_64-linux.ephemeraltron-iso =
-        (lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = sharedSpecialArgs // {
-            # Pre-build the target system and bundle it in the ISO store so
-            # installation requires no internet access.
-            ephemeraltronSystem = self.nixosConfigurations.ephemeraltron.config.system.build.toplevel;
-          };
-          modules = [ ./installer/ephemeraltron.nix ];
-        }).config.system.build.isoImage;
 
       # Canonical formatter — enables `nix fmt` and `nix run .#formatter -- --check`
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);

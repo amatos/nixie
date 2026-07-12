@@ -48,22 +48,17 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | physical |
 | `nhcodex` | nix-darwin | aarch64-darwin | `hosts/darwin/nhcodex/` | test bed, no `nix-home-alberth`; `hostName` still `"codex"` |
-| `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual |
+| `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual, CI build target |
 | `nixostron` | NixOS | aarch64-linux | `hosts/nixos/nixostron/` | virtual |
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
 | `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
 | `huginn` | NixOS | x86_64-linux | `hosts/nixos/huginn/` | physical |
-| `picanha` | NixOS | x86_64-linux | `hosts/nixos/picanha/` | physical, stub — not in `flake.nix` yet |
-| `sirloin` | NixOS | x86_64-linux | `hosts/nixos/sirloin/` | physical, stub — not in `flake.nix` yet |
-| `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | installer template |
+| `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | virtual, CI build target |
 | `minixie` | NixOS | x86_64-linux | `hosts/nixos/minixie/` | generic nixos-anywhere bootstrap target, not a real host — see README "Provisioning new hosts" |
 | `template-darwin` | nix-darwin | aarch64-darwin | `hosts/darwin/template-darwin/` | new host template |
 | `template-nixos` | NixOS | x86_64-linux | `hosts/nixos/template-nixos/` | new host template |
 
-Hosts whose names end in `tron` are virtual machines. `picanha`/`sirloin` have host
-directories committed (no home-manager overlay yet) but aren't wired into
-`nixosConfigurations` in `flake.nix` yet — check `flake.nix` before assuming a host
-listed here is actually deployable.
+Hosts whose names end in `tron` are virtual machines.
 
 **Adding a new NixOS host:** create `hosts/nixos/<name>/default.nix` importing
 `../common-nixos.nix` and `./hardware-configuration.nix`, set `networking.hostName`,
@@ -105,7 +100,7 @@ hosts/
 modules/
   common/                        # cross-platform modules (NixOS + darwin)
     packages.nix                 # shared system packages + nixpkgs.config.allowUnfree
-    development-packages.nix     # dev-tool packages, wired only to gammu and codex
+    development-packages.nix     # dev-tool packages, wired only to gammu, codex, darwintron
     secrets.nix                  # ragenix identity paths
     age-host-key.nix             # generates /etc/age/host-key on first activation
     github-secrets.nix           # deploys GitHub SSH keys via ragenix (age.secrets only)
@@ -207,7 +202,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - System daemons and tools needed before home-manager → `environment.systemPackages`
 - Fleet-wide CLI tools (every host, any platform) → `modules/common/packages.nix`
 - Development-only tools (compilers, linters, formatters) → `modules/common/development-packages.nix`,
-  wired only to hosts actually used for development (`gammu`, `codex`) — not fleet-wide
+  wired only to hosts actually used for development (`gammu`, `codex`, `darwintron`) — not fleet-wide
 - darwin-specific system tools (e.g. `dockutil`) → inline in the host's `default.nix`
 - `nixpkgs.config.allowUnfree = true` is set in `modules/common/packages.nix`
 

@@ -32,6 +32,10 @@ All notable changes to this project will be documented in this file.
   `by-label` values (previously `root`/`boot`/`swap`) to match what
   `installer/ephemeraltron.nix` actually formatted the disk with (`nixos`/`ESP`, and no swap
   partition at all) — the installed system would otherwise have failed to boot.
+- `ephemeraltron` and `darwintron` repurposed as CI build targets (`flake.nix`, `CLAUDE.md`,
+  `README.md`, `ARCHITECTURE.md`); `hosts/nixos/ephemeraltron/default.nix` stripped of its
+  static-IP networking, SSH access, passwordless sudo, and user account, none of which are
+  needed just to build the closure in CI.
 - `hosts/darwin/codex/homebrew.nix` — added `Orion` to the list of
   homebrew packages.
 - `hosts/darwin/codex/homebrew.nix` — added `Kagi for Safari` to the list of
@@ -48,6 +52,11 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- `installer/ephemeraltron.nix`, `packages.x86_64-linux.ephemeraltron-iso` — the bare-metal
+  auto-installer ISO, superseded by ephemeraltron's new CI-build-only role; the
+  README/ARCHITECTURE provisioning-paths tables were updated accordingly (now two routes,
+  not three).
+- `hosts/nixos/{picanha,sirloin}/` — unused host stubs, never wired into `flake.nix`.
 - `.github/workflows/flake-update.yml`'s weekly scheduled
   `DeterminateSystems/update-flake-lock` job — superseded by the on-demand
   `nixieflakeup` + CI-validated auto-merge flow above.
