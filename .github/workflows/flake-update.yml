@@ -6,6 +6,11 @@ name: flake-update branch CI
 # validation (nix fmt/statix/deadnix/flake check) and the merge into main to
 # the reusable workflow in amatos/.github, shared across repos in this
 # account.
+#
+# Requires "Allow GitHub Actions to create and approve pull requests" enabled
+# under this repo's Settings → Actions → General — off by default. Without
+# it, the reusable workflow's PR creation fails outright ("GitHub Actions is
+# not permitted to create or approve pull requests").
 
 on:
   push:
