@@ -6,10 +6,12 @@
   environment.systemPackages = with pkgs; [
     black
     cmake
+    codex
     commitizen
     commitlint
     diff-so-fancy
     doxygen
+    gemini-cli
     github-copilot-cli
     gnumake
     imagemagick

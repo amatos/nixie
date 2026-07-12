@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `modules/common/development-packages.nix` — `github-copilot-cli`, added to
+- `modules/common/development-packages.nix` — `github-copilot-cli`, `codex`
+  (OpenAI's Codex CLI), and `gemini-cli` (Google's Gemini CLI), added to
   gammu and codex (the only hosts this module is wired to).
 
 ---
