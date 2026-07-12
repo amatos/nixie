@@ -50,6 +50,14 @@ All notable changes to this project will be documented in this file.
   dropped unused `lib` function arguments, clearing deadnix's backlog ahead
   of the new CI gate above. No behavior change.
 
+### Fixed
+
+- `.github/workflows/ci.yml` — `verify-signed-commits` no longer fails with
+  `fatal: Invalid revision range` when `main` is force-pushed (e.g. a
+  `reset --hard` to a cherry-picked commit): an unresolvable `before` SHA now
+  falls back to checking just the new tip commit, instead of a range git
+  can't reconstruct.
+
 ### Removed
 
 - `installer/ephemeraltron.nix`, `packages.x86_64-linux.ephemeraltron-iso` — the bare-metal

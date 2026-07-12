@@ -33,7 +33,12 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "pull_request" ]; then
             commits=$(git log --pretty=%H "${BASE_SHA}..${HEAD_SHA}")
-          elif [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+          elif [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] \
+               || ! git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            # New branch, or BEFORE_SHA was rewritten away by a force-push (e.g.
+            # reset --hard to a cherry-picked commit) and is no longer reachable
+            # from any ref actions/checkout could fetch — fall back to checking
+            # just the new tip instead of a range git can't resolve.
             commits="$AFTER_SHA"
           else
             commits=$(git log --pretty=%H "${BEFORE_SHA}..${AFTER_SHA}")
