@@ -19,4 +19,5 @@ jobs:
     uses: amatos/.github/.github/workflows/flake-lock-ci.yml@main
     with:
       cachix-cache-name: ${{ vars.CACHIX_CACHE_NAME }}
+      deadnix-exclude: "**/hardware-configuration.nix"
     secrets: inherit
