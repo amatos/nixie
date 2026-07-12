@@ -19,8 +19,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `hosts/darwin/codex/homebrew.nix` — added `Kagi for Safari` to the list of
+- `hosts/darwin/codex/homebrew.nix` — added `Orion` to the list of
   homebrew packages.
+- `hosts/darwin/codex/homebrew.nix` — added `Kagi for Safari` to the list of
+  mas packages.
 - `hosts/nixos/{common-nixos,ephemeraltron,gammu,huginn,porkchop}/default.nix`,
   `hosts/darwin/common-darwin.nix`, `flake.nix`,
   `modules/{nixos/{certbot,dyndns-luadns,unifi-backup,user-passwords},

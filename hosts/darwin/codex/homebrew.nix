@@ -87,6 +87,10 @@ in
       # NOTE: Antigravity and gemini-cli are in homebrew (above).
 
       {
+        name = "orion"; # Safari-based browser
+        greedy = true;
+      }
+      {
         name = "1password"; # Password manager and secure digital wallet
         greedy = true;
       }
