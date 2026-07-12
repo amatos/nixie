@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `modules/common/development-packages.nix` — `github-copilot-cli`, added to
+  gammu and codex (the only hosts this module is wired to).
+
 ---
 
 ## 26.07.17

@@ -10,6 +10,7 @@
     commitlint
     diff-so-fancy
     doxygen
+    github-copilot-cli
     gnumake
     imagemagick
     inkscape # Vector graphics editor
