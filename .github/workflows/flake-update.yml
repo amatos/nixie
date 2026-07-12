@@ -19,11 +19,11 @@ jobs:
       # Reuses the same secret already present for CI.
       NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: DeterminateSystems/nix-installer-action@v22
 
-      - uses: DeterminateSystems/update-flake-lock@v24
+      - uses: DeterminateSystems/update-flake-lock@v28
         with:
           # Open a PR instead of committing directly to main.
           # Merge the PR after CI passes to get a signed merge commit.

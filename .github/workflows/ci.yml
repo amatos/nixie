@@ -20,7 +20,7 @@ jobs:
     name: Verify signed commits
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Check all commits are GPG-signed
@@ -56,8 +56,8 @@ jobs:
     name: Formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
       - name: Check .nix formatting
         run: |
           find . -name '*.nix' ! -path './.git/*' -print0 \
@@ -74,9 +74,9 @@ jobs:
       # Add as a repository secret: Settings → Secrets → Actions.
       NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: cachix/cachix-action@v15
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: cachix/cachix-action@v17
         with:
           # Add cache name as a repository variable: Settings → Variables → Actions.
           name: ${{ vars.CACHIX_CACHE_NAME }}
@@ -93,9 +93,9 @@ jobs:
     env:
       NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
-      - uses: cachix/cachix-action@v15
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: cachix/cachix-action@v17
         with:
           name: ${{ vars.CACHIX_CACHE_NAME }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -112,8 +112,8 @@ jobs:
     env:
       NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
       - name: Evaluate codex
         run: nix eval .#darwinConfigurations.codex.config.system.build.toplevel.drvPath
       - name: Evaluate darwintron
