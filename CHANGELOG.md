@@ -6,9 +6,34 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `.github/workflows/flake-update.yml` — now triggers on push to the
+  `flake-update` branch (pushed by nixieflakeup/update-flake.py) and
+  delegates to the reusable workflow in `amatos/.github`
+  (`flake-lock-ci.yml`): runs `nix fmt`/`statix`/`deadnix`/`nix flake check`,
+  then opens and squash-merges a PR into `main` once clean.
+- `statix.toml` — ignores `**/hardware-configuration.nix` (NixOS-generated,
+  never hand-edited) for both statix and the new CI's deadnix step.
 - `modules/common/development-packages.nix` — `github-copilot-cli`, `codex`
   (OpenAI's Codex CLI), and `gemini-cli` (Google's Gemini CLI), added to
   gammu and codex (the only hosts this module is wired to).
+
+### Changed
+
+- `hosts/nixos/{common-nixos,ephemeraltron,gammu,huginn,porkchop}/default.nix`,
+  `hosts/darwin/common-darwin.nix`, `flake.nix`,
+  `modules/{nixos/{certbot,dyndns-luadns,unifi-backup,user-passwords},
+  darwin/macos-defaults/system-ui}.nix` — merged repeated top-level
+  attribute keys and dropped an empty `{ ... }:` pattern, clearing statix's
+  backlog ahead of the new CI gate above. No behavior change.
+- `hosts/nixos/porkchop/default.nix`, `installer/ephemeraltron.nix` —
+  dropped unused `lib` function arguments, clearing deadnix's backlog ahead
+  of the new CI gate above. No behavior change.
+
+### Removed
+
+- `.github/workflows/flake-update.yml`'s weekly scheduled
+  `DeterminateSystems/update-flake-lock` job — superseded by the on-demand
+  `nixieflakeup` + CI-validated auto-merge flow above.
 
 ---
 

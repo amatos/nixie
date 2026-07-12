@@ -1,35 +1,19 @@
-name: Weekly flake update
+name: flake-update branch CI
+
+# Triggers when nixieflakeup (update-flake.py) pushes to flake-update, a
+# disposable branch that's always reset to main's tip plus one or more
+# lockfile-only commits — see nix-home-alberth's update-flake.py. Delegates
+# validation (nix fmt/statix/deadnix/flake check) and the merge into main to
+# the reusable workflow in amatos/.github, shared across repos in this
+# account.
 
 on:
-  schedule:
-    # Every Sunday at 02:00 UTC
-    - cron: "0 2 * * 0"
-  # Allow triggering manually from the Actions tab
-  workflow_dispatch:
+  push:
+    branches: [flake-update]
 
 jobs:
-  update-flake-lock:
-    name: nix flake update
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    env:
-      # Fine-grained PAT with contents:read on amatos/nix-secrets.
-      # Reuses the same secret already present for CI.
-      NIX_CONFIG: "access-tokens = github.com=${{ secrets.NIX_SECRETS_GITHUB_TOKEN }}"
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: DeterminateSystems/nix-installer-action@v22
-
-      - uses: DeterminateSystems/update-flake-lock@v28
-        with:
-          # Open a PR instead of committing directly to main.
-          # Merge the PR after CI passes to get a signed merge commit.
-          pr-title: "chore: weekly flake update"
-          pr-labels: |
-            flake-update
-            automated
-          commit-msg: "chore: weekly flake update"
-          token: ${{ secrets.GITHUB_TOKEN }}
+  validate-and-merge:
+    uses: amatos/.github/.github/workflows/flake-lock-ci.yml@main
+    with:
+      cachix-cache-name: ${{ vars.CACHIX_CACHE_NAME }}
+    secrets: inherit
