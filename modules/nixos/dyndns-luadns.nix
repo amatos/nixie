@@ -132,34 +132,36 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d ${stateDir} 0700 root root -"
-    ];
-
-    systemd.services.dyndns-luadns = {
-      description = "LuaDNS dyndns2 update for ${cfg.hostname}";
-      after = [
-        "network-online.target"
-        "agenix.service"
+    systemd = {
+      tmpfiles.rules = [
+        "d ${stateDir} 0700 root root -"
       ];
-      wants = [ "network-online.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = runScript;
-        PrivateTmp = true;
-        ProtectSystem = "strict";
-        ReadWritePaths = [ stateDir ];
-      };
-    };
 
-    systemd.timers.dyndns-luadns = {
-      description = "LuaDNS dyndns2 update timer";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnBootSec = "2min";
-        OnUnitInactiveSec = cfg.interval;
-        Persistent = true;
+      services.dyndns-luadns = {
+        description = "LuaDNS dyndns2 update for ${cfg.hostname}";
+        after = [
+          "network-online.target"
+          "agenix.service"
+        ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          User = "root";
+          ExecStart = runScript;
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ReadWritePaths = [ stateDir ];
+        };
+      };
+
+      timers.dyndns-luadns = {
+        description = "LuaDNS dyndns2 update timer";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnBootSec = "2min";
+          OnUnitInactiveSec = cfg.interval;
+          Persistent = true;
+        };
       };
     };
   };

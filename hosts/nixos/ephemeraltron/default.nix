@@ -15,25 +15,27 @@ in
     ./hardware-configuration.nix
   ];
 
-  networking.hostName = "ephemeraltron";
+  networking = {
+    hostName = "ephemeraltron";
 
-  # Static IP — disable DHCP and predictable interface names so the NIC is eth0
-  networking.useDHCP = false;
-  networking.usePredictableInterfaceNames = false;
-  networking.interfaces.eth0.ipv4.addresses = [
-    {
-      address = "10.0.6.66";
-      prefixLength = 22;
-    }
-  ];
-  networking.defaultGateway = "10.0.4.1";
-  networking.nameservers = [ "10.0.4.1" ];
-  networking.nftables.enable = true;
+    # Static IP — disable DHCP and predictable interface names so the NIC is eth0
+    useDHCP = false;
+    usePredictableInterfaceNames = false;
+    interfaces.eth0.ipv4.addresses = [
+      {
+        address = "10.0.6.66";
+        prefixLength = 22;
+      }
+    ];
+    defaultGateway = "10.0.4.1";
+    nameservers = [ "10.0.4.1" ];
+    nftables.enable = true;
 
-  # Firewall — SSH only
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 22 ];
+    # Firewall — SSH only
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [ 22 ];
+    };
   };
 
   # EFI bootloader

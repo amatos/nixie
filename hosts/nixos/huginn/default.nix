@@ -48,17 +48,21 @@ in
   # IPv6 wildcard "[::]" — see CLAUDE.md Syncthing conventions for why (the
   # short version: NixOS's syncthing-init service breaks against "::").
   services.syncthing = {
-    settings.gui.user = "syncthing";
     enable = true;
     user = primaryUser;
     dataDir = "/home/${primaryUser}";
     guiAddress = "0.0.0.0:8384";
     overrideDevices = false;
     overrideFolders = false;
-    settings.gui.address = "0.0.0.0:8384";
-    settings.options.listenAddresses = [
-      "tcp://0.0.0.0:22000"
-      "quic://0.0.0.0:22000"
-    ];
+    settings = {
+      gui = {
+        user = "syncthing";
+        address = "0.0.0.0:8384";
+      };
+      options.listenAddresses = [
+        "tcp://0.0.0.0:22000"
+        "quic://0.0.0.0:22000"
+      ];
+    };
   };
 }

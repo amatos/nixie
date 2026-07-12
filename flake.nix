@@ -96,14 +96,16 @@
 
     nix-home-alberth = {
       url = "github:amatos/nix-home-alberth";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-      inputs.nix-secrets.follows = "nix-secrets";
-      inputs.nvf.follows = "nvf";
-      inputs.qmd.follows = "qmd";
-      inputs.stylix.follows = "stylix";
-      inputs.direnv-instant.follows = "direnv-instant";
-      inputs.pre-commit-hooks.follows = "pre-commit-hooks";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        home-manager.follows = "home-manager";
+        nix-secrets.follows = "nix-secrets";
+        nvf.follows = "nvf";
+        qmd.follows = "qmd";
+        stylix.follows = "stylix";
+        direnv-instant.follows = "direnv-instant";
+        pre-commit-hooks.follows = "pre-commit-hooks";
+      };
     };
 
     orion-browser = {

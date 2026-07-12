@@ -11,7 +11,6 @@
 # Result: result/iso/ephemeraltron-installer.iso
 {
   pkgs,
-  lib,
   modulesPath,
   ephemeraltronSystem,
   ...

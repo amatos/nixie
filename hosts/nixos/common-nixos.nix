@@ -34,23 +34,80 @@ in
     ../../modules/common/krb5-client.nix
   ];
 
-  networking.useDHCP = true;
-  networking.nftables.enable = true;
-
-  services.tailscale = {
-    enable = true;
-    authKeyFile = config.age.secrets.tailscale-authkey.path;
+  networking = {
+    useDHCP = true;
+    nftables.enable = true;
+    firewall = {
+      # Trust all traffic arriving on the Tailscale interface
+      trustedInterfaces = [ "tailscale0" ];
+      # Allow SSH through the firewall only when the firewall is active
+      allowedTCPPorts = lib.mkIf config.networking.firewall.enable [ 22 ];
+    };
   };
 
-  # Trust all traffic arriving on the Tailscale interface
-  networking.firewall.trustedInterfaces = [ "tailscale0" ];
+  services = {
+    tailscale = {
+      enable = true;
+      authKeyFile = config.age.secrets.tailscale-authkey.path;
+    };
+
+    # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.
+    # openssh_gssapi is required: pkgs.openssh no longer includes GSSAPI support;
+    # the option is a separate Debian patch applied only in the _gssapi derivation.
+    openssh = {
+      enable = true;
+      package = pkgs.openssh_gssapi;
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "no";
+        GSSAPIAuthentication = true;
+        GSSAPICleanupCredentials = true;
+      };
+    };
+
+    # NTP — all hosts except porkchop sync from porkchop via NTS over Tailscale.
+    # porkchop runs its own chrony server (configured in hosts/nixos/porkchop/default.nix)
+    # and upstreams to Cloudflare/Google, so this block is skipped there.
+    chrony = lib.mkIf (config.networking.hostName != "porkchop") {
+      enable = true;
+      servers = [ ];
+      extraConfig = ''
+        server porkchop.ts.matos.cc iburst nts
+      '';
+    };
+
+    # Postfix relay client — relay all outbound mail through porkchop.
+    # porkchop runs the full smtp-relay module (modules/nixos/smtp-relay.nix)
+    # and manages postfix itself; all other NixOS hosts use it as a smarthost
+    # over Tailscale on port 25. porkchop's myNetworks covers both the LAN
+    # subnet (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10), so no SASL
+    # credentials are required from fleet hosts.
+    postfix = lib.mkIf (config.networking.hostName != "porkchop") {
+      enable = true;
+      settings.main = {
+        # Listen on loopback only — this is a client, not a relay
+        inet_interfaces = "loopback-only";
+        inet_protocols = "all";
+        # Relay all mail through porkchop via Tailscale hostname
+        relayhost = [ "[porkchop.ts.matos.cc]:25" ];
+        # Disable local delivery
+        mydestination = "";
+        local_transport = "error:local delivery disabled";
+        # Opportunistic TLS toward porkchop
+        smtp_tls_security_level = "may";
+      };
+    };
+  };
 
   # Latest stable kernel — override per-host if hardware requires a specific version
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-
-  # Bootloader — systemd-boot for EFI systems
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+    # Bootloader — systemd-boot for EFI systems
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+  };
 
   # Locale / timezone — override per-host if needed
   time.timeZone = "America/New_York";
@@ -66,59 +123,13 @@ in
   # Fish — default login shell. /etc/shells is managed fleet-wide in
   # modules/common/packages.nix (environment.shells).
   # Zsh remains available (kept for scripts and compatibility).
-  programs.fish.enable = true;
-  programs.zsh.enable = true;
+  programs = {
+    fish.enable = true;
+    zsh.enable = true;
+    # Zapp — CLI tool for flashing ZSA keyboards; also installs udev rules
+    zapp.enable = true;
+  };
   users.users.${primaryUser}.shell = pkgs.fish;
-
-  # Zapp — CLI tool for flashing ZSA keyboards; also installs udev rules
-  programs.zapp.enable = true;
-
-  # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.
-  # openssh_gssapi is required: pkgs.openssh no longer includes GSSAPI support;
-  # the option is a separate Debian patch applied only in the _gssapi derivation.
-  services.openssh = {
-    enable = true;
-    package = pkgs.openssh_gssapi;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
-      GSSAPIAuthentication = true;
-      GSSAPICleanupCredentials = true;
-    };
-  };
-
-  # NTP — all hosts except porkchop sync from porkchop via NTS over Tailscale.
-  # porkchop runs its own chrony server (configured in hosts/nixos/porkchop/default.nix)
-  # and upstreams to Cloudflare/Google, so this block is skipped there.
-  services.chrony = lib.mkIf (config.networking.hostName != "porkchop") {
-    enable = true;
-    servers = [ ];
-    extraConfig = ''
-      server porkchop.ts.matos.cc iburst nts
-    '';
-  };
-
-  # Postfix relay client — relay all outbound mail through porkchop.
-  # porkchop runs the full smtp-relay module (modules/nixos/smtp-relay.nix)
-  # and manages postfix itself; all other NixOS hosts use it as a smarthost
-  # over Tailscale on port 25. porkchop's myNetworks covers both the LAN
-  # subnet (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10), so no SASL
-  # credentials are required from fleet hosts.
-  services.postfix = lib.mkIf (config.networking.hostName != "porkchop") {
-    enable = true;
-    settings.main = {
-      # Listen on loopback only — this is a client, not a relay
-      inet_interfaces = "loopback-only";
-      inet_protocols = "all";
-      # Relay all mail through porkchop via Tailscale hostname
-      relayhost = [ "[porkchop.ts.matos.cc]:25" ];
-      # Disable local delivery
-      mydestination = "";
-      local_transport = "error:local delivery disabled";
-      # Opportunistic TLS toward porkchop
-      smtp_tls_security_level = "may";
-    };
-  };
 
   # LDAP client — disable SASL hostname canonicalization.
   # The SASL GSSAPI plugin resolves the server hostname via reverse DNS
@@ -131,9 +142,6 @@ in
   environment.etc."openldap/ldap.conf".text = ''
     SASL_NOCANON on
   '';
-
-  # Allow SSH through the firewall only when the firewall is active
-  networking.firewall.allowedTCPPorts = lib.mkIf config.networking.firewall.enable [ 22 ];
 
   # Set when the host was first provisioned — do not change after initial deploy.
   # Override per-host if a machine was set up at a different NixOS release.

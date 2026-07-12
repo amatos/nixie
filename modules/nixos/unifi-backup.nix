@@ -98,31 +98,33 @@ in
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [ backupScript ];
 
-    systemd.tmpfiles.rules = [
-      "d ${stateDir} 0700 ${primaryUser} ${primaryUser} -"
-    ];
-
-    systemd.services.unifi-backup = {
-      description = "scp backup of UniFi autobackup directory from ${cfg.remoteHost}";
-      after = [
-        "network-online.target"
-        "agenix.service"
+    systemd = {
+      tmpfiles.rules = [
+        "d ${stateDir} 0700 ${primaryUser} ${primaryUser} -"
       ];
-      wants = [ "network-online.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = primaryUser;
-        ExecStart = "${backupScript}/bin/unifi_backup.sh";
-      };
-    };
 
-    systemd.timers.unifi-backup = {
-      description = "UniFi backup timer";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = cfg.interval;
-        RandomizedDelaySec = "30min";
-        Persistent = true;
+      services.unifi-backup = {
+        description = "scp backup of UniFi autobackup directory from ${cfg.remoteHost}";
+        after = [
+          "network-online.target"
+          "agenix.service"
+        ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          User = primaryUser;
+          ExecStart = "${backupScript}/bin/unifi_backup.sh";
+        };
+      };
+
+      timers.unifi-backup = {
+        description = "UniFi backup timer";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = cfg.interval;
+          RandomizedDelaySec = "30min";
+          Persistent = true;
+        };
       };
     };
   };

@@ -159,66 +159,68 @@ in
     # Ensure certbot's working directories exist before the service starts.
     # ProtectSystem = "strict" bind-mounts ReadWritePaths into the namespace,
     # which fails with ENOENT if the directories don't exist yet (first run).
-    systemd.tmpfiles.rules = [
-      "d /etc/letsencrypt      0755 root root    -"
-      "d /var/lib/letsencrypt  0755 root root    -"
-      "d /var/log/letsencrypt  0755 root root    -"
-    ]
-    ++ lib.optionals cfg.postfixDeploy [
-      # root:postfix 0750 — outside the Postfix chroot bind-mount tree (/etc/postfix →
-      # /var/lib/postfix/conf) to avoid systemd namespace setup failures with ProtectSystem=strict
-      "d /var/lib/postfix-tls  0750 root postfix -"
-    ]
-    ++ lib.optionals cfg.chronyDeploy [
-      # root:chrony 0750 — holds the NTS server cert+key; group-readable by chronyd
-      "d /var/lib/chrony-tls   0750 root chrony   -"
-    ]
-    ++ lib.optionals cfg.ldapDeploy [
-      # root:openldap 0750 — holds the LDAPS cert+key; group-readable by slapd
-      "d /var/lib/openldap-tls 0750 root openldap -"
-    ]
-    ++ lib.optionals cfg.xrdpDeploy [
-      # root:xrdp 0750 — holds the RDP cert+key; group-readable by the xrdp service user
-      "d /var/lib/xrdp-tls     0750 root xrdp     -"
-    ];
-
     environment.systemPackages = [ certbotWithLuadns ];
 
-    systemd.services.certbot = {
-      description = "Certbot certificate renewal (LuaDNS)";
-      after = [
-        "network-online.target"
-        "agenix.service"
+    systemd = {
+      tmpfiles.rules = [
+        "d /etc/letsencrypt      0755 root root    -"
+        "d /var/lib/letsencrypt  0755 root root    -"
+        "d /var/log/letsencrypt  0755 root root    -"
+      ]
+      ++ lib.optionals cfg.postfixDeploy [
+        # root:postfix 0750 — outside the Postfix chroot bind-mount tree (/etc/postfix →
+        # /var/lib/postfix/conf) to avoid systemd namespace setup failures with ProtectSystem=strict
+        "d /var/lib/postfix-tls  0750 root postfix -"
+      ]
+      ++ lib.optionals cfg.chronyDeploy [
+        # root:chrony 0750 — holds the NTS server cert+key; group-readable by chronyd
+        "d /var/lib/chrony-tls   0750 root chrony   -"
+      ]
+      ++ lib.optionals cfg.ldapDeploy [
+        # root:openldap 0750 — holds the LDAPS cert+key; group-readable by slapd
+        "d /var/lib/openldap-tls 0750 root openldap -"
+      ]
+      ++ lib.optionals cfg.xrdpDeploy [
+        # root:xrdp 0750 — holds the RDP cert+key; group-readable by the xrdp service user
+        "d /var/lib/xrdp-tls     0750 root xrdp     -"
       ];
-      wants = [ "network-online.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "root";
-        ExecStart = pkgs.writeShellScript "certbot-run" (
-          lib.concatMapStringsSep "\n" certbotCmd cfg.domains
-        );
-        PrivateTmp = true;
-        ProtectSystem = "strict";
-        ReadWritePaths = [
-          "/etc/letsencrypt"
-          "/var/lib/letsencrypt"
-          "/var/log/letsencrypt"
-        ]
-        ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
-        ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ]
-        ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ]
-        ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ]
-        ++ lib.optionals cfg.xrdpDeploy [ xrdpTlsDir ];
-      };
-    };
 
-    systemd.timers.certbot = {
-      description = "Certbot renewal timer";
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = "weekly";
-        RandomizedDelaySec = "1h";
-        Persistent = true;
+      services.certbot = {
+        description = "Certbot certificate renewal (LuaDNS)";
+        after = [
+          "network-online.target"
+          "agenix.service"
+        ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          User = "root";
+          ExecStart = pkgs.writeShellScript "certbot-run" (
+            lib.concatMapStringsSep "\n" certbotCmd cfg.domains
+          );
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ReadWritePaths = [
+            "/etc/letsencrypt"
+            "/var/lib/letsencrypt"
+            "/var/log/letsencrypt"
+          ]
+          ++ lib.optionals cfg.syncthingDeploy [ syncthingConfigDir ]
+          ++ lib.optionals cfg.postfixDeploy [ postfixSslDir ]
+          ++ lib.optionals cfg.chronyDeploy [ chronyTlsDir ]
+          ++ lib.optionals cfg.ldapDeploy [ openldapTlsDir ]
+          ++ lib.optionals cfg.xrdpDeploy [ xrdpTlsDir ];
+        };
+      };
+
+      timers.certbot = {
+        description = "Certbot renewal timer";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "weekly";
+          RandomizedDelaySec = "1h";
+          Persistent = true;
+        };
       };
     };
   };

@@ -3,7 +3,7 @@
 # NSGlobalDomain settings for appearance, text, and behavior.
 # Reference: https://nix-darwin.github.io/nix-darwin/manual/options.html
 
-{ ... }:
+_:
 let
   userConfig = import ../../../users.nix;
 in

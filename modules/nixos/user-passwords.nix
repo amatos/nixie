@@ -25,7 +25,9 @@ in
     mode = "0400";
   };
 
-  users.users.${primaryUser}.hashedPasswordFile = config.age.secrets.user-password-alberth.path;
-  users.users.nixos.hashedPasswordFile = config.age.secrets.user-password-nixos.path;
-  users.users.root.hashedPasswordFile = config.age.secrets.user-password-nixos.path;
+  users.users = {
+    ${primaryUser}.hashedPasswordFile = config.age.secrets.user-password-alberth.path;
+    nixos.hashedPasswordFile = config.age.secrets.user-password-nixos.path;
+    root.hashedPasswordFile = config.age.secrets.user-password-nixos.path;
+  };
 }
