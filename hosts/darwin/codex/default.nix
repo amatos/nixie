@@ -28,6 +28,7 @@ in
   networking.computerName = "codex";
 
   # Darwin-specific system packages
+  # dockutil — pins/manages Homebrew-cask GUI apps on the Dock.
   # nixd — Nix language server, for editor tooling (Zed, nvf).
   environment.systemPackages = [
     pkgs.dockutil
@@ -68,7 +69,8 @@ in
     };
   };
 
-  # Merge codex home overlay on top of the base imported by common-darwin.nix
+  # Merge codex home overlay on top of the base imported by
+  # modules/darwin/home-manager.nix
   home-manager.users.${primaryUser} = {
     imports = [ nix-home-alberth.homeModules.alberth-codex ];
   };

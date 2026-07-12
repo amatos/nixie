@@ -19,6 +19,15 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/darwin/darwintron/default.nix` — fixed an eval-breaking `nix-homebrew` block (the
+  `nix-homebrew.darwinModules.nix-homebrew` module was never wired into `darwintron`'s
+  `darwinConfigurations` entry), reverted the home-manager overlay from `alberth-codex` back
+  to the correct `alberth-darwintron`, and restored the `modules/darwin/home-manager.nix`
+  import — all three were unintentional regressions from copy-pasting codex's config.
+- `hosts/darwin/{codex,darwintron,template-darwin}/default.nix` — cosmetic fixes: documented
+  `dockutil` in codex's `environment.systemPackages`, corrected the home-manager overlay
+  comment to point at `modules/darwin/home-manager.nix` instead of `common-darwin.nix`, and
+  set `template-darwin`'s `enableRosetta` to `false` to match codex/darwintron.
 - `hosts/darwin/codex/homebrew.nix` — added `Orion` to the list of
   homebrew packages.
 - `hosts/darwin/codex/homebrew.nix` — added `Kagi for Safari` to the list of

@@ -35,7 +35,7 @@ in
   # Remove if this host does not use Homebrew.
   nix-homebrew = {
     enable = true;
-    enableRosetta = true; # x86 bottles on Apple Silicon via Rosetta 2
+    enableRosetta = false; # alternate x86 bottles on Apple Silicon via Rosetta 2
     user = primaryUser;
     autoMigrate = true;
   };
@@ -56,10 +56,11 @@ in
     ];
   };
 
-  # Merge host home overlay on top of the base imported by common-darwin.nix.
-  # References the template file directly (no dedicated homeModules.alberth-*
-  # output exists for it, since it's meant to be copied, not imported as-is)
-  # — update this import when the host is renamed, per step 3 above.
+  # Merge host home overlay on top of the base imported by
+  # modules/darwin/home-manager.nix. References the template file directly
+  # (no dedicated homeModules.alberth-* output exists for it, since it's
+  # meant to be copied, not imported as-is) — update this import when the
+  # host is renamed, per step 3 above.
   home-manager.users.${primaryUser} = {
     imports = [ "${nix-home-alberth}/alberth/template-darwin.nix" ];
   };
