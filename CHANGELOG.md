@@ -28,6 +28,10 @@ All notable changes to this project will be documented in this file.
   `dockutil` in codex's `environment.systemPackages`, corrected the home-manager overlay
   comment to point at `modules/darwin/home-manager.nix` instead of `common-darwin.nix`, and
   set `template-darwin`'s `enableRosetta` to `false` to match codex/darwintron.
+- `hosts/nixos/ephemeraltron/hardware-configuration.nix` — fixed `fileSystems`/`swapDevices`
+  `by-label` values (previously `root`/`boot`/`swap`) to match what
+  `installer/ephemeraltron.nix` actually formatted the disk with (`nixos`/`ESP`, and no swap
+  partition at all) — the installed system would otherwise have failed to boot.
 - `hosts/darwin/codex/homebrew.nix` — added `Orion` to the list of
   homebrew packages.
 - `hosts/darwin/codex/homebrew.nix` — added `Kagi for Safari` to the list of
