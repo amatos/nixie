@@ -13,6 +13,9 @@ on:
 
 jobs:
   validate-and-merge:
+    permissions:
+      contents: write
+      pull-requests: write
     uses: amatos/.github/.github/workflows/flake-lock-ci.yml@main
     with:
       cachix-cache-name: ${{ vars.CACHIX_CACHE_NAME }}
