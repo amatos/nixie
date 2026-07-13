@@ -52,6 +52,7 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
 | `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
 | `huginn` | NixOS | x86_64-linux | `hosts/nixos/huginn/` | physical |
+| `muninn` | NixOS | x86_64-linux | `hosts/nixos/muninn/` | physical |
 | `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | virtual, CI build target |
 | `minixie` | NixOS | x86_64-linux | `hosts/nixos/minixie/` | generic nixos-anywhere bootstrap target, not a real host — see README "Provisioning new hosts" |
 | `template-darwin` | nix-darwin | aarch64-darwin | `hosts/darwin/template-darwin/` | new host template |
@@ -356,7 +357,7 @@ host needs to consume:
 
 ### Syncthing
 
-- Hosts running `services.syncthing` (gammu, huginn, porkchop) bind the GUI to the IPv4
+- Hosts running `services.syncthing` (gammu, huginn, muninn, porkchop) bind the GUI to the IPv4
   wildcard `guiAddress = "0.0.0.0:8384"` (and matching `settings.gui.address`) — **never**
   the IPv6 wildcard `"[::]:8384"`. NixOS's `syncthing-init` service (`merge-syncthing-config`)
   reconciles any declared `services.syncthing.settings` by curling `guiAddress` itself; curl
@@ -396,7 +397,7 @@ host needs to consume:
   when they started, not that its API is still responding *now* — this is what broke both of their
   activation runs (`curl: (7) Failed to connect` / `start operation timed out`) during an otherwise
   unrelated `nixos-rebuild switch`. `modules/nixos/syncthing-healthcheck.nix` (imported on
-  gammu/huginn/porkchop) works around it with a 5-minute systemd timer that polls
+  gammu/huginn/muninn/porkchop) works around it with a 5-minute systemd timer that polls
   `http://[::1]:8384/rest/noauth/health` and force-restarts `syncthing.service` if it doesn't
   respond — a watchdog, not a fix, since the underlying cause of the listener dying is unknown.
   Not applied on darwin (codex/nhcodex): syncthing there runs as a self-supervised Homebrew-cask

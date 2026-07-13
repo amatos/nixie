@@ -20,6 +20,12 @@ All notable changes to this project will be documented in this file.
 - `flake.nix` — devShell gained `nixos-anywhere`, so provisioning new hosts
   via `nixos-anywhere --flake .#minixie` no longer requires
   `nix run github:nix-community/nixos-anywhere`.
+- `hosts/nixos/muninn` — new physical NixOS host, wired into
+  `nixosConfigurations.muninn` in `flake.nix` (mirrors `huginn`'s module
+  list). Runs syncthing (same `0.0.0.0:8384` GUI binding and
+  `syncthing-healthcheck.nix` pattern as gammu/huginn/porkchop) and
+  certbot. `nixie.krb5.keytabFile`/keytab and its `nix-secrets` age
+  recipient are not provisioned yet — to be added after the first switch.
 
 ### Changed
 

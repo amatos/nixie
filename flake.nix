@@ -349,6 +349,18 @@
           ];
         };
 
+        muninn = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = sharedSpecialArgs;
+          modules = [
+            determinate.nixosModules.default
+            home-manager.nixosModules.home-manager
+            ragenix.nixosModules.default
+            zapp.nixosModules.default
+            ./hosts/nixos/muninn
+          ];
+        };
+
         # CI build target — exists so ci.yml's build-ephemeraltron job has a
         # real x86_64-linux nixosConfiguration to build (not just evaluate)
         # on every push/PR. Not provisioned or switched to interactively.

@@ -17,6 +17,7 @@ its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
 | `porkchop` | NixOS | x86_64-linux | Physical | SMTP smart relay, ldap server, Kerberos KDC |
 | `huginn` | NixOS | x86_64-linux | Physical | misc |
+| `muninn` | NixOS | x86_64-linux | Physical | misc |
 | `ephemeraltron` | NixOS | x86_64-linux | Virtual | CI build target |
 | `minixie` | NixOS | x86_64-linux | N/A | generic nixos-anywhere bootstrap target, not a real host |
 
