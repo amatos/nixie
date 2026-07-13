@@ -17,6 +17,9 @@ All notable changes to this project will be documented in this file.
   (OpenAI's Codex CLI), and `gemini-cli` (Google's Gemini CLI), added to
   gammu and codex (the only hosts this module is wired to).
 - `README.md` — added a CI status badge at the top of the file.
+- `flake.nix` — devShell gained `nixos-anywhere`, so provisioning new hosts
+  via `nixos-anywhere --flake .#minixie` no longer requires
+  `nix run github:nix-community/nixos-anywhere`.
 
 ### Changed
 

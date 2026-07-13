@@ -418,6 +418,7 @@
               nil # Nix LSP
               nixfmt # canonical Nix formatter
               ragenix.packages.${system}.default # rekey secrets, add recipients
+              nixos-anywhere # provision new hosts via nixos-anywhere
               nix-tree # visualize derivation dependency graph
               nvd # diff two NixOS/darwin closures before switching
               statix # Nix linter — catches antipatterns and suggests fixes

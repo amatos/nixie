@@ -80,7 +80,8 @@ nix develop
 cd nixie   # shell loads automatically
 ```
 
-The devShell provides: `nil` (Nix LSP), `nixfmt`, `ragenix`, `nix-tree`, `nvd`, `statix`.
+The devShell provides: `nil` (Nix LSP), `nixfmt`, `ragenix`, `nixos-anywhere`, `nix-tree`, `nvd`,
+`statix`.
 
 To activate direnv:
 
