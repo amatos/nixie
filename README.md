@@ -5,6 +5,8 @@ Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, a
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for how this repo fits together with
 its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
 
+[![CI](https://github.com/amatos/nixie/actions/workflows/ci.yml/badge.svg)](https://github.com/amatos/nixie/actions/workflows/ci.yml)
+
 ## Hosts
 
 | Hostname | OS | Architecture | Physical / Virtual | Function |
