@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `hosts/darwin/codex/homebrew.nix` — added `aldente` (MacOS power control) to homebrew.
 - `.github/workflows/flake-update.yml` — now triggers on push to the
   `flake-update` branch (pushed by nixieflakeup/update-flake.py) and
   delegates to the reusable workflow in `amatos/.github`

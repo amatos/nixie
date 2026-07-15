@@ -87,6 +87,10 @@ in
       # NOTE: Antigravity and gemini-cli are in homebrew (above).
 
       {
+        name = "aldente"; # MacOS power control
+        greedy = true;
+      }
+      {
         name = "orion"; # Safari-based browser
         greedy = true;
       }
