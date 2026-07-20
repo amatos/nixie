@@ -101,6 +101,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `modules/common/development-packages.nix` — `nix build
+  .#darwinConfigurations.codex.config.system.build.toplevel` was failing
+  because `commitizen`'s test suite fails on Python 3.13: CPython gh-130750
+  changed `argparse`'s "invalid choice" error message to quote each choice
+  individually, and commitizen 4.13.9's `test_invalid_command` regression
+  fixture predates that change. Fixed with a local
+  `commitizen.overridePythonAttrs` disabling just that test, until
+  nixpkgs/commitizen catch up upstream.
 - `.github/workflows/ci.yml` — `verify-signed-commits` no longer fails with
   `fatal: Invalid revision range` when `main` is force-pushed (e.g. a
   `reset --hard` to a cherry-picked commit): an unresolvable `before` SHA now
