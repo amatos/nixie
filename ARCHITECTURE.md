@@ -362,11 +362,10 @@ in the same commit as the change it describes so it never drifts from reality.
 
 ### Stage 0 — Prerequisites
 
-- [ ] `nix-secrets/secrets.nix`: `smtpSmartRelays = [ porkchop ];` group added, `smtp-relay-sasl.age`
-      re-scoped to `users ++ smtpSmartRelays` (was `users ++ systems`). **Edited locally as of
-      this writing, not yet committed, not yet rekeyed.** Before Stage 5 puts this secret on
-      `huginn`, run `ragenix --rekey` in `nix-secrets` (touch YubiKey) and commit both the
-      `secrets.nix` change and the rekeyed `smtp-relay-sasl.age`.
+- [x] `nix-secrets/secrets.nix`: `smtpSmartRelays = [ porkchop ];` group added, `smtp-relay-sasl.age`
+      re-scoped to `users ++ smtpSmartRelays` (was `users ++ systems`). Rekeyed (`ragenix
+      --rekey`) and committed in `nix-secrets` as `1430182`. `huginn` still needs adding to
+      `smtpSmartRelays` (and another rekey) in Stage 5.
 - [x] Confirmed UniFi Integration API access at `10.0.4.1` using `nix-secrets/unifi/api-key.age`
       (`GET /proxy/network/integration/v1/sites` → HTTP 200, returned the "Default" site).
 
