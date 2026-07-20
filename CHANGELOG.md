@@ -30,6 +30,35 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `hosts/nixos/gammu/default.nix` — `systemd.services.display-manager.wantedBy`
+  forced to `[ ]`, so GDM no longer auto-starts at boot; gammu is normally
+  accessed headlessly over SSH/RDP, not via a local login screen. GDM stays
+  fully configured and startable on demand
+  (`sudo systemctl start display-manager`); xrdp's GNOME session is a
+  separate Xorg instance spawned by xrdp-sesman and is unaffected.
+- `hosts/nixos/common-nixos.nix` — `networking.useDHCP` changed from a bare
+  `true` to `lib.mkDefault true`. GNOME (`services.xserver.desktopManager.
+  gnome.enable`, enabled on gammu below) auto-enables
+  `networking.networkmanager.enable`, and NixOS's NetworkManager module sets
+  `networking.useDHCP = mkDefault false` so it alone owns DHCP; a hardcoded
+  `true` outranked that default and left dhcpcd fighting NetworkManager over
+  the same interface. `mkDefault` keeps dhcpcd as the fleet-wide default
+  while yielding to NetworkManager on gammu.
+- `hosts/nixos/gammu/default.nix` — enabled GDM (`services.displayManager.gdm.enable
+  = true`); host now boots to a graphical login screen. Removed the
+  `services.xserver.displayManager.lightdm.enable = false` workaround that
+  was only needed to suppress lightdm's fallback when GDM was disabled.
+- `hosts/nixos/gammu/default.nix` — switched desktop environment from KDE
+  Plasma 6 to GNOME: `services.desktopManager.plasma6` replaced with
+  `services.xserver.desktopManager.gnome.enable = true`;
+  `services.displayManager.sddm.enable = false` replaced with
+  `services.displayManager.gdm.enable = false` (GNOME auto-enables GDM as
+  its default DM); `xrdp.defaultWindowManager` updated from
+  `dbus-run-session startplasma-x11` to `dbus-run-session gnome-session`
+  (same wrapper required — xrdp doesn't start a D-Bus session bus itself,
+  and GNOME's components need one to come up). `CLAUDE.md`/`README.md`
+  updated accordingly; the KDE Configuration convention removed from
+  `CLAUDE.md` (gammu was the only KDE host).
 - `hosts/darwin/darwintron/default.nix` — fixed an eval-breaking `nix-homebrew` block (the
   `nix-homebrew.darwinModules.nix-homebrew` module was never wired into `darwintron`'s
   `darwinConfigurations` entry), reverted the home-manager overlay from `alberth-codex` back

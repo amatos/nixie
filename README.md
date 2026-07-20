@@ -274,18 +274,17 @@ programs.gamescope = {
 };
 ```
 
-`gammu` also runs KDE Plasma 6, but `services.displayManager.sddm.enable = false` — there is no
+`gammu` also runs GNOME, but `services.displayManager.gdm.enable = false` — there is no
 display manager, so the host boots to a text console (`multi-user.target`) instead of a graphical
-login screen. To start a local Plasma session from that console (physical monitor attached), log
-in on the tty and run:
+login screen. For desktop access, connect via xrdp (see Remote Desktop below). To start a local
+GNOME X11 session from the physical console, log in on the tty and run:
 
 ```console
-startplasma-wayland
+startx $(which gnome-session)
 ```
 
-This launches the same Wayland Plasma session SDDM used to hand you, including the gamescope Big
-Picture session (`programs.steam.gamescopeSession` above) as a selectable option from within
-Plasma.
+The gamescope Big Picture session (`programs.steam.gamescopeSession` above) is accessible
+independently of the desktop environment — see the headless Steam unit below.
 
 For SSH-only access with nothing plugged in, there's a headless (no display, physical or
 virtual) gamescope + Steam Big Picture session at 4K (3840x2160) for Steam Remote Play, managed
@@ -319,21 +318,17 @@ services.xserver.enable = true; # required: xrdp's session is X11, not Wayland
 
 services.xrdp = {
   enable = true;
-  defaultWindowManager = "startplasma-x11";
+  defaultWindowManager =
+    "${pkgs.dbus}/bin/dbus-run-session ${pkgs.gnome-session}/bin/gnome-session";
   openFirewall = true;
 };
 ```
 
-This spins up its own X11 Plasma session per RDP connection, independent of any local Wayland
-session started via `startplasma-wayland` above — connecting over RDP doesn't disturb whatever's
-running on the physical console (or vice versa). Connect from codex with any RDP client (e.g.
-Microsoft Remote Desktop, FreeRDP) to `gammu.ts.matos.cc:3389`.
-
-KDE's own native RDP server (KRDP) was considered instead — it's Wayland-native, but has no
-declarative NixOS module (the on/off toggle and password live in Plasma's System Settings GUI,
-not the flake) and has had NixOS-specific reliability issues. `xrdp` was chosen for consistency
-with nixie's flakes-only convention, at the cost of the remote session running over X11 instead
-of Wayland.
+This spins up its own X11 GNOME session per RDP connection, independent of any local session
+on the physical console — connecting over RDP doesn't disturb whatever's running there (or vice
+versa). The `dbus-run-session` wrapper is required because xrdp doesn't start a D-Bus session
+bus itself, and GNOME's components need one to come up. Connect from codex with any RDP client
+(e.g. Microsoft Remote Desktop, FreeRDP) to `gammu.ts.matos.cc:3389`.
 
 ## Local LLM (Ollama + Open WebUI)
 

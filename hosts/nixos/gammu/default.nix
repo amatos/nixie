@@ -1,4 +1,9 @@
-{ pkgs, nix-keytabs-matos-cc, ... }:
+{
+  pkgs,
+  lib,
+  nix-keytabs-matos-cc,
+  ...
+}:
 
 let
   userDefs = import ../../../users.nix;
@@ -51,47 +56,32 @@ in
     pkgs.nixd
   ];
 
-  # KDE Plasma — desktop environment, but no local display manager: SDDM is
-  # disabled so the host boots to a text console rather than a graphical
-  # login screen. Plasma is still reachable via xrdp below (X11 session) and
-  # the Steam gamescope Big Picture session remains launchable headlessly via
-  # the steam systemd user unit (systemd.user.services.steam, nix-home-alberth's
-  # alberth/gammu.nix).
-  #
-  # Disabling sddm alone is NOT sufficient: services.xserver.enable = true
-  # below (required for xrdp) also flips services.xserver.displayManager.
-  # lightdm.enable to `mkDefault true` via a fallback in nixpkgs'
-  # xserver.nix ("enable lightdm unless gdm/sddm/greetd/ly/lemurs/... are
-  # enabled") -- since only sddm was disabled, lightdm silently became the
-  # actual display manager, and systemd.defaultUnit = "graphical.target"
-  # (also set by services.xserver.enable) meant it started at boot despite
-  # the comment above. Confirmed via `nix eval
-  # .#nixosConfigurations.gammu.config.systemd.services.display-manager.
-  # script`, which showed it exec'ing lightdm. Disabling lightdm explicitly
-  # here closes that gap -- no other entry in the xserver.nix fallback list
-  # is enabled, so systemd.services.display-manager is no longer defined at
-  # all (not merely masked).
+  # GDM is configured (for xrdp's GNOME session, below) but must not launch
+  # automatically at boot — this host is normally accessed headlessly over
+  # SSH/RDP, not via a local console login screen. graphical.target normally
+  # pulls in display-manager.service; dropping that wantedBy leaves gdm
+  # startable on demand only (`systemctl start display-manager`).
+  systemd.services.display-manager.wantedBy = lib.mkForce [ ];
+
   services = {
-    desktopManager.plasma6.enable = true;
-    displayManager.sddm.enable = false;
+    displayManager.gdm.enable = true;
     xserver = {
-      displayManager.lightdm.enable = false;
-      # xrdp — remote access into Plasma over RDP for streaming to codex.
+      desktopManager.gnome.enable = true;
+      # xrdp — remote access into GNOME over RDP for streaming to codex.
       # Requires services.xserver.enable = true: xrdp's session is a separate
-      # X11 (not Wayland) Plasma instance, independent of SDDM's local Wayland
-      # session above — both can run at once.
+      # X11 GNOME instance, independent of any local Wayland session — both
+      # can run at once.
       enable = true;
     };
     xrdp = {
       enable = true;
-      # Plain "startplasma-x11" (a shell wrapper resolved off xrdp's own PATH,
-      # not the Nix store path) left the RDP session at a black screen: xrdp's
-      # Xorg/session script doesn't start a D-Bus session bus itself, and
-      # Plasma's components fail to come up without one. Launching startplasma-x11
-      # under dbus-run-session gives it that bus explicitly; both packages are
-      # referenced via their store paths so this doesn't depend on anything being
-      # on xrdp's PATH.
-      defaultWindowManager = "${pkgs.dbus}/bin/dbus-run-session ${pkgs.kdePackages.plasma-workspace}/bin/startplasma-x11";
+      # Plain "gnome-session" (resolved off xrdp's own PATH) leaves the RDP
+      # session at a black screen: xrdp's Xorg/session script doesn't start a
+      # D-Bus session bus itself, and GNOME's components fail to come up
+      # without one. Launching gnome-session under dbus-run-session gives it
+      # that bus explicitly; both packages are referenced via their store paths
+      # so this doesn't depend on anything being on xrdp's PATH.
+      defaultWindowManager = "${pkgs.dbus}/bin/dbus-run-session ${pkgs.gnome-session}/bin/gnome-session";
       openFirewall = true;
       # Let's Encrypt cert (gammu.ts.matos.cc) via nixie.certbot.xrdpDeploy below, instead of
       # xrdp's default self-signed cert.
@@ -178,7 +168,7 @@ in
     # Flatpak bundle (not on Flathub, no AppImage/deb/rpm); packaged in
     # github:amatos/nix-orion-browser as a hash-pinned wrapper. Enabling this
     # also turns on services.flatpak.enable; xdg.portal.enable is already true
-    # here via services.desktopManager.plasma6.
+    # here via services.xserver.desktopManager.gnome.
     orion-browser.enable = true;
   };
 

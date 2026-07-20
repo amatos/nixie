@@ -318,13 +318,32 @@ host needs to consume:
 
 ### Remote Desktop
 
-- `gammu` uses `services.xrdp` (not KDE's native KRDP) for RDP access into Plasma, chosen
-  specifically to stay flakes-only: KRDP has no declarative NixOS module — its on/off toggle
-  and password live in Plasma's System Settings GUI, not the Nix store — and has had
-  NixOS-specific reliability issues. `xrdp` is a proper declarative service.
-- `services.xserver.enable = true;` is required alongside `services.xrdp` — xrdp's session is
-  X11 (`defaultWindowManager = "startplasma-x11"`), separate and independent from SDDM's local
-  Wayland session; both can run concurrently on the same host.
+- `gammu` uses `services.xrdp` for RDP access into GNOME. `xrdp` is a proper declarative
+  NixOS service; unlike KRDP (KDE's native RDP server), it has a real NixOS module and
+  doesn't store its on/off toggle in a GUI settings panel.
+- `services.xserver.enable = true;` is required alongside `services.xrdp` — xrdp's GNOME
+  session is X11, not Wayland. `defaultWindowManager` is set to
+  `${pkgs.dbus}/bin/dbus-run-session ${pkgs.gnome-session}/bin/gnome-session`;
+  `dbus-run-session` is required because xrdp doesn't start a D-Bus session bus itself and
+  GNOME's components need one to come up. This X11 session is separate from and independent
+  of any local session on the console; both can run concurrently on the same host.
+- `gammu` also sets `systemd.services.display-manager.wantedBy = lib.mkForce [ ];` so GDM
+  (needed for `services.displayManager.gdm.enable`, above) does not auto-start at boot —
+  gammu is normally accessed headlessly over SSH/RDP, not via a local console login screen.
+  GDM remains fully configured and can still be started on demand
+  (`sudo systemctl start display-manager`); xrdp's GNOME session is spawned separately by
+  xrdp-sesman and does not depend on `display-manager.service` being active.
+
+### Networking
+
+- `modules/common/`-level `networking.useDHCP` is set with `lib.mkDefault true` in
+  `hosts/nixos/common-nixos.nix`, not a bare `true`. `services.xserver.desktopManager.gnome.enable`
+  (used by `gammu`, see Remote Desktop above) auto-enables `networking.networkmanager.enable`,
+  and NixOS's NetworkManager module itself sets `networking.useDHCP = mkDefault false` so
+  NetworkManager alone owns DHCP on the interface. A hardcoded `true` in `common-nixos.nix`
+  would outrank that default and leave dhcpcd fighting NetworkManager over the same interface;
+  `mkDefault` keeps plain dhcpcd as the fleet-wide default while yielding to NetworkManager on
+  any host (like `gammu`) that pulls it in via a desktop environment.
 
 ### Local LLM (Ollama)
 
@@ -405,25 +424,6 @@ host needs to consume:
   ephemeral `application.*`-labeled process, not a fixed `Label`), so an equivalent watchdog would
   mean killing a foreground app rather than restarting a headless daemon — a different risk profile
   that hasn't been justified by an observed failure on darwin.
-
-### KDE Configuration
-
-- nixie has no `plasma-manager` input — KDE settings that need to be declarative (e.g. gammu's
-  default terminal) are set via a `home.activation` hook calling `kwriteconfig6`
-  (`pkgs.kdePackages.kconfig`), not by having home-manager own the whole config file.
-- Files like `kdeglobals` hold many settings Plasma itself writes at runtime (theme, fonts,
-  click behavior, etc.) alongside the one or two keys nixie cares about. Managing the file
-  wholesale via `xdg.configFile`/`home.file` would symlink it read-only into the Nix store,
-  breaking every other System Settings change on next write. `kwriteconfig6 --file <name>
-  --group <group> --key <key> <value>` merges a single key in place instead — the same
-  mechanism KDE's own System Settings uses under the hood.
-- Example: gammu's default terminal is set in `nix-home-alberth`'s `alberth/gammu.nix` via
-  `TerminalApplication=ghostty` / `TerminalService=com.mitchellh.ghostty.desktop` in
-  `kdeglobals` — this is the only mechanism Dolphin's "Open Terminal Here" (and similar
-  actions) respects; there is no MIME-type-based way to set a default terminal.
-- If adding much more KDE-specific declarative config becomes common, reconsider adding
-  `plasma-manager` as a flake input rather than growing ad-hoc `kwriteconfig6` activation
-  scripts — propose that as a structural change first per the project conventions above.
 
 ---
 

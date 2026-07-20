@@ -35,7 +35,14 @@ in
   ];
 
   networking = {
-    useDHCP = true;
+    # mkDefault (not a bare `true`): services.xserver.desktopManager.gnome.enable
+    # (gammu) auto-enables networking.networkmanager.enable, which itself sets
+    # networking.useDHCP = mkDefault false so NetworkManager alone owns DHCP.
+    # A hardcoded `true` here would outrank that default and fight
+    # NetworkManager over the interface; mkDefault keeps plain dhcpcd as the
+    # fleet-wide default while yielding to NetworkManager on hosts that pull
+    # it in.
+    useDHCP = lib.mkDefault true;
     nftables.enable = true;
     firewall = {
       # Trust all traffic arriving on the Tailscale interface
