@@ -31,6 +31,12 @@ All notable changes to this project will be documented in this file.
   `syncthing-healthcheck.nix` pattern as gammu/huginn/porkchop) and
   certbot. `nixie.krb5.keytabFile`/keytab and its `nix-secrets` age
   recipient are not provisioned yet — to be added after the first switch.
+- `ARCHITECTURE.md` — added §10 "Active migration: porkchop service
+  realignment", a staged checklist tracking the planned move of
+  Kerberos+LDAP from porkchop to muninn, SMB removal and SMTP relay
+  realignment (huginn primary, porkchop backup) on porkchop, and a new
+  centralized syslog server on porkchop. Check off each stage as it is
+  implemented and validated.
 
 ### Changed
 

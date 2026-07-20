@@ -345,3 +345,140 @@ current rules; this document only explains how those rules compose across repos.
 
 Kept in sync manually — update this table whenever any of the four repos cuts a new release (see
 `CLAUDE.md` "Before making changes").
+
+## 10. Active migration: porkchop service realignment
+
+**Goal**: move Kerberos+LDAP from `porkchop` to `muninn`, remove SMB from `porkchop`, make
+`huginn` the primary SMTP smarthost with `porkchop` as backup (`mail.home.matos.cc` /
+`mail-backup.home.matos.cc`), and stand up a centralized syslog server + log-review stack on
+`porkchop`.
+
+**How to use this checklist**: each stage below is a single atomic unit of work — implement it,
+validate it against its own criteria, then check it off (`- [ ]` → `- [x]`) before starting the
+next one. Stages may be executed days or weeks apart, possibly picked up in a session with no
+memory of the discussion that produced this plan — every entry is written to stand on its own,
+with exact files/values, so it doesn't depend on conversational context. Update this checklist
+in the same commit as the change it describes so it never drifts from reality.
+
+### Stage 0 — Prerequisites
+
+- [ ] `nix-secrets/secrets.nix`: `smtpSmartRelays = [ porkchop ];` group added, `smtp-relay-sasl.age`
+      re-scoped to `users ++ smtpSmartRelays` (was `users ++ systems`). **Edited locally as of
+      this writing, not yet committed, not yet rekeyed.** Before Stage 5 puts this secret on
+      `huginn`, run `ragenix --rekey` in `nix-secrets` (touch YubiKey) and commit both the
+      `secrets.nix` change and the rekeyed `smtp-relay-sasl.age`.
+- [x] Confirmed UniFi Integration API access at `10.0.4.1` using `nix-secrets/unifi/api-key.age`
+      (`GET /proxy/network/integration/v1/sites` → HTTP 200, returned the "Default" site).
+
+### Stage 1 — Remove SMB from porkchop
+
+- [ ] In `hosts/nixos/porkchop/default.nix`: remove the `services.samba` block,
+      `services.samba-wsdd.enable`, and the firewall `extraInputRules` lines for 445/139 tcp and
+      137/138 udp and 3702 udp. Leave the 88/464/749 (Kerberos) rules in place — the KDC is still
+      on porkchop until Stage 4.
+- [ ] **Validate**: `nixos-rebuild build --flake .#porkchop`, then switch; confirm
+      `samba`/`samba-wsdd` services are gone, and confirm no other LAN client still expects
+      porkchop's SMB share before switching.
+
+### Stage 2 — Stand up Kerberos+LDAP on muninn (additive; porkchop stays authoritative)
+
+- [ ] `nix-keytabs-matos-cc/secrets.nix`: add a `muninn` age public key entry (currently missing
+      entirely — a pre-existing gap, unrelated to this migration, that also needs fixing
+      regardless), plus recipient blocks for two new keytab files: `keytab-muninn.age` (host
+      keytab, `host/muninn.matos.cc`) and `keytab-ldap-muninn.age` (SASL/GSSAPI `ldap/` service
+      principal keytab).
+- [ ] Generate and commit both `.age` files in `nix-keytabs-matos-cc`.
+- [ ] `nix-secrets/secrets.nix`: split `unifiBackupHosts = [ porkchop ];` out of `ldapHosts` (so
+      `unifi/backup-ssh-key.age` keeps porkchop's access independent of the LDAP move); set
+      `ldapHosts = [ porkchop muninn ];` for the transition window (both hosts need
+      `ldap/admin-password.age`, `ldap/kdc-password.age`, `ldap/krb5-master-key.age` while
+      migrating).
+- [ ] `flake.nix`: add `nix-kerberos-ldap.nixosModules.default` to muninn's
+      `nixosConfigurations.muninn.modules`.
+- [ ] `hosts/nixos/muninn/default.nix`: mirror porkchop's `services.kerberosLdap` block —
+      `saslHost = "muninn.ts.matos.cc"`, TLS via `nixie.certbot.ldapDeploy = true`, and firewall
+      rules opening 389 and 636 to `10.0.4.0/22` **(LAN-reachable, per explicit decision — unlike
+      porkchop's current Tailscale-only LDAP exposure)**, alongside 88/464/749 tcp+udp matching
+      porkchop's existing pattern.
+- [ ] **Manual data migration (stateful, not Nix)**: `slapcat` + `kdb5_util dump` on porkchop,
+      transfer, `slapadd` + `kdb5_util load` on muninn, during a maintenance window.
+- [ ] **Validate**: test `kinit`/`ldapwhoami` against muninn directly (e.g. a manually-overridden
+      `/etc/krb5.conf` on one test client) — without touching the fleet default yet. Porkchop
+      must remain fully functional and authoritative throughout this stage.
+
+### Stage 3 — Cut fleet-wide realm pointer to muninn
+
+- [ ] `modules/common/krb5-client.nix`: change both `kdc` and `admin_server` from
+      `porkchop.ts.matos.cc` to `muninn.ts.matos.cc`. Consumed fleet-wide by every host, NixOS
+      and darwin alike (via `common-nixos.nix`/`common-darwin.nix`) — the single
+      highest-blast-radius line in this migration.
+- [ ] **Validate immediately**: `kinit` from several hosts (e.g. huginn, gammu, codex) against the
+      new KDC. Porkchop's KDC/LDAP are still live in this stage, so rollback is a one-line
+      revert.
+
+### Stage 4 — Decommission Kerberos+LDAP on porkchop
+
+- [ ] Remove `services.kerberosLdap`, the `nix-kerberos-ldap` module import, `ldapDeploy`, and the
+      associated firewall/keytab entries from `hosts/nixos/porkchop/default.nix` and `flake.nix`.
+      Keep `keytab-porkchop.age` (porkchop's own client keytab — unrelated to serving the realm).
+- [ ] `nix-secrets/secrets.nix`: shrink `ldapHosts` to `[ muninn ];` (porkchop no longer needs the
+      three `ldap/*.age` secrets).
+- [ ] Archive porkchop's old LDAP/KDC data (the `slapcat`/`kdb5_util dump` output plus the live DB
+      directories) off to the side. **Retention: keep for 1 week from the date this stage runs,
+      then delete.** Record the execution date here when this stage is done:
+      `_______________`.
+- [ ] **Validate**: rebuild/switch porkchop, confirm `slapd`/`krb5kdc` are gone, confirm clients
+      still function fully via muninn (already cut over in Stage 3).
+
+### Stage 5 — Stand up huginn as primary SMTP relay (additive)
+
+- [ ] `hosts/nixos/huginn/default.nix`: import `modules/nixos/smtp-relay.nix` and
+      `modules/common/smtp-relay-secrets.nix`; set `nixie.smtpRelay.enable = true` and
+      `smtps.enable = true`.
+- [ ] Add `huginn` to `smtpSmartRelays` in `nix-secrets/secrets.nix` (see Stage 0 — the group
+      currently contains only `porkchop`); rekey `smtp-relay-sasl.age` if not already done.
+- [ ] Certbot: add a `mail.home.matos.cc` domain to huginn's `nixie.certbot.domains` with
+      `postfixDeploy = true`.
+- [ ] Firewall: open 25/465 to `10.0.4.0/22` on huginn, matching porkchop's existing rule.
+- [ ] **Validate**: send a test email routed directly through huginn, confirming it relays via
+      Fastmail successfully — independent of the fleet cutover in Stage 6.
+
+### Stage 6 — Cut fleet SMTP client config to huginn-primary + porkchop-fallback
+
+- [ ] `hosts/nixos/common-nixos.nix`: change the client `postfix.settings.main.relayhost` from
+      `[porkchop.ts.matos.cc]:25` to `[huginn.ts.matos.cc]:25`; add
+      `smtp_fallback_relay = ["[porkchop.ts.matos.cc]:25"]`; generalize the postfix-client
+      `config.networking.hostName != "porkchop"` guard to exclude *both* `huginn` and `porkchop`
+      (both now run server-side Postfix). The chrony client guard is unaffected — it stays
+      porkchop-specific.
+- [ ] Update porkchop's cert domain list in `hosts/nixos/porkchop/default.nix`: swap
+      `mail.home.matos.cc`/`mail.ts.matos.cc` for `mail-backup.home.matos.cc`/
+      `mail-backup.ts.matos.cc`.
+- [ ] **Validate**: confirm normal mail delivery via huginn from a third host; then stop
+      `postfix.service` on huginn and confirm fallback delivery via porkchop.
+
+### Stage 7 — Centralized syslog server on porkchop
+
+Independent of Stages 1–6; can be done in parallel at any point. Recommended stack: `rsyslog`
+(receiver) + Grafana Loki + Promtail (review UI) — chosen over Graylog (needs
+OpenSearch/Elasticsearch + MongoDB, not packaged in nixpkgs) or full ELK; `lnav` is a
+lower-effort CLI-only fallback if the full stack isn't wanted.
+
+- [ ] **7a**: new `modules/nixos/syslog-server.nix` (imported only by porkchop) —
+      `services.rsyslogd` listening on UDP+TCP 514, firewalled to `10.0.4.0/22` + Tailscale.
+      Validate: one test host sends a message, confirm it lands in `/var/log/remote/<hostname>/`.
+- [ ] **7b**: add `services.loki` + `services.grafana` on porkchop. Validate: Grafana UI
+      reachable, can query a manually-inserted log line in Loki.
+- [ ] **7c**: add `services.promtail` on porkchop, tailing the rsyslog output files (or journald)
+      into Loki. Validate: one real host's logs appear end-to-end in Grafana.
+- [ ] **7d**: roll fleet-wide log forwarding out via a `common-nixos.nix` default (mirroring the
+      postfix-client-default pattern), one host at a time. Validate each host's logs appear in
+      Grafana before moving to the next.
+
+### Stage 8 — UniFi internal DNS CNAMEs
+
+- [ ] Using the UniFi Integration API on `10.0.4.1` (`nix-secrets/unifi/api-key.age` — access
+      already confirmed in Stage 0), add CNAME records on the UniFi-hosted DNS server:
+      `mail.home.matos.cc` → huginn, `mail-backup.home.matos.cc` → porkchop. Depends on the
+      Stage 5/6 hostname swap being finalized first.
+- [ ] **Validate**: confirm each CNAME resolves correctly from a LAN client.
