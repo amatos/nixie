@@ -218,6 +218,23 @@ Home-manager configuration is **not** in this repo — it lives in the separate
   symlink for relocating data to another volume). See `hosts/darwin/codex/default.nix`
   (OrbStack cask + `ContainerData` APFS volume activation script) and `nix-home-alberth`'s
   `alberth/codex.nix` (Docker daemon config + Group Container symlink) for the pattern.
+- **Third-party (non-official) taps must be declared as `{ name = "..."; trusted = true; }`,
+  not a bare string**, in `homebrew.taps` — see `cirruslabs/cli`/`dracula/install` in
+  `hosts/darwin/codex/homebrew.nix`. Homebrew 6.0.0's `HOMEBREW_REQUIRE_TAP_TRUST` refuses to
+  load *any* formula/cask from an untrusted tap, including ones not installed or even declared
+  — `brew cleanup` enumerates every cask file across every tapped repo on every
+  `darwin-rebuild switch`, so one untrusted tap aborts activation regardless of what you
+  actually use from it. Running `brew trust` by hand does **not** fix this durably: it writes
+  to `$XDG_CONFIG_HOME/homebrew/trust.json` (or `~/.homebrew/trust.json` if unset), but the
+  activation script's `sudo -u <user> --set-home` invocation of `brew bundle` doesn't preserve
+  `XDG_CONFIG_HOME`, and Homebrew's `brew bundle cleanup` step (`Trust.replace!`) *rewrites the
+  entire trust store from scratch* on every run based solely on what's `trusted: true` in the
+  generated Brewfile — any manually-trusted tap/cask not declared that way is wiped on the next
+  switch. Per-item `trusted = true` on an individual `homebrew.casks`/`homebrew.brews` entry only
+  works if that entry's `name` is fully tap-qualified (e.g. `"dracula/install/dracula-steam"`,
+  not `"dracula-steam"`) — Homebrew's auto-trust logic requires a full name to resolve the tap.
+  Whole-tap `trusted = true` is preferred over per-item trust: it covers every cask/formula in
+  the tap, not just the ones this repo declares.
 
 ### home-manager host overlays
 

@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - `hosts/darwin/codex/homebrew.nix` — added `aldente` (MacOS power control) to homebrew.
+- `hosts/darwin/codex/homebrew.nix` — added `cirrus` (`cirruslabs/cli/cirrus`
+  brew) and the `dracula-steam`/`dracula-betterdiscord` casks
+  (`dracula/install` tap, tap-qualified names — see `CLAUDE.md` Homebrew
+  section).
 - `.github/workflows/flake-update.yml` — now triggers on push to the
   `flake-update` branch (pushed by nixieflakeup/update-flake.py) and
   delegates to the reusable workflow in `amatos/.github`
@@ -102,6 +106,14 @@ All notable changes to this project will be documented in this file.
   `reset --hard` to a cherry-picked commit): an unresolvable `before` SHA now
   falls back to checking just the new tip commit, instead of a range git
   can't reconstruct.
+- `hosts/darwin/codex/homebrew.nix` — `darwin-rebuild switch --flake .#codex`
+  was failing at the Homebrew activation step (`brew cleanup` exiting 1)
+  because the `cirruslabs/cli` and `dracula/install` taps were untrusted;
+  `brew cleanup` refuses to load cask files from untrusted taps even for
+  casks that aren't installed or declared. Fixed by declaring both taps as
+  `{ name = "..."; trusted = true; }` instead of bare strings — see
+  `CLAUDE.md` Homebrew section for why running `brew trust` by hand doesn't
+  fix this durably.
 
 ### Removed
 

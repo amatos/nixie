@@ -62,12 +62,23 @@ in
     };
     taps = [
       "homebrew/autoupdate" # managed via nix-homebrew.taps in codex/default.nix
-      "cirruslabs/cli"
-      "dracula/install"
+      {
+        # Third-party tap: whole-tap trust required, or `brew cleanup` aborts
+        # activation trying to load ANY of its untrusted casks/formulae (even
+        # ones not installed/declared) — per-item `trusted = true` on
+        # individual casks/brews below is not sufficient on its own.
+        name = "cirruslabs/cli";
+        trusted = true;
+      }
+      {
+        name = "dracula/install"; # see cirruslabs/cli note above
+        trusted = true;
+      }
     ];
     brews = [
       "mas" # Mac App Store CLI
       "pinentry-mac" # GPG pinentry with macOS Keychain / Touch ID support
+      "cirruslabs/cli/cirrus" # Cirrus CLI (cirruslabs/cli tap)
     ];
 
     casks = [
@@ -92,6 +103,14 @@ in
       }
       {
         name = "orion"; # Safari-based browser
+        greedy = true;
+      }
+      {
+        name = "dracula/install/dracula-steam"; # Dracula theme for Steam
+        greedy = true;
+      }
+      {
+        name = "dracula/install/dracula-betterdiscord"; # Dracula theme for BetterDiscord
         greedy = true;
       }
       {
