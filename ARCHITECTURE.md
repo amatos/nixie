@@ -398,19 +398,57 @@ in the same commit as the change it describes so it never drifts from reality.
       rekeyed and committed as `d4f81e8`.
 - [x] `flake.nix`: added `nix-kerberos-ldap.nixosModules.default` to muninn's
       `nixosConfigurations.muninn.modules`.
-- [x] `hosts/nixos/muninn/default.nix`: mirrored porkchop's `services.kerberosLdap` block —
-      `saslHost = "muninn.ts.matos.cc"`, TLS via `nixie.certbot.ldapDeploy = true`, and firewall
-      rules opening 389 and 636 to `10.0.4.0/22` **(LAN-reachable, per explicit decision — unlike
-      porkchop's current Tailscale-only LDAP exposure)**, alongside 88/464/749 tcp+udp matching
-      porkchop's existing pattern. Evaluated successfully (`nix eval`); not yet built/switched
-      (needs the keytab above to exist first, plus a Linux builder or a switch run on muninn
-      itself).
-- [ ] **Manual data migration (stateful, not Nix)**: `slapcat` + `kdb5_util dump` on porkchop,
-      transfer, `slapadd` + `kdb5_util load` on muninn, during a maintenance window. Not started.
-- [ ] **Validate**: test `kinit`/`ldapwhoami` against muninn directly (e.g. a manually-overridden
-      `/etc/krb5.conf` on one test client) — without touching the fleet default yet. Porkchop
-      must remain fully functional and authoritative throughout this stage. Not started —
-      blocked on the two items above.
+- [x] `hosts/nixos/muninn/default.nix`: mirrored porkchop's `services.kerberosLdap` block, TLS via
+      `nixie.certbot.ldapDeploy = true`, and firewall rules opening 389 and 636 to `10.0.4.0/22`
+      **(LAN-reachable, per explicit decision — unlike porkchop's current Tailscale-only LDAP
+      exposure)**, alongside 88/464/749 tcp+udp matching porkchop's existing pattern. Built and
+      switched directly on muninn (this darwin machine has no Linux builder). `saslHost` was
+      later removed — see the GSSAPI bug note below.
+- [x] **Manual data migration**: `slapcat`/`slapadd` on the full `dc=matos,dc=cc` suffix (which
+      includes the `cn=kerberos` subtree — this realm's KDC is LDAP-backed via `kdb5_ldap_util`,
+      not the Berkeley-DB backend, so a single LDAP dump/load migrates both directory and
+      Kerberos principal data; no separate `kdb5_util dump`/`load` needed). Required two
+      `nix-kerberos-ldap` module fixes discovered along the way, both committed as `4c4e0e5`:
+      (1) `systemd.services.openldap` had no `after`/`wants = [ "agenix.service" ]`, so its
+      one-time `cn=config` bootstrap could race agenix at boot and permanently corrupt
+      `slapd.d` (hit on muninn's first activation — fixed by wiping `slapd.d` and letting it
+      re-init once agenix had already run); (2) the master key (`ldap/krb5-master-key.age`) and
+      `kadm5.acl`/local KDC stash-file locations needed manual reconciliation against porkchop's
+      actual live files, since those secrets/paths had never been exercised on a second host
+      before. Validated via `kinit -k -t /etc/krb5.keytab host/muninn.matos.cc` succeeding
+      end-to-end (KDC → LDAP backend → master key, all working).
+- [x] **Validate**: `kinit`/`ldapwhoami` against muninn directly, confirmed working — see the
+      GSSAPI bug entry immediately below, which this validation step surfaced and which is now
+      fixed on both porkchop and muninn.
+
+**Bug found and fixed during this stage's validation** (pre-existing, affects both hosts, not
+introduced by this migration): the realm's GSSAPI/SASL LDAP bind (`ldapwhoami -Y GSSAPI` and
+similar) had apparently never been exercised end-to-end before. Two independent problems, both
+now fixed on porkchop and muninn:
+
+1. Cyrus SASL's GSSAPI client plugin builds its target service principal from the *peer's
+   reverse-DNS name*, not the URL/hostname used to connect. Tailscale's own PTR records always
+   answer with the tailnet's native `<host>.tail2269e5.ts.net` name, never the custom
+   `ts.matos.cc` alias — regardless of `ldap.conf`'s `SASL_NOCANON` or `krb5.conf`'s
+   `rdns`/`dns_canonicalize_hostname` (neither setting reaches this codepath). Every real client
+   was therefore requesting a ticket for a principal that didn't exist, and `olcSaslHost` being
+   set to the `ts.matos.cc` name meant slapd rejected it outright even after the correct
+   principal was added (only tried the one matching keytab entry). Fixed by: adding an
+   `ldap/<host>.tail2269e5.ts.net@MATOS.CC` alias principal to each host's KDC and SASL keytab
+   (nixie commit `101248e`, keytabs regenerated in `nix-keytabs-matos-cc` commit `27fbc23`), and
+   removing `saslHost` entirely from both hosts' Nix config so slapd accepts any keytab
+   principal rather than one hardcoded hostname.
+2. `saslAuthzRegexp` expected a 4-component SASL identity
+   (`uid=.../cn=<realm>/cn=gssapi/cn=auth`), but this cyrus-sasl/krb5 version produces only 3
+   (`uid=.../cn=gssapi/cn=auth`) — no realm component — so the regex never matched and
+   `ldapwhoami` returned the raw SASL DN instead of the mapped `cn=admin,dc=matos,dc=cc`. Fixed
+   in the same nixie commit (`101248e`).
+
+Both fixes were applied live via `ldapmodify -Y EXTERNAL` on each host's already-running
+`cn=config` (required since `mutableConfig = true` means a rebuild/switch alone never touches
+an already-initialized `slapd.d`) and verified end-to-end: `kinit alberth` +
+`ldapwhoami -H ldap://<host>.ts.matos.cc/ -Y GSSAPI` now correctly returns
+`dn:cn=admin,dc=matos,dc=cc` on both porkchop and muninn.
 
 ### Stage 3 — Cut fleet-wide realm pointer to muninn
 

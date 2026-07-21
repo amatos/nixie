@@ -149,6 +149,20 @@ All notable changes to this project will be documented in this file.
   `{ name = "..."; trusted = true; }` instead of bare strings — see
   `CLAUDE.md` Homebrew section for why running `brew trust` by hand doesn't
   fix this durably.
+- `hosts/nixos/{porkchop,muninn}/default.nix` — the realm's GSSAPI/SASL LDAP
+  bind (`ldapwhoami -Y GSSAPI` and similar) had never actually worked
+  end-to-end on either host; discovered while validating the muninn
+  migration (ARCHITECTURE.md §10 Stage 2). Cyrus SASL's GSSAPI client
+  plugin targets the peer's *reverse-DNS* name, not the connect hostname,
+  and Tailscale's PTR records always answer with the tailnet's native
+  name rather than the `ts.matos.cc` alias — so no client could ever
+  obtain a ticket for the configured principal, and `olcSaslHost` then
+  rejected the correct principal too once added. Fixed by adding a
+  tailnet-native alias principal to each host's keytab, removing
+  `saslHost` so slapd accepts any keytab principal, and correcting
+  `saslAuthzRegexp` to match this cyrus-sasl version's actual 3-component
+  SASL identity format (no separate realm component). See
+  `nix-keytabs-matos-cc` for the companion keytab regeneration.
 
 ### Removed
 
