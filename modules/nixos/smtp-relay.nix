@@ -21,12 +21,16 @@
 
 # NixOS's postfix module leaves myhostname at its Postfix-compiled default
 # (the bare system hostname, e.g. "huginn") unless networking.domain is set
-# fleet-wide, which it isn't. myorigin defaults to $myhostname, so any
-# locally-originated mail with no explicit envelope sender (e.g. a plain
-# `mail`/`mailx` invocation with no -r) gets qualified as
-# "user@huginn" instead of "user@huginn.home.matos.cc" -- which upstream
-# relays can reject outright. Setting myhostname to the LAN FQDN here fixes
-# both myorigin and the SMTP HELO/EHLO greeting in one place.
+# fleet-wide, which it isn't. myhostname is set to the LAN FQDN below,
+# fixing myorigin and the SMTP HELO/EHLO greeting -- but that alone does
+# NOT fix mail clients (e.g. mailutils' `mail`/`mailx`) that build their
+# own From address directly from gethostname(), producing "user@huginn"
+# (a syntactically complete address, just with a short-hostname domain).
+# myorigin only rewrites addresses with no domain part at all, so it never
+# touches this case, and upstream relays (Fastmail observed) reject it
+# outright with "need fully-qualified address". smtp_generic_maps below
+# rewrites it at the Postfix SMTP client, regardless of what the
+# originating mail client constructed.
 
 let
   cfg = config.nixie.smtpRelay;
@@ -103,6 +107,15 @@ in
           wants = [ "agenix.service" ];
         };
 
+        # Generic table rewriting the bare hostname domain to the LAN FQDN
+        # on outbound mail — see the module-level comment above. "@<host>"
+        # as a generic(5) key matches any address in that domain regardless
+        # of local-part. texthash: needs no postmap run, same as the SASL
+        # password map below.
+        environment.etc."postfix/generic".text = ''
+          @${config.networking.hostName} ${config.networking.hostName}.home.matos.cc
+        '';
+
         services.postfix = {
           enable = true;
 
@@ -110,6 +123,7 @@ in
             # See the module-level comment above: fixes myorigin (used to
             # qualify unqualified local senders) and the HELO/EHLO greeting.
             myhostname = "${config.networking.hostName}.home.matos.cc";
+            smtp_generic_maps = "texthash:/etc/postfix/generic";
 
             # Listen on all interfaces so LAN / Tailscale hosts can relay.
             # Access is controlled by mynetworks below — not by interface binding.
