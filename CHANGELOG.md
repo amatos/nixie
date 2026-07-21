@@ -182,6 +182,12 @@ All notable changes to this project will be documented in this file.
   domain to the LAN FQDN at the Postfix SMTP client, independent of what
   the originating mail client constructed. Both fixes affect huginn and
   porkchop.
+- `hosts/nixos/common-nixos.nix` — the same bare-hostname sender bug also
+  affected every plain postfix-client host (confirmed from gammu during
+  Stage 6 validation), not just huginn/porkchop: their local postfix
+  forwarded `alberth@gammu` to huginn unchanged, which Fastmail then
+  rejected. Applied the identical `myhostname`/`smtp_generic_maps` fix to
+  the fleet-wide client config.
 
 ### Removed
 
