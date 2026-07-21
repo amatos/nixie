@@ -452,13 +452,15 @@ an already-initialized `slapd.d`) and verified end-to-end: `kinit alberth` +
 
 ### Stage 3 — Cut fleet-wide realm pointer to muninn
 
-- [ ] `modules/common/krb5-client.nix`: change both `kdc` and `admin_server` from
+- [x] `modules/common/krb5-client.nix`: changed both `kdc` and `admin_server` from
       `porkchop.ts.matos.cc` to `muninn.ts.matos.cc`. Consumed fleet-wide by every host, NixOS
       and darwin alike (via `common-nixos.nix`/`common-darwin.nix`) — the single
-      highest-blast-radius line in this migration.
-- [ ] **Validate immediately**: `kinit` from several hosts (e.g. huginn, gammu, codex) against the
-      new KDC. Porkchop's KDC/LDAP are still live in this stage, so rollback is a one-line
-      revert.
+      highest-blast-radius line in this migration. Committed as `e40b8d8`. Confirmed via `nix
+      eval` that porkchop and muninn are unaffected (both keep `kdc = localhost` from their own
+      higher-priority server-side config).
+- [x] **Validated**: switched `huginn`, `gammu`, and `codex` onto the new config and confirmed
+      `kinit` succeeds against muninn from each. Porkchop's KDC/LDAP remained fully live
+      throughout this stage.
 
 ### Stage 4 — Decommission Kerberos+LDAP on porkchop
 
