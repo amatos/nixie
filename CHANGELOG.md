@@ -131,6 +131,10 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- `hosts/nixos/porkchop/default.nix` — `services.samba`/`services.samba-wsdd`
+  and their firewall rules (445/139 tcp, 137/138 udp, 3702 udp). Stage 1 of
+  the porkchop service realignment tracked in `ARCHITECTURE.md` §10; SMB
+  is being dropped from porkchop entirely, not moved elsewhere.
 - `installer/ephemeraltron.nix`, `packages.x86_64-linux.ephemeraltron-iso` — the bare-metal
   auto-installer ISO, superseded by ephemeraltron's new CI-build-only role; the
   README/ARCHITECTURE provisioning-paths tables were updated accordingly (now two routes,
