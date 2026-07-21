@@ -17,6 +17,7 @@ in
     ../../../modules/common/development-packages.nix
     ../../../modules/nixos/syncthing-password.nix
     ../../../modules/nixos/syncthing-healthcheck.nix
+    ../../../modules/nixos/remote-build-server.nix
   ];
 
   networking.hostName = "gammu";

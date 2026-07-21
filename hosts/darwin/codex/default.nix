@@ -22,6 +22,7 @@ in
     ../../../modules/darwin/syncthing-password.nix
     ../../../modules/common/certbot-secrets.nix
     ../../../modules/common/development-packages.nix
+    ../../../modules/darwin/remote-build-client.nix
   ];
 
   networking.hostName = "codex";

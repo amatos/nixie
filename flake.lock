@@ -823,11 +823,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1784294427,
-        "narHash": "sha256-qss1ec3eWjK5Oc6KIP+uex9AtvDlPXVH0qGAXd8mNqA=",
+        "lastModified": 1784597881,
+        "narHash": "sha256-aGHZyvGbRxxZITKYvEEmwJrgT+sz72jUPqwRf4mEawQ=",
         "owner": "amatos",
         "repo": "nix-secrets",
-        "rev": "690b50d9252b36c0a28df2ca6e5e4c14340a3608",
+        "rev": "83dc437e7da1aac1e5d4d5cc39cb7161bff35350",
         "type": "github"
       },
       "original": {

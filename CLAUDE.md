@@ -193,6 +193,46 @@ Home-manager configuration is **not** in this repo — it lives in the separate
   `/etc/nix/nix.custom.conf`. Verify with:
   `nix eval .#darwinConfigurations.<host>.config.determinateNix.customSettings.trusted-users`
   or by building the system and inspecting `<closure>/etc/nix/nix.custom.conf`.
+- **`nix.buildMachines`/`nix.distributedBuilds`/`nix.linux-builder` are all no-ops on darwin
+  under Determinate**, for the same root cause as above but worse: nix-darwin's *entire* `nix.*`
+  config block — including the code that writes `/etc/nix/machines` — is wrapped in
+  `lib.mkIf config.nix.enable` (upstream `modules/nix/default.nix`), and Determinate forces that
+  to `false`. `nix.linux-builder.enable` even has an `assertion = config.nix.enable;`, so it fails
+  eval outright rather than silently doing nothing. See "Remote builders" below for the working
+  alternative.
+
+### Remote builders
+
+- codex (aarch64-darwin) cannot natively build `x86_64-linux` derivations, and nix-darwin's usual
+  fix (`nix.buildMachines`, or the built-in `nix.linux-builder` VM) doesn't work under Determinate
+  — see the `nix.buildMachines`/`nix.linux-builder` bullet above. Instead, `gammu` (a physical
+  x86_64-linux host already in the fleet) is wired up as a remote SSH builder for codex.
+- **codex side**: `modules/darwin/remote-build-client.nix` (imported only by codex, not
+  `nhcodex`/`darwintron`) writes `/etc/nix/machines` directly via `environment.etc`, bypassing
+  `nix.buildMachines` entirely. This works because `builders = @/etc/nix/machines` is already
+  Determinate Nix's effective default (confirmed via `nix show-config`, no
+  `determinateNix.customSettings` entry needed) — the file was the only missing piece. The SSH
+  private key is deployed via ragenix (`nix-secrets/builder/codex-ssh-key.age`, owned by `root`
+  since the nix-daemon — and thus the remote-build SSH connection — runs as root on darwin, unlike
+  the primaryUser-owned secrets elsewhere in this repo).
+- **gammu side**: `modules/nixos/remote-build-server.nix` (imported only by gammu) declares a
+  dedicated unprivileged `remotebuild` system user (SSH-key-only, no password) and adds it to
+  `nix.settings.trusted-users` (plain NixOS `nix.settings` — no Determinate quirk there). Its
+  authorized key is the public half of the codex-side keypair; only the private key needs to be
+  secret, so the public key is inlined directly in the module rather than round-tripped through
+  `nix-secrets`.
+- The `/etc/nix/machines` line embeds gammu's SSH host key directly (base64 of
+  `ssh-ed25519 ...`, via `ssh-keyscan`) as the `publicHostKey` field — the same mechanism
+  nix-darwin's own `linux-builder` module uses for its local VM — so Nix verifies the host key
+  itself without touching root's `~/.ssh/known_hosts`.
+- No Tailscale/firewall changes were needed: `hosts/nixos/common-nixos.nix` already sets
+  `networking.firewall.trustedInterfaces = [ "tailscale0" ]` fleet-wide, so SSH over
+  `gammu.ts.matos.cc` is already open.
+- To point remote builds at a different/second host, add another `age.secrets`-deployed key +
+  `/etc/nix/machines` line on the client side and a matching `remotebuild` user + authorized key
+  on the new builder side — the two modules are already split so a third host can reuse either
+  half independently (e.g. multiple darwin clients trusting the same builder, or multiple
+  builders trusted by codex).
 
 ### Packages
 

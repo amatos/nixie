@@ -37,6 +37,12 @@ All notable changes to this project will be documented in this file.
   realignment (huginn primary, porkchop backup) on porkchop, and a new
   centralized syslog server on porkchop. Check off each stage as it is
   implemented and validated.
+- `modules/darwin/remote-build-client.nix` / `modules/nixos/remote-build-server.nix`
+  — codex now uses gammu as a remote SSH builder for `x86_64-linux`
+  derivations, worked around nix-darwin's `nix.buildMachines`/
+  `nix.linux-builder` being entirely inert under Determinate on darwin (see
+  `CLAUDE.md` "Remote builders"). SSH key deployed via ragenix
+  (`nix-secrets/builder/codex-ssh-key.age`).
 
 ### Changed
 
