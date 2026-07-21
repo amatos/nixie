@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.18
+
 ### Added
 
 - `hosts/darwin/codex/homebrew.nix` — added `aldente` (MacOS power control) to homebrew.
