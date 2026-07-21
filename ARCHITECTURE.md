@@ -485,16 +485,29 @@ an already-initialized `slapd.d`) and verified end-to-end: `kinit alberth` +
 
 ### Stage 5 — Stand up huginn as primary SMTP relay (additive)
 
-- [ ] `hosts/nixos/huginn/default.nix`: import `modules/nixos/smtp-relay.nix` and
+- [x] `hosts/nixos/huginn/default.nix`: imported `modules/nixos/smtp-relay.nix` and
       `modules/common/smtp-relay-secrets.nix`; set `nixie.smtpRelay.enable = true` and
-      `smtps.enable = true`.
-- [ ] Add `huginn` to `smtpSmartRelays` in `nix-secrets/secrets.nix` (see Stage 0 — the group
-      currently contains only `porkchop`); rekey `smtp-relay-sasl.age` if not already done.
-- [ ] Certbot: add a `mail.home.matos.cc` domain to huginn's `nixie.certbot.domains` with
-      `postfixDeploy = true`.
-- [ ] Firewall: open 25/465 to `10.0.4.0/22` on huginn, matching porkchop's existing rule.
-- [ ] **Validate**: send a test email routed directly through huginn, confirming it relays via
-      Fastmail successfully — independent of the fleet cutover in Stage 6.
+      `smtps.enable = true`. Committed as `3b5c6aa` (also fixed a build-blocking conflict this
+      surfaced — `common-nixos.nix`'s client postfix guard only excluded porkchop, colliding
+      with huginn's new server config; generalized to exclude both).
+- [x] Added `huginn` to `smtpSmartRelays` in `nix-secrets/secrets.nix`. Committed as `a87dad7`,
+      rekeyed and committed as `70fa0cc`.
+- [x] Certbot: added the `mail.home.matos.cc`/`mail.ts.matos.cc` domain group to huginn's
+      `nixie.certbot.domains` with `postfixDeploy = true`.
+- [x] Firewall: opened 25/465 to `10.0.4.0/22` on huginn, matching porkchop's existing rule.
+- [x] **Validated**: sent a real test email routed directly through huginn via `mailutils`;
+      confirmed delivered. Surfaced and fixed two real Postfix bugs along the way, both
+      applying to porkchop too (commits `1d39bf2`, `3944826`, `0b246cb`): (1) `myhostname` was
+      left at the bare hostname, fixed by setting it to the LAN FQDN; (2) mail clients that
+      construct their own From address via `gethostname()` (e.g. `mailutils`' `mail`) produced
+      a syntactically complete but short-hostname address that `myorigin` never rewrites —
+      Fastmail rejected it outright ("need fully-qualified address"). Fixed with an
+      `smtp_generic_maps` table rewriting the bare-hostname domain at the Postfix SMTP client.
+      That table's file had to be placed at a top-level `/etc/postfix-generic-map` rather than
+      under `/etc/postfix/` — the latter is a runtime bind-mount NixOS's postfix module manages
+      as a whole unit, so `environment.etc` can't inject an individual file into it (a real
+      build failure hit and fixed mid-stage, same reasoning as the existing SASL map's
+      `/run/agenix` path).
 
 ### Stage 6 — Cut fleet SMTP client config to huginn-primary + porkchop-fallback
 
