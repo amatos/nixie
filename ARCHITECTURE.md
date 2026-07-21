@@ -387,18 +387,11 @@ in the same commit as the change it describes so it never drifts from reality.
       new keytab files: `keytab-muninn.age` (host keytab, `host/muninn.matos.cc`) and
       `keytab-ldap-muninn.age` (SASL/GSSAPI `ldap/` service principal keytab). Committed as
       `1c00bf7`.
-- [ ] **Generate and commit both `.age` files in `nix-keytabs-matos-cc`.** Not done — requires
-      `kadmin`/`kadmin.local` against the live porkchop KDC, which needs root on porkchop (no
-      passwordless sudo available in-session). Run on porkchop as root:
-      ```
-      kadmin.local -q "addprinc -randkey host/muninn.matos.cc"
-      kadmin.local -q "ktadd -k /tmp/keytab-muninn.keytab host/muninn.matos.cc"
-      kadmin.local -q "addprinc -randkey ldap/muninn.ts.matos.cc"
-      kadmin.local -q "ktadd -k /tmp/keytab-ldap-muninn.keytab ldap/muninn.ts.matos.cc"
-      ```
-      then copy both keytabs off porkchop and encrypt each with `ragenix -e` in
-      `nix-keytabs-matos-cc` (paste the base64 or use `ragenix`'s binary-file support per that
-      repo's `CLAUDE.md`), and commit.
+- [x] Generated `host/muninn.matos.cc` and `ldap/muninn.ts.matos.cc` principals via `kadmin`
+      against the live porkchop KDC, extracted keytabs, and encrypted each with `rage` against
+      the `users ++ [ muninn ]` recipients from `secrets.nix` (verified: 8 real recipient
+      stanzas each — 1 X25519 recovery key, 6 piv-p256 YubiKeys, 1 X25519 muninn host key).
+      Committed as `8352fbf` in `nix-keytabs-matos-cc`.
 - [x] `nix-secrets/secrets.nix`: split `unifiBackupHosts = [ porkchop ];` out of `ldapHosts` (so
       `unifi/backup-ssh-key.age` keeps porkchop's access independent of the LDAP move); set
       `ldapHosts = [ porkchop muninn ];` for the transition window. Committed as `abfd9df`,
