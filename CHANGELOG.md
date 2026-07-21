@@ -169,6 +169,13 @@ All notable changes to this project will be documented in this file.
   shadowing the now-gone LDAP-enabled system build. Fixed by dropping that
   exclusion (`nix-home-alberth` commit `ce959a6`); porkchop is now a plain
   krb5 client like every other NixOS host.
+- `modules/nixos/smtp-relay.nix` — `myhostname` was left at Postfix's
+  compiled default (the bare hostname), so a locally-originated message
+  with no explicit envelope sender got qualified as `user@huginn` instead
+  of `user@huginn.home.matos.cc`, which Fastmail rejected outright. Fixed
+  by setting `myhostname` to the LAN FQDN, which also fixes `myorigin` and
+  the SMTP HELO/EHLO greeting (Postfix derives all three from the same
+  value). Affects both huginn and porkchop.
 
 ### Removed
 
