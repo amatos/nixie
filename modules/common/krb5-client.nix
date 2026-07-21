@@ -1,8 +1,9 @@
 # Kerberos client configuration for MATOS.CC realm.
 #
-# Uses lib.mkDefault so that on porkchop (the KDC host) the full
-# server-side krb5.conf written by the nix-kerberos-ldap kerberos
-# module at normal priority silently wins without a conflict.
+# Uses lib.mkDefault so that on muninn (the KDC host, since the Stage 3
+# fleet-wide cutover in ARCHITECTURE.md §10 — previously porkchop) the full
+# server-side krb5.conf written by the nix-kerberos-ldap kerberos module at
+# normal priority silently wins without a conflict.
 #
 # Set nixie.krb5.keytabFile to the age-encrypted keytab path in
 # nix-keytabs-matos-cc to have it deployed to /etc/krb5.keytab on activation.
@@ -31,8 +32,8 @@
 
         [realms]
           MATOS.CC = {
-            kdc = porkchop.ts.matos.cc
-            admin_server = porkchop.ts.matos.cc
+            kdc = muninn.ts.matos.cc
+            admin_server = muninn.ts.matos.cc
           }
 
         [domain_realm]
