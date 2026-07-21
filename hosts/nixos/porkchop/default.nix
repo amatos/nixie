@@ -41,8 +41,7 @@ in
   # see syncthing block below); Syncthing sync protocol (22000) open globally
   # for peer connectivity. SMTP (25) and SMTPS (465) restricted to local
   # subnet on IPv4. NTP (123 UDP) and NTS-KE (4460 TCP) restricted to local
-  # subnet on IPv4. SMB (445/139 TCP, 137/138 UDP) and wsdd (3702 UDP)
-  # LAN-only. Tailscale is already covered by trustedInterfaces =
+  # subnet on IPv4. Tailscale is already covered by trustedInterfaces =
   # ["tailscale0"] in common-nixos.nix.
   networking.firewall = {
     enable = true;
@@ -54,11 +53,6 @@ in
       ip  saddr 10.0.4.0/22 tcp dport 465  accept
       ip  saddr 10.0.4.0/22 udp dport 123  accept
       ip  saddr 10.0.4.0/22 tcp dport 4460 accept
-      ip  saddr 10.0.4.0/22 tcp dport 445  accept
-      ip  saddr 10.0.4.0/22 tcp dport 139  accept
-      ip  saddr 10.0.4.0/22 udp dport 137  accept
-      ip  saddr 10.0.4.0/22 udp dport 138  accept
-      ip  saddr 10.0.4.0/22 udp dport 3702 accept
       ip  saddr 10.0.4.0/22 tcp dport 88   accept
       ip  saddr 10.0.4.0/22 udp dport 88   accept
       ip  saddr 10.0.4.0/22 tcp dport 464  accept
@@ -120,41 +114,6 @@ in
         allow 100.64.0.0/10
       '';
     };
-
-    # Samba — expose each user's home directory to that user only.
-    # Restricted to LAN (10.0.4.0/22) and Tailscale (trusted via tailscale0).
-    # Kerberos auth uses the host keytab (/etc/krb5.keytab); clients with a
-    # valid TGT get transparent access. The keytab must contain both
-    # host/porkchop.matos.cc and cifs/porkchop.matos.cc principals.
-    # After first deploy, set Samba passwords with:
-    #   sudo smbpasswd -a alberth
-    samba = {
-      enable = true;
-      settings = {
-        global = {
-          workgroup = "WORKGROUP";
-          "server string" = "porkchop";
-          security = "user";
-          "map to guest" = "never";
-          "hosts allow" = "10.0.4.0/22 100.64.0.0/10 127.0.0.1";
-          "hosts deny" = "0.0.0.0/0";
-          # Kerberos — clients authenticate with a TGT; Samba verifies via keytab.
-          realm = "MATOS.CC";
-          "kerberos method" = "dedicated keytab";
-          "dedicated keytab file" = "/etc/krb5.keytab";
-        };
-        "${primaryUser}" = {
-          path = "/home/${primaryUser}";
-          "valid users" = primaryUser;
-          "read only" = "no";
-          "guest ok" = "no";
-          browseable = "yes";
-        };
-      };
-    };
-
-    # wsdd — makes porkchop discoverable in Windows/macOS network browsers
-    samba-wsdd.enable = true;
 
     # Kerberos + LDAP — KDC backed by OpenLDAP.
     # OpenLDAP listens on 127.0.0.1 only; Kerberos ports (88, 464, 749) are
