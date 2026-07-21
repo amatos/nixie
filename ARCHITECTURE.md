@@ -557,8 +557,8 @@ lower-effort CLI-only fallback if the full stack isn't wanted.
 - [x] **Validated**: `getent hosts mail.home.matos.cc mail-backup.home.matos.cc` from porkchop
       resolves both to the correct LAN IPs (huginn's and porkchop's respectively).
 
-**Note found, not acted on**: there's a pre-existing `home.matos.cc` MX record pointing at
-`smtp.home.matos.cc`, which CNAMEs to `porkchop.home.matos.cc` — i.e. inbound mail routing (via
-this MX) still targets porkchop specifically, unrelated to and unchanged by the outbound relay
-work in Stages 5/6. Worth a deliberate decision later on whether that should also move to
-huginn, but out of scope for this migration.
+**Cleanup**: a pre-existing `home.matos.cc` MX record pointing at `smtp.home.matos.cc` (CNAME to
+`porkchop.home.matos.cc`) was found during this stage — vestigial and already non-functional,
+since neither huginn's nor porkchop's Postfix accepts inbound delivery
+(`local_transport = "error:local delivery disabled"` on both). Removed both records at the
+user's request; confirmed gone via the UniFi API.
