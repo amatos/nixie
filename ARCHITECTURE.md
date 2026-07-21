@@ -382,29 +382,42 @@ in the same commit as the change it describes so it never drifts from reality.
 
 ### Stage 2 — Stand up Kerberos+LDAP on muninn (additive; porkchop stays authoritative)
 
-- [ ] `nix-keytabs-matos-cc/secrets.nix`: add a `muninn` age public key entry (currently missing
-      entirely — a pre-existing gap, unrelated to this migration, that also needs fixing
-      regardless), plus recipient blocks for two new keytab files: `keytab-muninn.age` (host
-      keytab, `host/muninn.matos.cc`) and `keytab-ldap-muninn.age` (SASL/GSSAPI `ldap/` service
-      principal keytab).
-- [ ] Generate and commit both `.age` files in `nix-keytabs-matos-cc`.
-- [ ] `nix-secrets/secrets.nix`: split `unifiBackupHosts = [ porkchop ];` out of `ldapHosts` (so
+- [x] `nix-keytabs-matos-cc/secrets.nix`: added the `muninn` age public key entry (was missing
+      entirely — a pre-existing gap, unrelated to this migration), plus recipient blocks for two
+      new keytab files: `keytab-muninn.age` (host keytab, `host/muninn.matos.cc`) and
+      `keytab-ldap-muninn.age` (SASL/GSSAPI `ldap/` service principal keytab). Committed as
+      `1c00bf7`.
+- [ ] **Generate and commit both `.age` files in `nix-keytabs-matos-cc`.** Not done — requires
+      `kadmin`/`kadmin.local` against the live porkchop KDC, which needs root on porkchop (no
+      passwordless sudo available in-session). Run on porkchop as root:
+      ```
+      kadmin.local -q "addprinc -randkey host/muninn.matos.cc"
+      kadmin.local -q "ktadd -k /tmp/keytab-muninn.keytab host/muninn.matos.cc"
+      kadmin.local -q "addprinc -randkey ldap/muninn.ts.matos.cc"
+      kadmin.local -q "ktadd -k /tmp/keytab-ldap-muninn.keytab ldap/muninn.ts.matos.cc"
+      ```
+      then copy both keytabs off porkchop and encrypt each with `ragenix -e` in
+      `nix-keytabs-matos-cc` (paste the base64 or use `ragenix`'s binary-file support per that
+      repo's `CLAUDE.md`), and commit.
+- [x] `nix-secrets/secrets.nix`: split `unifiBackupHosts = [ porkchop ];` out of `ldapHosts` (so
       `unifi/backup-ssh-key.age` keeps porkchop's access independent of the LDAP move); set
-      `ldapHosts = [ porkchop muninn ];` for the transition window (both hosts need
-      `ldap/admin-password.age`, `ldap/kdc-password.age`, `ldap/krb5-master-key.age` while
-      migrating).
-- [ ] `flake.nix`: add `nix-kerberos-ldap.nixosModules.default` to muninn's
+      `ldapHosts = [ porkchop muninn ];` for the transition window. Committed as `abfd9df`,
+      rekeyed and committed as `d4f81e8`.
+- [x] `flake.nix`: added `nix-kerberos-ldap.nixosModules.default` to muninn's
       `nixosConfigurations.muninn.modules`.
-- [ ] `hosts/nixos/muninn/default.nix`: mirror porkchop's `services.kerberosLdap` block —
+- [x] `hosts/nixos/muninn/default.nix`: mirrored porkchop's `services.kerberosLdap` block —
       `saslHost = "muninn.ts.matos.cc"`, TLS via `nixie.certbot.ldapDeploy = true`, and firewall
       rules opening 389 and 636 to `10.0.4.0/22` **(LAN-reachable, per explicit decision — unlike
       porkchop's current Tailscale-only LDAP exposure)**, alongside 88/464/749 tcp+udp matching
-      porkchop's existing pattern.
+      porkchop's existing pattern. Evaluated successfully (`nix eval`); not yet built/switched
+      (needs the keytab above to exist first, plus a Linux builder or a switch run on muninn
+      itself).
 - [ ] **Manual data migration (stateful, not Nix)**: `slapcat` + `kdb5_util dump` on porkchop,
-      transfer, `slapadd` + `kdb5_util load` on muninn, during a maintenance window.
+      transfer, `slapadd` + `kdb5_util load` on muninn, during a maintenance window. Not started.
 - [ ] **Validate**: test `kinit`/`ldapwhoami` against muninn directly (e.g. a manually-overridden
       `/etc/krb5.conf` on one test client) — without touching the fleet default yet. Porkchop
-      must remain fully functional and authoritative throughout this stage.
+      must remain fully functional and authoritative throughout this stage. Not started —
+      blocked on the two items above.
 
 ### Stage 3 — Cut fleet-wide realm pointer to muninn
 

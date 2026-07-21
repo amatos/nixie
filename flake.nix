@@ -350,6 +350,7 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
+            nix-kerberos-ldap.nixosModules.default
             ./hosts/nixos/muninn
           ];
         };

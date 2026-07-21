@@ -1,8 +1,24 @@
-{ nix-keytabs-matos-cc, ... }:
+{
+  pkgs,
+  nix-keytabs-matos-cc,
+  ...
+}:
 
 let
   userDefs = import ../../../users.nix;
   inherit (userDefs) primaryUser;
+
+  # Build krb5 with LDAP backend support in a clean nixpkgs instantiation,
+  # completely separate from the system pkgs set.  Overlaying krb5 system-wide
+  # causes an unavoidable cycle: krb5(LDAP) → openldap → cyrus-sasl → libkrb5
+  # → (overlay) krb5(LDAP) …  Using pkgs.path gives us the same nixpkgs
+  # source without any overlays, breaking the cycle.
+  krb5WithLdap =
+    (import pkgs.path {
+      system = pkgs.stdenv.hostPlatform.system;
+      config.allowUnfree = true;
+    }).krb5.override
+      { withLdap = true; };
 in
 {
   imports = [
@@ -16,20 +32,80 @@ in
   networking.hostName = "muninn";
 
   # Firewall — SSH (22) is already opened by common-nixos.nix.
-  # Restrict SSH and Syncthing GUI to the local subnet;
-  # Syncthing sync protocol (22000) open globally for peer connectivity
+  # Restrict SSH, Syncthing GUI, and LDAP/Kerberos to the local subnet;
+  # Syncthing sync protocol (22000) open globally for peer connectivity.
+  # LDAP (389) and LDAPS (636) are LAN-reachable here (unlike porkchop's
+  # current Tailscale-only exposure) — a deliberate choice for this
+  # migration, see ARCHITECTURE.md §10 Stage 2. Tailscale is already
+  # covered by trustedInterfaces = ["tailscale0"] in common-nixos.nix.
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22000 ];
     allowedUDPPorts = [ 22000 ];
     extraInputRules = ''
       ip  saddr 10.0.4.0/22 tcp dport 8384 accept
+      ip  saddr 10.0.4.0/22 tcp dport 389  accept
+      ip  saddr 10.0.4.0/22 tcp dport 636  accept
+      ip  saddr 10.0.4.0/22 tcp dport 88   accept
+      ip  saddr 10.0.4.0/22 udp dport 88   accept
+      ip  saddr 10.0.4.0/22 tcp dport 464  accept
+      ip  saddr 10.0.4.0/22 udp dport 464  accept
+      ip  saddr 10.0.4.0/22 tcp dport 749  accept
     '';
+  };
+
+  # Kerberos + LDAP — KDC backed by OpenLDAP. Stood up alongside porkchop's
+  # existing KDC/LDAP during the migration window (ARCHITECTURE.md §10
+  # Stage 2); porkchop remains authoritative until Stage 3 cuts the fleet
+  # realm pointer over and Stage 4 decommissions it there.
+  # Bootstrap after first deploy (mirrors porkchop's original bootstrap):
+  #   1. kdb5_ldap_util stashsrvpw -f /var/lib/krb5kdc/service.keyfile cn=kdc,dc=matos,dc=cc
+  #   2. kdb5_util create -s -r MATOS.CC
+  #   3. kadmin.local addprinc <user>
+  # (or, when migrating porkchop's existing data: slapadd + kdb5_util load
+  # instead of steps 2-3 — see ARCHITECTURE.md §10 Stage 2.)
+  services.kerberosLdap = {
+    ldap = {
+      enable = true;
+      domain = "matos.cc";
+      baseDN = "dc=matos,dc=cc";
+      # SASL/GSSAPI — slapd authenticates clients via Kerberos tickets.
+      # saslKeytabFile: age-encrypted keytab for the ldap/ service principal;
+      #   deployed to /run/agenix/ldapSaslKeytab with openldap ownership.
+      # saslHost: must match the hostname component of the ldap/ principal.
+      # saslAuthzRegexp: maps <primaryUser>@MATOS.CC to the LDAP rootDN so
+      #   ldapwhoami/ldapsearch/ldapmodify work with a valid TGT.
+      saslKeytabFile = "${nix-keytabs-matos-cc}/keytab-ldap-muninn.age";
+      saslHost = "muninn.ts.matos.cc";
+      saslAuthzRegexp = [
+        "{0}uid=${primaryUser},cn=[^,]*,cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
+      ];
+      # Listen on all interfaces so remote hosts and GSSAPI clients can
+      # reach slapd via the FQDN. The firewall restricts LDAP (389) to
+      # LAN (10.0.4.0/22); Tailscale is covered by trustedInterfaces.
+      # ldaps:/// enables LDAPS on port 636; cert+key deployed by certbot.
+      listenAddresses = [
+        "ldap://0.0.0.0:389/"
+        "ldaps:///"
+      ];
+      # TLS — cert+key deployed by certbot's ldapDeploy hook into
+      # /var/lib/openldap-tls/ with root:openldap 640 ownership.
+      tlsCertFile = "/var/lib/openldap-tls/fullchain.pem";
+      tlsKeyFile = "/var/lib/openldap-tls/privkey.pem";
+    };
+
+    kerberos = {
+      enable = true;
+      realm = "MATOS.CC";
+      krb5Package = krb5WithLdap;
+    };
   };
 
   nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-muninn.age";
 
-  # Certbot — certificates via LuaDNS DNS-01 challenge
+  # Certbot — certificates via LuaDNS DNS-01 challenge.
+  # ldapDeploy copies renewed cert+key to /var/lib/openldap-tls/ (root:openldap 640)
+  # and reloads slapd so LDAPS picks up the new cert without dropping connections.
   nixie.certbot = {
     enable = true;
     domains = [
@@ -39,6 +115,7 @@ in
       ]
     ];
     syncthingDeploy = true;
+    ldapDeploy = true;
   };
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
