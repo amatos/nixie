@@ -170,12 +170,18 @@ All notable changes to this project will be documented in this file.
   exclusion (`nix-home-alberth` commit `ce959a6`); porkchop is now a plain
   krb5 client like every other NixOS host.
 - `modules/nixos/smtp-relay.nix` — `myhostname` was left at Postfix's
-  compiled default (the bare hostname), so a locally-originated message
-  with no explicit envelope sender got qualified as `user@huginn` instead
-  of `user@huginn.home.matos.cc`, which Fastmail rejected outright. Fixed
-  by setting `myhostname` to the LAN FQDN, which also fixes `myorigin` and
-  the SMTP HELO/EHLO greeting (Postfix derives all three from the same
-  value). Affects both huginn and porkchop.
+  compiled default (the bare hostname), so the SMTP HELO/EHLO greeting used
+  the short hostname instead of the LAN FQDN. Fixed by setting `myhostname`
+  explicitly. Separately, and not fixed by the above: mail clients that
+  build their own From address directly from `gethostname()` (e.g.
+  mailutils' `mail`/`mailx`) produced a syntactically complete but
+  short-hostname address (`alberth@huginn`) that `myorigin` never
+  rewrites (it only rewrites addresses with no domain part at all) —
+  Fastmail rejected these outright with "need fully-qualified address".
+  Fixed with an `smtp_generic_maps` table rewriting the bare-hostname
+  domain to the LAN FQDN at the Postfix SMTP client, independent of what
+  the originating mail client constructed. Both fixes affect huginn and
+  porkchop.
 
 ### Removed
 
