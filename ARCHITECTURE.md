@@ -511,17 +511,22 @@ an already-initialized `slapd.d`) and verified end-to-end: `kinit alberth` +
 
 ### Stage 6 — Cut fleet SMTP client config to huginn-primary + porkchop-fallback
 
-- [ ] `hosts/nixos/common-nixos.nix`: change the client `postfix.settings.main.relayhost` from
-      `[porkchop.ts.matos.cc]:25` to `[huginn.ts.matos.cc]:25`; add
-      `smtp_fallback_relay = ["[porkchop.ts.matos.cc]:25"]`; generalize the postfix-client
-      `config.networking.hostName != "porkchop"` guard to exclude *both* `huginn` and `porkchop`
-      (both now run server-side Postfix). The chrony client guard is unaffected — it stays
-      porkchop-specific.
-- [ ] Update porkchop's cert domain list in `hosts/nixos/porkchop/default.nix`: swap
+- [x] `hosts/nixos/common-nixos.nix`: changed the client `postfix.settings.main.relayhost` from
+      `[porkchop.ts.matos.cc]:25` to `[huginn.ts.matos.cc]:25`; added
+      `smtp_fallback_relay = ["[porkchop.ts.matos.cc]:25"]`. (The postfix-client guard was
+      already generalized to exclude both `huginn` and `porkchop` back in Stage 5 — that turned
+      out to be a hard build prerequisite there, not something deferrable to this stage.) The
+      chrony client guard is unaffected — stays porkchop-specific. Committed as `66db524`.
+- [x] Updated porkchop's cert domain list in `hosts/nixos/porkchop/default.nix`: swapped
       `mail.home.matos.cc`/`mail.ts.matos.cc` for `mail-backup.home.matos.cc`/
-      `mail-backup.ts.matos.cc`.
-- [ ] **Validate**: confirm normal mail delivery via huginn from a third host; then stop
-      `postfix.service` on huginn and confirm fallback delivery via porkchop.
+      `mail-backup.ts.matos.cc`. Same commit.
+- [x] **Validated from gammu**: normal delivery via huginn confirmed, then `postfix.service`
+      stopped on huginn and fallback delivery via porkchop confirmed too.
+- [x] **Follow-up fix discovered during validation**: the same bare-hostname-sender bug from
+      Stage 5 also affected every plain client host, not just huginn/porkchop — gammu's local
+      postfix forwarded `alberth@gammu` to huginn unchanged, and Fastmail rejected it. Applied
+      the identical `myhostname`/`smtp_generic_maps` fix to the fleet-wide client config in
+      `common-nixos.nix`. Committed as `d456368`.
 
 ### Stage 7 — Centralized syslog server on porkchop
 
