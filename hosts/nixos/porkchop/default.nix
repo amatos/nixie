@@ -130,13 +130,35 @@ in
         # SASL/GSSAPI — slapd authenticates clients via Kerberos tickets.
         # saslKeytabFile: age-encrypted keytab for the ldap/ service principal;
         #   deployed to /run/agenix/ldapSaslKeytab with openldap ownership.
-        # saslHost: must match the hostname component of the ldap/ principal.
+        #   Contains TWO principals: ldap/porkchop.ts.matos.cc (the
+        #   "intended" custom-domain name, unreachable in practice — see
+        #   below) and ldap/porkchop.tail2269e5.ts.net (the tailnet's real
+        #   native MagicDNS name, what clients actually request tickets for).
+        # saslHost: deliberately left unset. Cyrus SASL's GSSAPI client
+        #   plugin builds its target service principal from the peer's
+        #   *reverse-DNS* name, not the hostname/URL used to connect — and
+        #   Tailscale's own PTR records always answer with the tailnet's
+        #   native "<host>.tail<id>.ts.net" name, never a custom alias like
+        #   "ts.matos.cc", regardless of ldap.conf's SASL_NOCANON or
+        #   krb5.conf's rdns/dns_canonicalize_hostname settings (neither
+        #   reaches this codepath). Setting olcSaslHost to
+        #   "porkchop.ts.matos.cc" made slapd reject every real GSSAPI bind
+        #   outright (gss_accept_sec_context failure) since it only ever
+        #   tried the one keytab entry matching that hostname. Leaving
+        #   saslHost unset lets slapd accept any principal present in the
+        #   keytab instead — discovered and fixed during the muninn
+        #   migration (ARCHITECTURE.md §10 Stage 2); this is a real,
+        #   pre-existing bug that was never actually exercised end-to-end
+        #   before, not something introduced by that migration.
         # saslAuthzRegexp: maps <primaryUser>@MATOS.CC to the LDAP rootDN so
-        #   ldapwhoami/ldapsearch/ldapmodify work with a valid TGT.
+        #   ldapwhoami/ldapsearch/ldapmodify work with a valid TGT. The
+        #   pattern below (3 DN components: uid=.../cn=gssapi/cn=auth)
+        #   matches what this cyrus-sasl/krb5 version actually produces — no
+        #   separate "cn=<realm>" component appears, despite the extra
+        #   "cn=[^,]*," segment previously here assuming one does.
         saslKeytabFile = "${nix-keytabs-matos-cc}/keytab-ldap-porkchop.age";
-        saslHost = "porkchop.ts.matos.cc";
         saslAuthzRegexp = [
-          "{0}uid=${primaryUser},cn=[^,]*,cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
+          "{0}uid=${primaryUser},cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
         ];
         # Listen on all interfaces so remote hosts and GSSAPI clients can
         # reach slapd via the FQDN.  The firewall restricts LDAP (389) to
