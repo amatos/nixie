@@ -464,17 +464,24 @@ an already-initialized `slapd.d`) and verified end-to-end: `kinit alberth` +
 
 ### Stage 4 — Decommission Kerberos+LDAP on porkchop
 
-- [ ] Remove `services.kerberosLdap`, the `nix-kerberos-ldap` module import, `ldapDeploy`, and the
-      associated firewall/keytab entries from `hosts/nixos/porkchop/default.nix` and `flake.nix`.
-      Keep `keytab-porkchop.age` (porkchop's own client keytab — unrelated to serving the realm).
-- [ ] `nix-secrets/secrets.nix`: shrink `ldapHosts` to `[ muninn ];` (porkchop no longer needs the
-      three `ldap/*.age` secrets).
-- [ ] Archive porkchop's old LDAP/KDC data (the `slapcat`/`kdb5_util dump` output plus the live DB
-      directories) off to the side. **Retention: keep for 1 week from the date this stage runs,
-      then delete.** Record the execution date here when this stage is done:
-      `_______________`.
-- [ ] **Validate**: rebuild/switch porkchop, confirm `slapd`/`krb5kdc` are gone, confirm clients
-      still function fully via muninn (already cut over in Stage 3).
+- [x] Removed `services.kerberosLdap`, the `nix-kerberos-ldap` module import, `ldapDeploy`, the
+      88/464/749 firewall rules, and the now-unused `krb5WithLdap`/`pkgs` argument from
+      `hosts/nixos/porkchop/default.nix` and `flake.nix`. Kept `keytab-porkchop.age` (porkchop's
+      own client keytab — unrelated to serving the realm). Committed as `c826991`.
+- [x] `nix-secrets/secrets.nix`: shrank `ldapHosts` to `[ muninn ];`. Committed as `179905d`,
+      rekeyed and committed as `ea3fa8e` (revokes porkchop's decrypt access to the three
+      `ldap/*.age` secrets).
+- [x] Archived porkchop's old LDAP/KDC data (`tar czf` of `/var/lib/openldap` +
+      `/var/lib/krb5kdc`). **Executed 2026-07-21 — delete on or after 2026-07-28.**
+- [x] **Validated**: switched porkchop; `openldap`/`kdc`/`kadmind` units confirmed gone
+      (`systemctl status` → "could not be found" for all three); `kinit alberth` on porkchop
+      itself now correctly obtains a ticket from muninn (`klist` shows
+      `krbtgt/MATOS.CC@MATOS.CC`, no local KDC involved).
+- [x] **Follow-up fix discovered during validation**: porkchop's `kinit`/`klist`/`kdestroy` were
+      briefly missing entirely after the switch — `nix-home-alberth`'s `alberth/nixos.nix`
+      excluded `pkgs.krb5` specifically on porkchop (to avoid shadowing the LDAP-enabled
+      `krb5WithLdap` system build that no longer exists there). Fixed by removing that
+      exclusion — `nix-home-alberth` commit `ce959a6`, `nixie` flake.lock bump `28bf135`.
 
 ### Stage 5 — Stand up huginn as primary SMTP relay (additive)
 

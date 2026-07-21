@@ -163,6 +163,12 @@ All notable changes to this project will be documented in this file.
   `saslAuthzRegexp` to match this cyrus-sasl version's actual 3-component
   SASL identity format (no separate realm component). See
   `nix-keytabs-matos-cc` for the companion keytab regeneration.
+- porkchop lost `kinit`/`klist`/`kdestroy` entirely after Stage 4 of the
+  migration removed its Kerberos+LDAP server role — `nix-home-alberth`'s
+  `alberth/nixos.nix` had excluded `pkgs.krb5` there specifically to avoid
+  shadowing the now-gone LDAP-enabled system build. Fixed by dropping that
+  exclusion (`nix-home-alberth` commit `ce959a6`); porkchop is now a plain
+  krb5 client like every other NixOS host.
 
 ### Removed
 
