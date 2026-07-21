@@ -39,7 +39,7 @@ in
     pkgs.nixd
   ];
 
-  environment.variables.YUBIAGE = "$HOME/Projects/nix-secrets/age-yubikey-identity-2ab5ff2f.txt";
+  environment.variables.YUBIAGE = "$HOME/Projects/nix-secrets/age-yubikey-identity-b4d67c6f.txt";
 
   # Dedicated APFS volume backing OrbStack's container data (Docker images,
   # volumes, Linux VMs) — see nix-home-alberth's alberth/codex.nix for the Group

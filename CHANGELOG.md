@@ -45,7 +45,7 @@ All notable changes to this project will be documented in this file.
   (`nix-secrets/builder/codex-ssh-key.age`).
 - `hosts/darwin/codex/default.nix` — `environment.variables.YUBIAGE`, points
   at the YubiKey age identity file in `nix-secrets`
-  (`$HOME/Projects/nix-secrets/age-yubikey-identity-2ab5ff2f.txt`). Set via
+  (`$HOME/Projects/nix-secrets/age-yubikey-identity-b4d67c6f.txt`). Set via
   nix-darwin's `environment.variables`, so it reaches both zsh (`/etc/zshenv`)
   and fish (`/etc/fish/nixos-env-preinit.fish`, sourced automatically before
   `config.fish` via the `foreign-env`/`fenv` mechanism).
