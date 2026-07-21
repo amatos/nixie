@@ -58,8 +58,6 @@ in
   programs = {
     fish.enable = true;
     zsh.enable = true;
-    # Zapp — CLI tool for flashing ZSA keyboards
-    zapp.enable = true;
   };
   users.users.${primaryUser}.shell = pkgs.fish;
 

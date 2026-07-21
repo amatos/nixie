@@ -22,6 +22,10 @@ in
 
   networking.hostName = "gammu";
 
+  # Zapp — CLI tool for flashing ZSA keyboards; also installs udev rules.
+  # Only codex and gammu use it.
+  programs.zapp.enable = true;
+
   # Steam — 32-bit graphics support is required or Steam fails to start.
   # AMD GPU (radv, via mesa) needs no extra driver packages.
   hardware.graphics = {

@@ -28,6 +28,9 @@ in
   networking.hostName = "codex";
   networking.computerName = "codex";
 
+  # Zapp — CLI tool for flashing ZSA keyboards; only codex and gammu use it.
+  programs.zapp.enable = true;
+
   # Darwin-specific system packages
   # dockutil — pins/manages Homebrew-cask GUI apps on the Dock.
   # nixd — Nix language server, for editor tooling (Zed, nvf).

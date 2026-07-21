@@ -263,7 +263,6 @@
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
             ragenix.nixosModules.default
-            zapp.darwinModules.default
             ./hosts/darwin/nhcodex
           ];
         };
@@ -277,7 +276,6 @@
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
             ragenix.nixosModules.default
-            zapp.darwinModules.default
             ./hosts/darwin/darwintron
           ];
         };
@@ -290,7 +288,6 @@
             home-manager.darwinModules.home-manager
             ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
-            zapp.darwinModules.default
             ./hosts/darwin/template-darwin
           ];
         };
@@ -319,7 +316,6 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
-            zapp.nixosModules.default
             nix-kerberos-ldap.nixosModules.default
             ./hosts/nixos/porkchop
           ];
@@ -332,7 +328,6 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
-            zapp.nixosModules.default
             ./hosts/nixos/template-nixos
           ];
         };
@@ -344,7 +339,6 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
-            zapp.nixosModules.default
             ./hosts/nixos/huginn
           ];
         };
@@ -356,7 +350,6 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
-            zapp.nixosModules.default
             ./hosts/nixos/muninn
           ];
         };

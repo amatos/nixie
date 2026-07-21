@@ -46,6 +46,15 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `programs.zapp.enable` moved out of `hosts/darwin/common-darwin.nix` /
+  `hosts/nixos/common-nixos.nix` (fleet-wide) and into
+  `hosts/darwin/codex/default.nix` / `hosts/nixos/gammu/default.nix` —
+  zapp (ZSA keyboard flashing CLI) is now only deployed on codex and
+  gammu, the only two hosts that actually flash ZSA keyboards. `flake.nix`
+  also dropped the now-unused `zapp.darwinModules.default` /
+  `zapp.nixosModules.default` module import from every other host
+  (nhcodex, darwintron, template-darwin, porkchop, template-nixos, huginn,
+  muninn).
 - `hosts/nixos/gammu/default.nix` — `systemd.services.display-manager.wantedBy`
   forced to `[ ]`, so GDM no longer auto-starts at boot; gammu is normally
   accessed headlessly over SSH/RDP, not via a local login screen. GDM stays
