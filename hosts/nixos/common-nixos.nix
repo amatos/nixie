@@ -95,6 +95,18 @@ in
     postfix = lib.mkIf (!(builtins.elem config.networking.hostName [ "porkchop" "huginn" ])) {
       enable = true;
       settings.main = {
+        # See the environment.etc."postfix-generic-map" comment below and
+        # modules/nixos/smtp-relay.nix's module-level comment for why both
+        # of these are needed: a mail client that builds its own From
+        # address via gethostname() (e.g. mailutils' `mail`) produces a
+        # syntactically complete but short-hostname address
+        # (alberth@gammu) that myorigin never rewrites, and huginn's own
+        # relay forwards it to Fastmail as-is — rejected outright with
+        # "need fully-qualified address". Confirmed hitting this from
+        # gammu during Stage 6 validation.
+        myhostname = "${config.networking.hostName}.home.matos.cc";
+        smtp_generic_maps = "texthash:/etc/postfix-generic-map";
+
         # Listen on loopback only — this is a client, not a relay
         inet_interfaces = "loopback-only";
         inet_protocols = "all";
@@ -110,6 +122,18 @@ in
       };
     };
   };
+
+  # Generic table rewriting the bare hostname domain to the LAN FQDN on
+  # outbound mail — see the postfix client block above. Deliberately a
+  # top-level /etc entry, not nested under /etc/postfix/ (that path is a
+  # runtime bind-mount NixOS's postfix module manages as a whole unit; see
+  # modules/nixos/smtp-relay.nix for the same constraint on the server
+  # side). Guarded the same way as the client postfix block, since huginn
+  # and porkchop declare their own version of this same file in
+  # smtp-relay.nix — both would conflict if this applied unconditionally.
+  environment.etc."postfix-generic-map" = lib.mkIf (
+    !(builtins.elem config.networking.hostName [ "porkchop" "huginn" ])
+  ) { text = "@${config.networking.hostName} ${config.networking.hostName}.home.matos.cc\n"; };
 
   # Latest stable kernel — override per-host if hardware requires a specific version
   boot = {
