@@ -112,7 +112,14 @@ in
         # as a generic(5) key matches any address in that domain regardless
         # of local-part. texthash: needs no postmap run, same as the SASL
         # password map below.
-        environment.etc."postfix/generic".text = ''
+        #
+        # Deliberately NOT under /etc/postfix/ — that path is a runtime
+        # bind-mount from /var/lib/postfix/conf (NixOS's postfix module
+        # manages it as a whole unit), so environment.etc can't inject an
+        # individual extra file into it (mkdir collision at build time).
+        # Same reason the SASL password map above references a /run/agenix
+        # path rather than anything under /etc/postfix/.
+        environment.etc."postfix-generic-map".text = ''
           @${config.networking.hostName} ${config.networking.hostName}.home.matos.cc
         '';
 
@@ -123,7 +130,7 @@ in
             # See the module-level comment above: fixes myorigin (used to
             # qualify unqualified local senders) and the HELO/EHLO greeting.
             myhostname = "${config.networking.hostName}.home.matos.cc";
-            smtp_generic_maps = "texthash:/etc/postfix/generic";
+            smtp_generic_maps = "texthash:/etc/postfix-generic-map";
 
             # Listen on all interfaces so LAN / Tailscale hosts can relay.
             # Access is controlled by mynetworks below — not by interface binding.
