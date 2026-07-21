@@ -84,12 +84,16 @@ in
     };
 
     # Postfix relay client — relay all outbound mail through porkchop.
-    # porkchop runs the full smtp-relay module (modules/nixos/smtp-relay.nix)
-    # and manages postfix itself; all other NixOS hosts use it as a smarthost
-    # over Tailscale on port 25. porkchop's myNetworks covers both the LAN
-    # subnet (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10), so no SASL
-    # credentials are required from fleet hosts.
-    postfix = lib.mkIf (config.networking.hostName != "porkchop") {
+    # porkchop and huginn both run the full smtp-relay module
+    # (modules/nixos/smtp-relay.nix) and manage postfix themselves; every
+    # other NixOS host uses porkchop as a smarthost over Tailscale on port 25
+    # (huginn becomes the primary relay in Stage 6 of
+    # ARCHITECTURE.md §10 — this guard just needs to exclude both
+    # server-role hosts so their own smtp-relay.nix config doesn't conflict
+    # with this client config on the same postfix options). porkchop's
+    # myNetworks covers both the LAN subnet (10.0.4.0/22) and Tailscale CGNAT
+    # (100.64.0.0/10), so no SASL credentials are required from fleet hosts.
+    postfix = lib.mkIf (!(builtins.elem config.networking.hostName [ "porkchop" "huginn" ])) {
       enable = true;
       settings.main = {
         # Listen on loopback only — this is a client, not a relay
