@@ -371,13 +371,14 @@ in the same commit as the change it describes so it never drifts from reality.
 
 ### Stage 1 — Remove SMB from porkchop
 
-- [ ] In `hosts/nixos/porkchop/default.nix`: remove the `services.samba` block,
+- [x] In `hosts/nixos/porkchop/default.nix`: removed the `services.samba` block,
       `services.samba-wsdd.enable`, and the firewall `extraInputRules` lines for 445/139 tcp and
-      137/138 udp and 3702 udp. Leave the 88/464/749 (Kerberos) rules in place — the KDC is still
-      on porkchop until Stage 4.
-- [ ] **Validate**: `nixos-rebuild build --flake .#porkchop`, then switch; confirm
-      `samba`/`samba-wsdd` services are gone, and confirm no other LAN client still expects
-      porkchop's SMB share before switching.
+      137/138 udp and 3702 udp. Left the 88/464/749 (Kerberos) rules in place — the KDC is still
+      on porkchop until Stage 4. Committed as `444146b` (+ changelog `de71829`).
+- [x] **Validated**: switched on porkchop directly (this darwin machine has no Linux builder, so
+      the build/switch had to run on/against porkchop itself). Confirmed over SSH:
+      `samba-smbd`/`samba-nmbd`/`samba-wsdd` systemd units no longer exist, no listener on
+      445/139/137/138/3702, and 88/464/749 (Kerberos) still listening as expected.
 
 ### Stage 2 — Stand up Kerberos+LDAP on muninn (additive; porkchop stays authoritative)
 
