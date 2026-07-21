@@ -83,28 +83,29 @@ in
       '';
     };
 
-    # Postfix relay client — relay all outbound mail through porkchop.
-    # porkchop and huginn both run the full smtp-relay module
-    # (modules/nixos/smtp-relay.nix) and manage postfix themselves; every
-    # other NixOS host uses porkchop as a smarthost over Tailscale on port 25
-    # (huginn becomes the primary relay in Stage 6 of
-    # ARCHITECTURE.md §10 — this guard just needs to exclude both
-    # server-role hosts so their own smtp-relay.nix config doesn't conflict
-    # with this client config on the same postfix options). porkchop's
-    # myNetworks covers both the LAN subnet (10.0.4.0/22) and Tailscale CGNAT
-    # (100.64.0.0/10), so no SASL credentials are required from fleet hosts.
+    # Postfix relay client — relay all outbound mail through huginn (primary),
+    # falling back to porkchop if huginn is unreachable. huginn and porkchop
+    # both run the full smtp-relay module (modules/nixos/smtp-relay.nix) and
+    # manage postfix themselves; every other NixOS host uses this client
+    # config instead — so the guard excludes both server-role hosts, since
+    # their own smtp-relay.nix config would otherwise conflict with this one
+    # on the same postfix options. Both huginn's and porkchop's myNetworks
+    # cover the LAN subnet (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10),
+    # so no SASL credentials are required from fleet hosts either way.
     postfix = lib.mkIf (!(builtins.elem config.networking.hostName [ "porkchop" "huginn" ])) {
       enable = true;
       settings.main = {
         # Listen on loopback only — this is a client, not a relay
         inet_interfaces = "loopback-only";
         inet_protocols = "all";
-        # Relay all mail through porkchop via Tailscale hostname
-        relayhost = [ "[porkchop.ts.matos.cc]:25" ];
+        # Relay all mail through huginn via Tailscale hostname; fall back to
+        # porkchop if huginn doesn't respond (see ARCHITECTURE.md §10 Stage 6).
+        relayhost = [ "[huginn.ts.matos.cc]:25" ];
+        smtp_fallback_relay = [ "[porkchop.ts.matos.cc]:25" ];
         # Disable local delivery
         mydestination = "";
         local_transport = "error:local delivery disabled";
-        # Opportunistic TLS toward porkchop
+        # Opportunistic TLS toward the relay
         smtp_tls_security_level = "may";
       };
     };

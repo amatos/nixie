@@ -102,13 +102,16 @@ in
     # SMTP relay — Postfix smarthost via Fastmail; accepts from localhost, LAN,
     # and Tailscale (tailscale0 is trusted at the firewall level in common-nixos.nix).
     # SMTPS (port 465) uses the certbot-managed cert from /etc/postfix/ssl/.
+    # Backup relay as of Stage 6 (ARCHITECTURE.md §10) — huginn is now primary;
+    # the fleet's postfix client falls back here via smtp_fallback_relay if
+    # huginn.ts.matos.cc doesn't respond.
     smtpRelay = {
       enable = true;
       myNetworks = [
         "127.0.0.0/8"
         "[::1]/128"
         "10.0.4.0/22"
-        "100.64.0.0/10" # Tailscale CGNAT — fleet hosts relay via porkchop.ts.matos.cc
+        "100.64.0.0/10" # Tailscale CGNAT — fallback relay via porkchop.ts.matos.cc
       ];
       smtps.enable = true;
     };
@@ -126,8 +129,8 @@ in
         [
           "porkchop.home.matos.cc"
           "porkchop.ts.matos.cc"
-          "mail.home.matos.cc"
-          "mail.ts.matos.cc"
+          "mail-backup.home.matos.cc"
+          "mail-backup.ts.matos.cc"
         ]
       ];
       syncthingDeploy = true;
