@@ -31,41 +31,43 @@ in
     '';
   };
 
-  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-huginn.age";
+  nixie = {
+    krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-huginn.age";
 
-  # SMTP relay — Postfix smarthost via Fastmail; primary relay for the fleet
-  # (see ARCHITECTURE.md §10 Stage 5/6 — porkchop becomes the backup relay).
-  # Accepts from localhost, LAN, and Tailscale (tailscale0 is trusted at the
-  # firewall level in common-nixos.nix). SMTPS (port 465) uses the
-  # certbot-managed cert from /etc/postfix/ssl/.
-  nixie.smtpRelay = {
-    enable = true;
-    myNetworks = [
-      "127.0.0.0/8"
-      "[::1]/128"
-      "10.0.4.0/22"
-      "100.64.0.0/10" # Tailscale CGNAT — fleet hosts relay via huginn.ts.matos.cc
-    ];
-    smtps.enable = true;
-  };
+    # SMTP relay — Postfix smarthost via Fastmail; primary relay for the fleet
+    # (see ARCHITECTURE.md §10 Stage 5/6 — porkchop becomes the backup relay).
+    # Accepts from localhost, LAN, and Tailscale (tailscale0 is trusted at the
+    # firewall level in common-nixos.nix). SMTPS (port 465) uses the
+    # certbot-managed cert from /etc/postfix/ssl/.
+    smtpRelay = {
+      enable = true;
+      myNetworks = [
+        "127.0.0.0/8"
+        "[::1]/128"
+        "10.0.4.0/22"
+        "100.64.0.0/10" # Tailscale CGNAT — fleet hosts relay via huginn.ts.matos.cc
+      ];
+      smtps.enable = true;
+    };
 
-  # Certbot — certificates via LuaDNS DNS-01 challenge.
-  # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
-  # and reloads postfix so SMTPS picks up the new cert without dropping connections.
-  nixie.certbot = {
-    enable = true;
-    domains = [
-      [
-        "huginn.home.matos.cc"
-        "huginn.ts.matos.cc"
-      ]
-      [
-        "mail.home.matos.cc"
-        "mail.ts.matos.cc"
-      ]
-    ];
-    syncthingDeploy = true;
-    postfixDeploy = true;
+    # Certbot — certificates via LuaDNS DNS-01 challenge.
+    # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
+    # and reloads postfix so SMTPS picks up the new cert without dropping connections.
+    certbot = {
+      enable = true;
+      domains = [
+        [
+          "huginn.home.matos.cc"
+          "huginn.ts.matos.cc"
+        ]
+        [
+          "mail.home.matos.cc"
+          "mail.ts.matos.cc"
+        ]
+      ];
+      syncthingDeploy = true;
+      postfixDeploy = true;
+    };
   };
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.

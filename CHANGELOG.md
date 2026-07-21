@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- `hosts/nixos/huginn/default.nix` — merged three repeated top-level
+  `nixie.*` attribute keys (`krb5.keytabFile`, `smtpRelay`, `certbot`) into
+  a single `nixie = { ... }` block, clearing a `statix check` warning. No
+  behavior change.
+
 ### Added
 
 - `hosts/darwin/codex/homebrew.nix` — added `aldente` (MacOS power control) to homebrew.
