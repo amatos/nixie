@@ -807,11 +807,11 @@
     "nix-keytabs-matos-cc": {
       "flake": false,
       "locked": {
-        "lastModified": 1784645259,
-        "narHash": "sha256-JSRrgU27jLcn1LPXO4cyFdjZdfAzvJvv3FaMoTlii68=",
+        "lastModified": 1784664562,
+        "narHash": "sha256-pKP6o371YN3k+hP1vIua3Sp1VQkdA31Du3mGH/z+o38=",
         "owner": "amatos",
         "repo": "nix-keytabs-matos-cc",
-        "rev": "8352fbf0dd8f2f1f42e134354b2b20d9f7967767",
+        "rev": "27fbc2348a014895c252a88a7d1dee7d9236c48d",
         "type": "github"
       },
       "original": {
@@ -823,11 +823,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1784643640,
-        "narHash": "sha256-8GlFo8oGFA+7JJacRB1nVXjE/qyPZUKXYBGcPBS3TXc=",
+        "lastModified": 1784668872,
+        "narHash": "sha256-mk6x9olkpszjwXSJUf9e6nerBlUTYVkBZE+u4Ta4MqI=",
         "owner": "amatos",
         "repo": "nix-secrets",
-        "rev": "d4f81e8b86dcfe64dc50c4497265a247bb5a274b",
+        "rev": "70fa0cc8ae130b0956a4d4d8386de34385f6f51b",
         "type": "github"
       },
       "original": {
