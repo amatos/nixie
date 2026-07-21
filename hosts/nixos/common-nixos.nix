@@ -92,35 +92,43 @@ in
     # on the same postfix options. Both huginn's and porkchop's myNetworks
     # cover the LAN subnet (10.0.4.0/22) and Tailscale CGNAT (100.64.0.0/10),
     # so no SASL credentials are required from fleet hosts either way.
-    postfix = lib.mkIf (!(builtins.elem config.networking.hostName [ "porkchop" "huginn" ])) {
-      enable = true;
-      settings.main = {
-        # See the environment.etc."postfix-generic-map" comment below and
-        # modules/nixos/smtp-relay.nix's module-level comment for why both
-        # of these are needed: a mail client that builds its own From
-        # address via gethostname() (e.g. mailutils' `mail`) produces a
-        # syntactically complete but short-hostname address
-        # (alberth@gammu) that myorigin never rewrites, and huginn's own
-        # relay forwards it to Fastmail as-is — rejected outright with
-        # "need fully-qualified address". Confirmed hitting this from
-        # gammu during Stage 6 validation.
-        myhostname = "${config.networking.hostName}.home.matos.cc";
-        smtp_generic_maps = "texthash:/etc/postfix-generic-map";
+    postfix =
+      lib.mkIf
+        (
+          !(builtins.elem config.networking.hostName [
+            "porkchop"
+            "huginn"
+          ])
+        )
+        {
+          enable = true;
+          settings.main = {
+            # See the environment.etc."postfix-generic-map" comment below and
+            # modules/nixos/smtp-relay.nix's module-level comment for why both
+            # of these are needed: a mail client that builds its own From
+            # address via gethostname() (e.g. mailutils' `mail`) produces a
+            # syntactically complete but short-hostname address
+            # (alberth@gammu) that myorigin never rewrites, and huginn's own
+            # relay forwards it to Fastmail as-is — rejected outright with
+            # "need fully-qualified address". Confirmed hitting this from
+            # gammu during Stage 6 validation.
+            myhostname = "${config.networking.hostName}.home.matos.cc";
+            smtp_generic_maps = "texthash:/etc/postfix-generic-map";
 
-        # Listen on loopback only — this is a client, not a relay
-        inet_interfaces = "loopback-only";
-        inet_protocols = "all";
-        # Relay all mail through huginn via Tailscale hostname; fall back to
-        # porkchop if huginn doesn't respond (see ARCHITECTURE.md §10 Stage 6).
-        relayhost = [ "[huginn.ts.matos.cc]:25" ];
-        smtp_fallback_relay = [ "[porkchop.ts.matos.cc]:25" ];
-        # Disable local delivery
-        mydestination = "";
-        local_transport = "error:local delivery disabled";
-        # Opportunistic TLS toward the relay
-        smtp_tls_security_level = "may";
-      };
-    };
+            # Listen on loopback only — this is a client, not a relay
+            inet_interfaces = "loopback-only";
+            inet_protocols = "all";
+            # Relay all mail through huginn via Tailscale hostname; fall back to
+            # porkchop if huginn doesn't respond (see ARCHITECTURE.md §10 Stage 6).
+            relayhost = [ "[huginn.ts.matos.cc]:25" ];
+            smtp_fallback_relay = [ "[porkchop.ts.matos.cc]:25" ];
+            # Disable local delivery
+            mydestination = "";
+            local_transport = "error:local delivery disabled";
+            # Opportunistic TLS toward the relay
+            smtp_tls_security_level = "may";
+          };
+        };
   };
 
   # Generic table rewriting the bare hostname domain to the LAN FQDN on
@@ -132,7 +140,10 @@ in
   # and porkchop declare their own version of this same file in
   # smtp-relay.nix — both would conflict if this applied unconditionally.
   environment.etc."postfix-generic-map" = lib.mkIf (
-    !(builtins.elem config.networking.hostName [ "porkchop" "huginn" ])
+    !(builtins.elem config.networking.hostName [
+      "porkchop"
+      "huginn"
+    ])
   ) { text = "@${config.networking.hostName} ${config.networking.hostName}.home.matos.cc\n"; };
 
   # Latest stable kernel — override per-host if hardware requires a specific version

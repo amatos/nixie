@@ -185,6 +185,19 @@
               package = pkgs.nixfmt;
             };
 
+            # ── Nix static analysis (config: statix.toml) ────────────────────
+            # pass_filenames = false + always_run = true: statix check lints the
+            # whole tree (respecting statix.toml's ignore list) rather than only
+            # staged files, matching how the flake-update CI gate runs it.
+            statix = {
+              enable = true;
+              name = "statix";
+              entry = "${pkgs.statix}/bin/statix check";
+              language = "system";
+              pass_filenames = false;
+              always_run = true;
+            };
+
             # ── Standard file hygiene ───────────────────────────────────────
             # Hooks from pre-commit/pre-commit-hooks (check-yaml, end-of-file-fixer,
             # trailing-whitespace, check-merge-conflict, check-added-large-files,

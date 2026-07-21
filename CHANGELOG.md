@@ -52,6 +52,13 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `flake.nix` — `preCommitCheck.hooks` gained a `statix` hook (mirrors the
+  `markdownlint-cli2`/`commitlint` custom-hook style), so `statix check`
+  now runs locally on every commit and as part of `nix flake check`,
+  matching the `flake-update` CI gate.
+- `hosts/nixos/common-nixos.nix` — reformatted via `nixfmt`; had drifted
+  from canonical formatting (predates the pre-commit hooks being installed
+  locally). No behavior change.
 - `hosts/nixos/huginn/default.nix` — merged three repeated top-level
   `nixie.*` attribute keys (`krb5.keytabFile`, `smtpRelay`, `certbot`) into
   a single `nixie = { ... }` block, clearing a `statix check` warning. No
