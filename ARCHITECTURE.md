@@ -548,8 +548,17 @@ lower-effort CLI-only fallback if the full stack isn't wanted.
 
 ### Stage 8 — UniFi internal DNS CNAMEs
 
-- [ ] Using the UniFi Integration API on `10.0.4.1` (`nix-secrets/unifi/api-key.age` — access
-      already confirmed in Stage 0), add CNAME records on the UniFi-hosted DNS server:
-      `mail.home.matos.cc` → huginn, `mail-backup.home.matos.cc` → porkchop. Depends on the
-      Stage 5/6 hostname swap being finalized first.
-- [ ] **Validate**: confirm each CNAME resolves correctly from a LAN client.
+- [x] Added via UniFi's Local DNS Records API (`/proxy/network/v2/api/site/default/static-dns`,
+      not the Integration API used for the earlier access check — a separate endpoint on the
+      same controller): `mail.home.matos.cc` CNAME → `huginn.home.matos.cc`, and
+      `mail-backup.home.matos.cc` CNAME → `porkchop.home.matos.cc`, matching the existing
+      `smtp.home.matos.cc` → `porkchop.home.matos.cc` CNAME-to-hostname convention already in
+      use there.
+- [x] **Validated**: `getent hosts mail.home.matos.cc mail-backup.home.matos.cc` from porkchop
+      resolves both to the correct LAN IPs (huginn's and porkchop's respectively).
+
+**Note found, not acted on**: there's a pre-existing `home.matos.cc` MX record pointing at
+`smtp.home.matos.cc`, which CNAMEs to `porkchop.home.matos.cc` — i.e. inbound mail routing (via
+this MX) still targets porkchop specifically, unrelated to and unchanged by the outbound relay
+work in Stages 5/6. Worth a deliberate decision later on whether that should also move to
+huginn, but out of scope for this migration.
