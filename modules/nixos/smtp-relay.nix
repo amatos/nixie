@@ -19,6 +19,15 @@
   ...
 }:
 
+# NixOS's postfix module leaves myhostname at its Postfix-compiled default
+# (the bare system hostname, e.g. "huginn") unless networking.domain is set
+# fleet-wide, which it isn't. myorigin defaults to $myhostname, so any
+# locally-originated mail with no explicit envelope sender (e.g. a plain
+# `mail`/`mailx` invocation with no -r) gets qualified as
+# "user@huginn" instead of "user@huginn.home.matos.cc" -- which upstream
+# relays can reject outright. Setting myhostname to the LAN FQDN here fixes
+# both myorigin and the SMTP HELO/EHLO greeting in one place.
+
 let
   cfg = config.nixie.smtpRelay;
   relayTarget = "[${cfg.relayHost}]:${toString cfg.relayPort}";
@@ -98,6 +107,10 @@ in
           enable = true;
 
           settings.main = {
+            # See the module-level comment above: fixes myorigin (used to
+            # qualify unqualified local senders) and the HELO/EHLO greeting.
+            myhostname = "${config.networking.hostName}.home.matos.cc";
+
             # Listen on all interfaces so LAN / Tailscale hosts can relay.
             # Access is controlled by mynetworks below — not by interface binding.
             inet_interfaces = "all";
