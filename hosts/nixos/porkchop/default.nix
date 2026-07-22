@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   nix-secrets,
   nix-keytabs-matos-cc,
   ...
@@ -200,4 +201,17 @@ in
     owner = "root";
     mode = "0400";
   };
+
+  # sops-nix cutover (SOPS_MIGRATION.md Step 16) — alongside, not replacing,
+  # age.secrets.grafanaSecretKey (modules/nixos/syslog-server.nix). Grafana's
+  # secret_key is a plain assignment there (not mkDefault), so overriding it
+  # here needs mkForce.
+  sops.secrets.grafana-secret-key-sops = {
+    sopsFile = "${nix-secrets}/grafana-secret-key.yaml";
+    key = "grafana-secret-key";
+    owner = "grafana";
+    mode = "0400";
+  };
+  services.grafana.settings.security.secret_key =
+    lib.mkForce "$__file{${config.sops.secrets.grafana-secret-key-sops.path}}";
 }

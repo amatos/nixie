@@ -250,6 +250,24 @@ needs it. Do not batch multiple groups together.
         agent, at least under this harness's default permissions.
 - [ ] **Step 16**: `grafanaHosts` group (`grafana-secret-key`) — validate Grafana still starts
       on porkchop with the SOPS-sourced secret.
+      - **PREP DONE, DEPLOY BLOCKED** (same porkchop sudo blocker as Step 12; see there for the
+        `nixos-rebuild switch --target-host` command to retry). `nix-secrets`: encrypted
+        `grafana-secret-key.yaml` under a new `porkchop_ssh`-scoped rule (content decrypted from
+        the existing `.age` via the no-PIN/no-touch YubiKey identity). Also added a
+        `*yubikey_0634d1c4` anchor to `.sops.yaml` and to this rule and Step 12's — that identity
+        (see memory) was added to `nix-secrets/secrets.nix`'s `users` group after `.sops.yaml`
+        was first drafted in Step 5, so it wasn't in sync; now it is, and it's usable for
+        non-interactive validation going forward (re-encrypted `smtp-relay-sasl.yaml` too, to
+        pick up the new recipient). `nixie`: `sops.secrets.grafana-secret-key-sops` wired on
+        porkchop alongside `age.secrets.grafanaSecretKey`
+        (`modules/nixos/syslog-server.nix`), and `services.grafana.settings.security.secret_key`
+        overridden with `lib.mkForce` to point at it (that module sets it as a plain assignment,
+        not `mkDefault`, so a bare host-level override would conflict without `mkForce`).
+      - **Also blocked**: `nix-secrets`' commits for this step failed to sign — the GPG signing
+        key's subkey expired 2026-07-05 (today, when this was hit, is 2026-07-22). All commits
+        are blocked repo-wide until the key is renewed, not just this one — every change above
+        is staged/present in the working tree but **uncommitted**. Needs the user's GPG key
+        renewed before any further commits (here or anywhere else) can happen.
 - [ ] **Step 17**: remaining `users ++ systems`-scoped fleet-wide secrets (`github/ssh-key`,
       `github/ratelimit`, `luadns.ini`, `tailscale-authkey`, `cachix-authtoken`,
       `default-nixos-user-password`, `unifi/api-key`, `users/alberth`, `users/nixos`,
