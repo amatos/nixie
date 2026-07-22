@@ -1,5 +1,6 @@
 {
   pkgs,
+  nix-secrets,
   nix-keytabs-matos-cc,
   ...
 }:
@@ -162,5 +163,31 @@ in
         "quic://0.0.0.0:22000"
       ];
     };
+  };
+
+  # sops-nix PoC (SOPS_MIGRATION.md Step 13) — alongside, not replacing, the
+  # existing age.secrets.{krb5MasterKey,kdcLdapPassword,ldapAdminPassword,
+  # ldapKdcPassword} declared inside nix-kerberos-ldap's own modules. Deployed
+  # to side paths, not wired into the live KDC/LDAP config: full cutover is
+  # deferred to Phase 5, since the actual consuming code lives in that
+  # external repo, not here. Purely validates the encrypt/deploy/decrypt
+  # pipeline and exact content match for this highest-consequence secret group.
+  sops.secrets."ldap-admin-password-sops-poc" = {
+    sopsFile = "${nix-secrets}/ldap.yaml";
+    key = "admin-password";
+    owner = "root";
+    mode = "0400";
+  };
+  sops.secrets."ldap-kdc-password-sops-poc" = {
+    sopsFile = "${nix-secrets}/ldap.yaml";
+    key = "kdc-password";
+    owner = "root";
+    mode = "0400";
+  };
+  sops.secrets."ldap-krb5-master-key-sops-poc" = {
+    sopsFile = "${nix-secrets}/ldap.yaml";
+    key = "krb5-master-key";
+    owner = "root";
+    mode = "0400";
   };
 }

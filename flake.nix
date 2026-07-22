@@ -384,6 +384,10 @@
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
             nix-kerberos-ldap.nixosModules.default
+            # sops-nix PoC (SOPS_MIGRATION.md Step 13) — alongside, not
+            # replacing, ragenix. Full cutover deferred to Phase 5, since
+            # nix-kerberos-ldap's own modules still consume age.secrets.*.
+            sops-nix.nixosModules.sops
             ./hosts/nixos/muninn
           ];
         };
