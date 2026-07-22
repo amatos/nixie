@@ -374,12 +374,27 @@ needs it. Do not batch multiple groups together.
         directory when a secret is removed from config, worth remembering for future cleanups.
       - Old `.age` files and `secrets.nix`/`.sops.yaml` entries removed only after the above
         validation passed and a final full-fleet rebuild confirmed nothing broke.
-- [ ] **Step 18**: **`nix-home-alberth` update, in lockstep with `cachix-authtoken` in Step
+- [x] **Step 18**: **`nix-home-alberth` update, in lockstep with `cachix-authtoken` in Step
       17**: `alberth/common/cachix.nix` hardcodes `secret="/run/agenix/cachix-authtoken"` —
       change to sops-nix's runtime path (`/run/secrets/cachix-authtoken` by default, or whatever
       Step 8's identity-source decision implies). Commit on `nix-home-alberth`'s own
       `sops-nix-migration` branch. **Validate**: `~/.config/cachix/cachix.dhall` still gets
       written correctly with the right token after a home-manager activation.
+      - Repointed to `/run/secrets/cachix-authtoken` (no `path` override was set on the nixie
+        side, so this is sops-nix's plain default). Build-validated standalone via
+        `nix build '.#homeConfigurations."alberth@codex".activationPackage'` — the built
+        activation script correctly referenced the new path.
+      - **Found a real gap this closed**: Step 17's `cachix-authtoken` cutover deleted
+        `/run/agenix/cachix-authtoken` entirely (agenix's own generation-based cleanup removed
+        it once nothing declared it anymore). Since `nix-home-alberth`'s `main` branch was still
+        on the old `/run/agenix/` path at that point, its activation script's `if [ -f "$secret"
+        ]` guard silently no-op'd on codex's Step 17 switch — `cachix.dhall` went stale (not
+        broken, just not refreshed) rather than erroring, which is exactly the kind of failure
+        that's easy to miss. Confirmed via `stat`: the file's mtime predated the Step 17 switch.
+        Redeploying codex with this fix (`--override-input nix-home-alberth
+        git+file:///Users/alberth/Projects/nix-home-alberth?ref=sops-nix-migration`) refreshed
+        `cachix.dhall`'s mtime with identical byte-for-byte content (168 bytes, same token) —
+        confirms the fix works and nothing was corrupted while stale.
 
 ## Phase 4 — Migrate `nix-keytabs-matos-cc`
 
