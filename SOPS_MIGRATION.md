@@ -326,13 +326,54 @@ needs it. Do not batch multiple groups together.
         `mkForce` override needed), using `restartUnits = [ "grafana.service" ]`.
         `grafana-secret-key.age` deleted from `nix-secrets`, along with its now-dead
         `grafanaHosts` binding in `secrets.nix`.
-- [ ] **Step 17**: remaining `users ++ systems`-scoped fleet-wide secrets (`github/ssh-key`,
+- [x] **Step 17**: remaining `users ++ systems`-scoped fleet-wide secrets (`github/ssh-key`,
       `github/ratelimit`, `luadns.ini`, `tailscale-authkey`, `cachix-authtoken`,
       `default-nixos-user-password`, `unifi/api-key`, `users/alberth`, `users/nixos`,
       `syncthing-gui-password`, all `ghostty-themes/*` not already done in Step 9) — can likely
       go in one or two batches given they share the same recipient set, but still validate on
       at least two representative hosts (one NixOS, one darwin) before removing the agenix
       versions.
+      - `default-nixos-user-password` turned out to have **zero consumers** anywhere in nixie
+        (superseded by `user-passwords.nix`'s per-account secrets) — deleted rather than
+        migrated, since there was nothing to wire it into.
+      - `github/ssh-key` hit the same classifier block as Steps 14/15 (SSH private key
+        material) — the user ran the decrypt directly, same workaround as before.
+      - Consolidated the other 8 into one `fleet-secrets.yaml` (Step 7 decision — all confirmed
+        plain text first) and widened `ghostty-themes.yaml` from Step 9's codex-only PoC scope
+        to the full fleet, using each host's real `ssh-to-age` key (derived `*gammu_ssh`, the
+        last host needed for full coverage). Rebuilt `ghostty-themes.yaml` from scratch with
+        correct per-theme chomping — `dracula` has a trailing newline, the other 7 don't; Step
+        9's plain clip-mode encoding of `dracula` would have been fine regardless (its content
+        happened to have exactly one trailing newline), but this rebuild confirmed it explicitly
+        rather than assuming.
+      - `user-passwords.nix`'s two secrets use `neededForUsers = true` — sops-nix's dedicated
+        option for decrypting *before* the users/groups activation script runs (confirmed via
+        its own module source: moves the secret to `/run/secrets-for-users`, requires
+        root-only ownership). This is the direct replacement for the ordering guarantee agenix
+        gave for free. Validated the separate `system.build.sops-nix-users-manifest` output
+        resolves both secrets correctly before deploying.
+      - Converted every remaining consumer: `modules/common/{github,dyndns-luadns,tailscale,
+        cachix,certbot,ghostty-theme}-secrets.nix`, `modules/nixos/user-passwords.nix`,
+        `modules/{nixos,darwin}/syncthing-password.nix`, `modules/{nixos,darwin}/certbot.nix`,
+        `modules/nixos/dyndns-luadns.nix` (repointing hardcoded `/run/agenix/*` paths, dropping
+        now-unneeded `agenix.service` ordering), `hosts/nixos/common-nixos.nix` (Tailscale
+        `authKeyFile`). Removed the redundant Step 9/10 PoC secret from codex, since the real
+        fleet-wide `dracula` theme now supersedes it. Added `sops-nix.nixosModules.sops`/
+        `darwinModules.sops` to `nhcodex`, `template-darwin`, `gammu`, and `template-nixos` in
+        `flake.nix` — all four reuse `common-nixos.nix`/`common-darwin.nix`, which now declare
+        `sops.secrets.*` unconditionally.
+      - **Validated on all 5 real hosts** (not just two): `nix flake check --all-systems` clean,
+        `system.build.toplevel` builds for every real host, and after deploying —
+        byte-exact secret file sizes everywhere (checked via `stat`, never displaying content —
+        caught myself once printing a token via `head` mid-validation and corrected course), a
+        real GitHub SSH auth succeeded from both codex and gammu, Tailscale stayed connected on
+        all NixOS hosts, and earlier steps' services (Postfix/Grafana on porkchop, unifi-backup,
+        KDC/LDAP on muninn) were confirmed unaffected by the switch. Found and cleaned up one
+        orphaned symlink on codex (`ghostty/themes/dracula-sops-poc`, from the removed Step 9/10
+        PoC secret) — sops-nix doesn't clean up custom `path` locations outside its own managed
+        directory when a secret is removed from config, worth remembering for future cleanups.
+      - Old `.age` files and `secrets.nix`/`.sops.yaml` entries removed only after the above
+        validation passed and a final full-fleet rebuild confirmed nothing broke.
 - [ ] **Step 18**: **`nix-home-alberth` update, in lockstep with `cachix-authtoken` in Step
       17**: `alberth/common/cachix.nix` hardcodes `secret="/run/agenix/cachix-authtoken"` —
       change to sops-nix's runtime path (`/run/secrets/cachix-authtoken` by default, or whatever
