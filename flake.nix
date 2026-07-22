@@ -453,10 +453,12 @@
               ragenix.packages.${system}.default # rekey secrets, add recipients
               sops # sops-nix migration experiment — see SOPS_MIGRATION.md
               age # sops-nix migration experiment — see SOPS_MIGRATION.md
-              # sops-nix migration experiment — see SOPS_MIGRATION.md. WARNING: do not use
-              # this to derive a host's age recipient for .sops.yaml — its ed25519 conversion
-              # is incompatible with age/sops's own (see Step 8/9 notes). Use the host's raw
-              # SSH .pub string as the recipient instead.
+              # sops-nix migration experiment — see SOPS_MIGRATION.md. Use this to derive a
+              # host's age recipient for .sops.yaml (`ssh-to-age -i <host>.pub`) — its output
+              # matches what sops-nix's own sops-install-secrets computes internally at deploy
+              # time (confirmed via Step 10's real deploy log). Do NOT use the raw SSH .pub
+              # string as the recipient instead — that only works with plain sops/age CLI
+              # testing, not the real sops-nix deploy path (see Step 8/9 notes).
               ssh-to-age
               nixos-anywhere # provision new hosts via nixos-anywhere
               nix-tree # visualize derivation dependency graph

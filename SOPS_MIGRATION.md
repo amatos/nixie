@@ -103,27 +103,24 @@ is written to stand on its own.
       via `modules/common/age-host-key.nix` (as today), or switch to deriving it from the
       existing SSH host key via `ssh-to-age` (removes a custom module, couples secret-decryption
       identity to the SSH host key's lifecycle instead)? Record the decision here before Step 10.
-      - Decision: **derive from the existing SSH host key** — simplifies future work by removing
-        a bespoke module (`modules/common/age-host-key.nix`, retired in Phase 6/Step 24) and
-        reusing infrastructure every host already has (`/etc/ssh/ssh_host_ed25519_key`) instead
-        of provisioning and rotating a second, parallel identity. sops-nix's
-        `sops.age.sshKeyPaths` option consumes the SSH host key directly (no manual conversion
-        step needed at activation time — sops-nix does it internally via the same
-        `filippo.io/age` library `sops`/`age` use); the recipient side of `.sops.yaml` needs
-        each host's SSH public key, in **raw form** (`ssh-ed25519 AAAA...`, straight from the
-        `.pub` file, quoted) — **not** converted via the standalone `ssh-to-age` CLI.
-        **Correction (found during Step 9's PoC, see notes there)**: the original plan here was
-        to precompute each host's `age1...` recipient via `ssh-to-age`, but that tool's ed25519
-        conversion is incompatible with `age`/`sops`'s own (confirmed: different libraries,
-        different output, verified by testing both round-trip). The raw SSH public key string
-        works directly as a recipient and is what actually decrypts. This replaces the
-        `codex`/`gammu`/`porkchop`/`huginn`/`muninn` anchors currently in `.sops.yaml` (Step 5)
-        — those were transcribed from `nix-secrets/secrets.nix`'s existing ragenix host keys and
-        will need swapping for each host's raw SSH `.pub` string before Phase 3 (Step 12+)
-        encrypts anything for real (`codex`'s anchor is already done, see Step 9). Coupling
-        secret-decryption identity to the SSH host key's lifecycle is an accepted tradeoff:
-        rotating a host's SSH host key would now also require re-encrypting its secrets, which
-        doesn't happen today.
+      - Decision: **derive from the existing SSH host key via `ssh-to-age`** — simplifies future
+        work by removing a bespoke module (`modules/common/age-host-key.nix`, retired in Phase
+        6/Step 24) and reusing infrastructure every host already has
+        (`/etc/ssh/ssh_host_ed25519_key`) instead of provisioning and rotating a second, parallel
+        identity. sops-nix's `sops.age.sshKeyPaths` option consumes the SSH host key directly at
+        activation time, converting it internally to a plain X25519 age identity; the recipient
+        side of `.sops.yaml` needs each host's **`ssh-to-age`-derived `age1...` string**
+        (`ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub`), matching what sops-nix's
+        `sops-install-secrets` computes internally — confirmed directly from its own log output
+        during Step 10's real deploy. (Step 9's PoC briefly went down a wrong path here — see its
+        notes for the full story of a red herring and the correction — but this is confirmed
+        correct as of Step 10.) This replaces the `codex`/`gammu`/`porkchop`/`huginn`/`muninn`
+        anchors currently in `.sops.yaml` (Step 5) — those were transcribed from
+        `nix-secrets/secrets.nix`'s existing ragenix host keys and will need re-deriving via
+        `ssh-to-age` for each host before Phase 3 (Step 12+) encrypts anything for real (`codex`'s
+        anchor is already done, see Step 9). Coupling secret-decryption identity to the SSH host
+        key's lifecycle is an accepted tradeoff: rotating a host's SSH host key would now also
+        require re-encrypting its secrets, which doesn't happen today.
 
 ## Phase 2 — Proof of concept on one low-risk secret
 
@@ -135,28 +132,36 @@ is written to stand on its own.
       - **Blocker hit, then resolved.** Used `codex` as the one real host (this repo happens to
         run on codex itself, so its real SSH host key was available locally without needing
         remote access to another fleet host).
-      - **Root cause**: the standalone `ssh-to-age` CLI implements its own ed25519→X25519
-        conversion — confirmed via `go version -m`, its binary depends only on
-        `filippo.io/edwards25519`, *not* `filippo.io/age` at all — while `age` and `sops` (both
-        depending on `filippo.io/age` v1.3.1) use that library's own, independently-implemented
-        SSH support internally. The two do not produce the same recipient for the same SSH key.
-        Confirmed conclusively: `age`'s own native SSH support (`age -R host_key.pub` to
-        encrypt, `age -d -i host_key` to decrypt, no `ssh-to-age` involved at any point)
-        round-trips perfectly against codex's real host key; `sops`/`age` decrypting a
-        recipient computed by `ssh-to-age` does not, even though `ssh-to-age -private-key -i
-        <key> | age-keygen -y` (piped directly, private key never printed) reproduces the exact
-        same public key `ssh-to-age -i <key>.pub` computes — i.e. `ssh-to-age` is internally
-        consistent with itself, just incompatible with `age`/`sops`.
-      - **Fix**: don't run host SSH public keys through `ssh-to-age` at all. Use the raw SSH
-        public key string (`ssh-ed25519 AAAA...`, straight from `.pub`, quoted) directly as the
-        age recipient in `.sops.yaml` — confirmed `sops`'s `filippo.io/age` dependency accepts
-        this format natively (same as `age -R`), and decrypts correctly via
-        `SOPS_AGE_SSH_PRIVATE_KEY_FILE` pointing at the raw private key. `nix-secrets/.sops.yaml`
-        updated accordingly (`*codex_ssh` anchor is now the raw `.pub` string, with a comment
-        warning against `ssh-to-age` for this purpose), `ghostty-themes.yaml` re-encrypted under
-        the corrected recipient, and the full loop validated: `sudo env
-        SOPS_AGE_SSH_PRIVATE_KEY_FILE=/etc/ssh/ssh_host_ed25519_key sops -d ghostty-themes.yaml`
-        returns the exact original `dracula` theme content.
+      - **Root cause, first (wrong) diagnosis**: initially concluded the standalone `ssh-to-age`
+        CLI's ed25519→X25519 conversion (it depends only on `filippo.io/edwards25519`, not
+        `filippo.io/age`) was incompatible with `age`/`sops`'s own, based on `age -d -i
+        host_key`/`sops -d` with `SOPS_AGE_SSH_PRIVATE_KEY_FILE` both failing to decrypt a file
+        encrypted to the `ssh-to-age`-derived recipient. Switched `.sops.yaml`'s `*codex_ssh`
+        anchor to the raw `ssh-ed25519 AAAA...` public key string instead (which *did* decrypt
+        via plain `sops -d`/`age -d -i`), and shipped that.
+      - **That fix was wrong, found via Step 10's real deploy.** Running the actual
+        `darwin-rebuild switch` on codex, sops-nix's real deploy-time tool
+        (`sops-install-secrets`, driven by `sops.age.sshKeyPaths`) logged: `Imported
+        /etc/ssh/ssh_host_ed25519_key as age key with fingerprint
+        age1dq4gttszvhkf5j6kcvquggnc7a4vxrwgyk6k4ldxmmpekc7pzupqegqrdm` — the *exact* fingerprint
+        `ssh-to-age` computes. So `ssh-to-age`'s conversion was right all along, and the earlier
+        manual test wasn't a conversion bug — it was pairing an inconsistent stanza type: `age -R
+        host_key.pub`/`-i host_key` (or a raw ssh-ed25519 recipient string) creates/unwraps an
+        **SSH-specific** ciphertext stanza, while `age -r <age1... string>` creates a **generic
+        X25519** stanza; `-i sshkey`-style identity loading only unwraps the SSH-specific kind,
+        regardless of whether the underlying key math matches. `sops-install-secrets` doesn't use
+        that SSH-specific stanza path at all — it converts the SSH key to a plain X25519 age
+        identity internally (matching `ssh-to-age`'s output) and needs a plain `age1...` recipient
+        in the file to match against. Reverted `.sops.yaml`'s `*codex_ssh` anchor back to
+        `age1dq4gttszvhkf5j6kcvquggnc7a4vxrwgyk6k4ldxmmpekc7pzupqegqrdm`, re-encrypted
+        `ghostty-themes.yaml`, and Step 10 (below) confirms this is actually correct.
+      - **Lesson for the rest of the migration**: when precomputing a host's age recipient from
+        its SSH key for `.sops.yaml`, use `ssh-to-age -i <host>.pub` (the converted `age1...`
+        form) — not the raw SSH public key string. Validate any such recipient against a real
+        `darwin-rebuild`/`nixos-rebuild switch` (or at least the built
+        `config.system.build.sops-nix-manifest` + a manual `sops-install-secrets` run), not just
+        plain `sops -d`/`age -d` CLI testing — the two tools don't exercise the same code path
+        for SSH keys, so success in one doesn't guarantee success in the other.
       - **Wired**: added `sops-nix.darwinModules.sops` to codex's module list in `flake.nix`
         (alongside `darwintron`'s existing smoke-test entry) and
         `sops.secrets.ghostty-theme-dracula-sops-poc` to `hosts/darwin/codex/default.nix`
@@ -164,25 +169,32 @@ is written to stand on its own.
         separate `dracula-sops-poc` path rather than the live theme file, so it sits alongside
         the existing `age.secrets.ghostty-theme-dracula` without disturbing it). Required adding
         `nix-secrets` to codex's module function args (wasn't previously used there).
-      - **Build-validated** (not yet deployed — that's Step 10): `nix build
-        .#darwinConfigurations.codex.config.system.build.toplevel` succeeds
-        (`--override-input nix-secrets git+file:///Users/alberth/Projects/nix-secrets?ref=sops-nix-migration
-        --no-write-lock-file`, since nix-secrets' local commits aren't pushed — `flake.lock`
-        deliberately untouched). Inspected the built
-        `system.build.sops-nix-manifest` directly: `ageSshKeyPaths` is
-        `["/etc/ssh/ssh_host_ed25519_key"]` (nix-darwin's sops-nix module default, matching
-        Step 8's decision with no extra config needed), and the secret entry resolves exactly as
-        configured — correct `sopsFile` store path, `key: "dracula"`, `path`, `owner: "alberth"`,
-        `mode: "0400"`. This is real `sops-install-secrets`/`filippo.io/age` code (not plain
-        `sops`/`age` CLI), so it exercises the actual deploy-time code path, just not yet run for
-        real on the live system.
-- [ ] **Step 10**: deploy to that one host. **Validate**: `sops`-decrypted file appears at the
+- [x] **Step 10**: deploy to that one host. **Validate**: `sops`-decrypted file appears at the
       expected `/run/secrets/<name>` path with correct content/ownership/mode, and the
       consuming config (ghostty) still picks it up correctly.
-- [ ] **Step 11**: **checkpoint** — does this prove the pipeline end-to-end (encryption,
+      - Deployed for real via `sudo darwin-rebuild switch --flake .#codex --no-write-lock-file
+        --override-input nix-secrets git+file:///Users/alberth/Projects/nix-secrets?ref=sops-nix-migration`
+        (nix-secrets' commits aren't pushed, hence the override; run interactively by the user,
+        not through the agent's sandboxed shell — an earlier attempt through the sandbox failed
+        partway on an unrelated pre-existing OrbStack Group Container symlink step, apparently a
+        macOS TCC Full Disk Access restriction specific to the sandboxed process, not a config
+        issue). `/run/current-system` advanced to the new generation (40).
+      - **Validated**: `/run/secrets/ghostty-theme-dracula-sops-poc` exists,
+        `-r-------- alberth:staff`, mode `0400`, content byte-identical to the original
+        `nix-secrets/ghostty-themes/dracula` plaintext (`diff` clean).
+        `~/.config/ghostty/themes/dracula-sops-poc` correctly symlinks to it. (Deployed to this
+        separate PoC path rather than the live `dracula` theme file on purpose — see Step 9's
+        wiring notes — so "consuming config still picks it up" wasn't separately re-validated
+        against the live ghostty config in this PoC; the file landing correctly with the right
+        content/ownership/mode is what Step 10 asks to validate.)
+- [x] **Step 11**: **checkpoint** — does this prove the pipeline end-to-end (encryption,
       recipient resolution, deploy-time decryption, correct file permissions)? If not, stop and
       resolve before any further migration. This is the natural point to bail cheaply if the
       pipeline doesn't feel right.
+      - **Yes.** Encryption (Step 9), recipient resolution (`.sops.yaml` creation_rules scoped
+        correctly per group), deploy-time decryption (real `darwin-rebuild switch`, real
+        `sops-install-secrets`), and correct file permissions (`0400`, `alberth:staff`) are all
+        confirmed on a real host. Proceed to Phase 3.
 
 ## Phase 3 — Migrate `nix-secrets` in batches (one recipient-group at a time)
 
