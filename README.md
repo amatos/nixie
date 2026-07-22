@@ -15,9 +15,9 @@ its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
 | `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nix-home-alberth` |
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | CI build target |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
-| `porkchop` | NixOS | x86_64-linux | Physical | SMTP smart relay, ldap server, Kerberos KDC |
-| `huginn` | NixOS | x86_64-linux | Physical | misc |
-| `muninn` | NixOS | x86_64-linux | Physical | misc |
+| `porkchop` | NixOS | x86_64-linux | Physical | SMTP backup relay, centralized syslog (rsyslog + Grafana/Loki/Alloy) |
+| `huginn` | NixOS | x86_64-linux | Physical | SMTP primary relay |
+| `muninn` | NixOS | x86_64-linux | Physical | LDAP server, Kerberos KDC |
 | `ephemeraltron` | NixOS | x86_64-linux | Virtual | CI build target |
 | `minixie` | NixOS | x86_64-linux | N/A | generic nixos-anywhere bootstrap target, not a real host |
 
