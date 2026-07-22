@@ -203,35 +203,34 @@ deploy, validate the consuming service still works, *then* remove the old `age.s
 wiring and `.age` file for that batch only once the SOPS version is proven on every host that
 needs it. Do not batch multiple groups together.
 
-- [ ] **Step 12**: `smtpSmartRelays` group (`smtp-relay-sasl`) — validate on porkchop and huginn
+- [x] **Step 12**: `smtpSmartRelays` group (`smtp-relay-sasl`) — validate on porkchop and huginn
       (send a real test email through each, matching the validation approach used in the
       porkchop migration's Stage 5/6).
-      - **PREP DONE, DEPLOY BLOCKED.** `porkchop`/`huginn` real SSH host keys derived via
-        `ssh-to-age` (reachable directly from codex over Tailscale —
-        `ssh-keyscan -t ed25519 <host>.ts.matos.cc`, no remote access needed). `nix-secrets`:
-        added `*porkchop_ssh`/`*huginn_ssh` anchors (separate from the shared legacy
-        `*porkchop`/`*huginn` ragenix anchors, still used by other not-yet-migrated rules) and a
-        dedicated `smtp-relay-sasl.yaml` creation_rule; encrypted `smtp-relay-sasl.yaml` with the
-        real credential content (decrypted from the existing `.age` via the no-PIN/no-touch
-        YubiKey identity — see memory). `nixie`: `sops-nix.nixosModules.sops` added to both
-        hosts, `sops.secrets.smtp-relay-sasl-sops` wired alongside the existing
-        `age.secrets.smtp-relay-sasl`, and `nixie.smtpRelay.saslSecretPath` repointed at the SOPS
-        secret on both (user confirmed OK to cut over live, since nothing was actively using the
-        relays at the time). Both hosts' `system.build.toplevel` built successfully via remote
-        build on gammu (cross-compiling x86_64-linux from codex directly isn't possible).
-      - **Blocked on deploy**: `porkchop.ts.matos.cc`/`huginn.ts.matos.cc` are reachable via
-        passwordless SSH as `alberth` (works fine, no touch/PIN needed for SSH itself), but
-        `sudo` on both requires an interactive password (`root@` SSH login is disabled) — a
-        `nixos-rebuild switch --target-host` needs `--use-remote-sudo`, which would block on
-        that password prompt. Not attempted, since the user was away and unable to supply it.
-        **Next time**: either have the password ready for an interactive run, or set up
-        passwordless sudo for remote deploys (out of scope to decide unilaterally), then run:
-        `nixos-rebuild switch --flake .#porkchop --target-host porkchop.ts.matos.cc
-        --use-remote-sudo --no-write-lock-file --override-input nix-secrets
-        git+file:///Users/alberth/Projects/nix-secrets?ref=sops-nix-migration` (same for huginn).
-        After deploying: validate `/run/secrets/smtp-relay-sasl-sops` content/ownership/mode, then
-        send a real test email through each (e.g. `echo test | mail -s "sops-nix test" <addr>`)
-        to confirm Postfix actually authenticates via the SOPS-sourced credential.
+      - `porkchop`/`huginn` real SSH host keys derived via `ssh-to-age` (reachable directly from
+        codex over Tailscale — `ssh-keyscan -t ed25519 <host>.ts.matos.cc`, no remote access
+        needed). `nix-secrets`: added `*porkchop_ssh`/`*huginn_ssh` anchors (separate from the
+        shared legacy `*porkchop`/`*huginn` ragenix anchors, still used by other
+        not-yet-migrated rules) and a dedicated `smtp-relay-sasl.yaml` creation_rule; encrypted
+        with the real credential content.
+      - Deploying required `nixos-rebuild` via `nix run nixpkgs#nixos-rebuild --` (not installed
+        by default on darwin) with `--elevate=sudo --ask-elevate-password` (`--use-remote-sudo`
+        is deprecated) run interactively by the user for the sudo prompt — my sandboxed shell
+        has no live TTY the user can type a password into, so this step always needed the user
+        directly, same as codex's darwin-rebuild switch earlier.
+      - **Validated twice**: once with `sops.secrets.smtp-relay-sasl-sops` wired *alongside*
+        `age.secrets.smtp-relay-sasl` (`nixie.smtpRelay.saslSecretPath` repointed at it — user
+        confirmed OK to cut over live, nothing was using the relays at the time) — real test
+        emails via `sendmail` on both hosts, confirmed `status=sent (250 2.0.0 Ok)` in each
+        host's postfix log. Then again after fully removing the agenix wiring (see below) — same
+        `status=sent` result on both, proving the cutover holds with no fallback path left.
+      - **agenix wiring removed**: `modules/common/smtp-relay-secrets.nix` now declares
+        `sops.secrets.smtp-relay-sasl` directly (no more `age.secrets`), using
+        `restartUnits = [ "postfix.service" ]` in place of the old
+        `systemd.services.postfix.after/wants = ["agenix.service"]` (no explicit boot-ordering
+        dependency turned out to be needed — sops-nix installs secrets via the same
+        activation-script phase NixOS itself uses, which completes before services start).
+        `smtp-relay-sasl.age` deleted from `nix-secrets`, along with its now-dead
+        `smtpSmartRelays` binding in `secrets.nix`.
 - [ ] **Step 13**: `ldapHosts` group (`ldap/admin-password`, `ldap/kdc-password`,
       `ldap/krb5-master-key`) — **highest-consequence step in this phase**: these are boot-time
       secrets for muninn's KDC/LDAP. Validate with a full `kinit`/`ldapwhoami` check on muninn,
@@ -248,26 +247,30 @@ needs it. Do not batch multiple groups together.
         lower-sensitivity secrets in Steps 9/12 (theme file, SMTP password). This step likely
         needs a human to run the decrypt (or otherwise supply the plaintext) rather than an
         agent, at least under this harness's default permissions.
-- [ ] **Step 16**: `grafanaHosts` group (`grafana-secret-key`) — validate Grafana still starts
+- [x] **Step 16**: `grafanaHosts` group (`grafana-secret-key`) — validate Grafana still starts
       on porkchop with the SOPS-sourced secret.
-      - **PREP DONE, DEPLOY BLOCKED** (same porkchop sudo blocker as Step 12; see there for the
-        `nixos-rebuild switch --target-host` command to retry). `nix-secrets`: encrypted
-        `grafana-secret-key.yaml` under a new `porkchop_ssh`-scoped rule (content decrypted from
-        the existing `.age` via the no-PIN/no-touch YubiKey identity). Also added a
-        `*yubikey_0634d1c4` anchor to `.sops.yaml` and to this rule and Step 12's — that identity
-        (see memory) was added to `nix-secrets/secrets.nix`'s `users` group after `.sops.yaml`
-        was first drafted in Step 5, so it wasn't in sync; now it is, and it's usable for
-        non-interactive validation going forward (re-encrypted `smtp-relay-sasl.yaml` too, to
-        pick up the new recipient). `nixie`: `sops.secrets.grafana-secret-key-sops` wired on
-        porkchop alongside `age.secrets.grafanaSecretKey`
-        (`modules/nixos/syslog-server.nix`), and `services.grafana.settings.security.secret_key`
-        overridden with `lib.mkForce` to point at it (that module sets it as a plain assignment,
-        not `mkDefault`, so a bare host-level override would conflict without `mkForce`).
-      - **Also blocked**: `nix-secrets`' commits for this step failed to sign — the GPG signing
-        key's subkey expired 2026-07-05 (today, when this was hit, is 2026-07-22). All commits
-        are blocked repo-wide until the key is renewed, not just this one — every change above
-        is staged/present in the working tree but **uncommitted**. Needs the user's GPG key
-        renewed before any further commits (here or anywhere else) can happen.
+      - `nix-secrets`: encrypted `grafana-secret-key.yaml` under a new `porkchop_ssh`-scoped rule
+        (content decrypted from the existing `.age` via the no-PIN/no-touch YubiKey identity).
+        Also added a `*yubikey_0634d1c4` anchor to `.sops.yaml` and to this rule and Step 12's —
+        that identity (see memory) was added to `nix-secrets/secrets.nix`'s `users` group after
+        `.sops.yaml` was first drafted in Step 5, so it wasn't in sync; now it is, and it's
+        usable for non-interactive validation going forward.
+      - Hit a GPG signing blocker along the way: the signing key's subkey had expired
+        (2026-07-05) — it lives on a YubiKey and needs a PIN/touch the agent can't supply
+        non-interactively, so every commit failed until the user was back to handle it directly.
+        Nothing was lost; changes just sat staged until then.
+      - **Validated twice**, same as Step 12: once with `sops.secrets.grafana-secret-key-sops`
+        wired *alongside* `age.secrets.grafanaSecretKey`
+        (`services.grafana.settings.security.secret_key` overridden with `lib.mkForce`, since
+        that module sets it as a plain assignment, not `mkDefault`) — Grafana's `/api/health`
+        returned `HTTP 200`/`"database": "ok"`, with `currentprovider=secretKey.v1` in the logs
+        confirming it used the SOPS-sourced key. Then again after fully removing the agenix
+        wiring — same `HTTP 200` result.
+      - **agenix wiring removed**: `modules/nixos/syslog-server.nix` now declares
+        `sops.secrets.grafanaSecretKey` directly (no more `age.secrets`, no more host-level
+        `mkForce` override needed), using `restartUnits = [ "grafana.service" ]`.
+        `grafana-secret-key.age` deleted from `nix-secrets`, along with its now-dead
+        `grafanaHosts` binding in `secrets.nix`.
 - [ ] **Step 17**: remaining `users ++ systems`-scoped fleet-wide secrets (`github/ssh-key`,
       `github/ratelimit`, `luadns.ini`, `tailscale-authkey`, `cachix-authtoken`,
       `default-nixos-user-password`, `unifi/api-key`, `users/alberth`, `users/nixos`,
