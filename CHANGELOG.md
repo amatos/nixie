@@ -6,6 +6,43 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 26.07.19
+
+### Added
+
+- `modules/nixos/syslog-server.nix` (new module, wired into porkchop) —
+  centralized syslog pipeline, Stage 7 of the porkchop service
+  realignment (`ARCHITECTURE.md` §10):
+  - `nixie.syslogServer.enable` stands up an rsyslog receiver on UDP+TCP
+    514, writing one log file per sending host under
+    `/var/log/remote/<host>/<program>.log`.
+  - `nixie.syslogServer.grafana.enable` adds a single-node Loki +
+    Grafana log-review UI, Tailscale-only (not opened on the LAN
+    firewall — more sensitive than the receiver ports). Required a new
+    `nix-secrets/grafana-secret-key.age`, since NixOS 26.05's Grafana
+    module dropped its old shared-default `security.secret_key` with no
+    replacement.
+  - `nixie.syslogServer.alloy.enable` ships those per-host files into
+    Loki, labeling entries by host/program. Uses Grafana Alloy rather
+    than Promtail (the originally planned tool), since Promtail has been
+    removed from nixpkgs — reached end of life upstream. Alloy runs as
+    root rather than its default `DynamicUser`, to avoid a dynamic-group
+    boot-ordering risk similar to the openldap/agenix race fixed earlier
+    this cycle.
+- `hosts/nixos/common-nixos.nix` — every NixOS host except porkchop now
+  forwards its local syslog/journal messages to the new centralized
+  receiver over TCP, with a disk-backed, infinite-retry queue so
+  messages survive a brief receiver outage instead of being dropped.
+
+### Changed
+
+- `README.md` — host table's Function column for porkchop/huginn/muninn
+  was stale, still describing porkchop as the sole SMTP relay + LDAP/KDC
+  host from before the service realignment migration. Now reflects
+  current roles.
+
+---
+
 ## 26.07.18
 
 ### Added
