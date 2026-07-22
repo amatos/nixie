@@ -344,6 +344,9 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
+            # sops-nix migration (SOPS_MIGRATION.md Step 12) — alongside, not
+            # replacing, ragenix.
+            sops-nix.nixosModules.sops
             ./hosts/nixos/porkchop
           ];
         };
@@ -366,6 +369,9 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
+            # sops-nix migration (SOPS_MIGRATION.md Step 12) — alongside, not
+            # replacing, ragenix.
+            sops-nix.nixosModules.sops
             ./hosts/nixos/huginn
           ];
         };

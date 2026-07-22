@@ -1,4 +1,5 @@
 {
+  nix-secrets,
   nix-keytabs-matos-cc,
   ...
 }:
@@ -182,5 +183,16 @@ in
       enable = true;
       localDir = "/home/${primaryUser}/backups/unifi";
     };
+  };
+
+  # sops-nix PoC (SOPS_MIGRATION.md Step 12) — alongside, not replacing,
+  # age.secrets.smtp-relay-sasl (modules/common/smtp-relay-secrets.nix).
+  # Deployed to sops-nix's default runtime path for validation before
+  # nixie.smtpRelay.saslSecretPath is repointed at it.
+  sops.secrets.smtp-relay-sasl-sops = {
+    sopsFile = "${nix-secrets}/smtp-relay-sasl.yaml";
+    key = "smtp-relay-sasl";
+    owner = "root";
+    mode = "0400";
   };
 }
