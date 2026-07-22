@@ -261,8 +261,28 @@ needs it. Do not batch multiple groups together.
         secrets landed with correct `0400 root:root` permissions, matching the manifest exactly;
         content was already verified byte-identical to the original `.age` files before
         encryption. Full live-service cutover validation (`kinit`/`ldapwhoami`) is Phase 5's job.
-- [ ] **Step 14**: `unifiBackupHosts` group (`unifi/backup-ssh-key`) — validate the unifi-backup
+- [x] **Step 14**: `unifiBackupHosts` group (`unifi/backup-ssh-key`) — validate the unifi-backup
       service on porkchop still runs successfully.
+      - Confirmed plain printable text (OpenSSH's PEM/base64 armor) before encrypting. Caught a
+        real bug by diffing the round-trip before moving on: the original key file had a
+        trailing blank line, and YAML's default `|` (clip) block-scalar chomping silently
+        stripped it — fixed by using `|+` (keep) instead, preserving the exact original bytes.
+      - Scoped to `users` + porkchop's real `ssh-to-age` key (`*porkchop_ssh`).
+      - **Validated three times, escalating**: (1) wired `sops.secrets.unifi-backup-ssh-key-sops-poc`
+        alongside `age.secrets.unifi-backup-ssh-key`, then manually ran the exact `scp`
+        invocation the service uses (against the real `unifi.home.matos.cc` gateway, into a
+        throwaway `/tmp` directory) — succeeded (exit 0). (2) Converted
+        `modules/common/unifi-backup-secrets.nix` to `sops.secrets` directly (`restartUnits =
+        ["unifi-backup.service"]`), repointed the hardcoded `-i /run/agenix/...` path in
+        `modules/nixos/unifi-backup.nix`, deleted `unifi/backup-ssh-key.age` and its
+        `secrets.nix`/`.sops.yaml` entries. (3) Redeployed — `sops-nix`'s `restartUnits`
+        mechanism actually *started* `unifi-backup.service` as part of the switch (it wasn't
+        running before), and it completed with `status=0/SUCCESS`, landing fresh backup files —
+        the real, live, scheduled service validated end-to-end, not just a manual test.
+      - One manual-test-only false alarm along the way: an SSH-agent artifact
+        (`sign_and_send_pubkey: ... communication with agent failed`) from testing over a nested
+        SSH session — resolved with `env -u SSH_AUTH_SOCK` / `-o IdentityAgent=none` on the test
+        invocation; irrelevant to the real systemd service, which has no interactive agent.
 - [ ] **Step 15**: `remoteBuildHosts` group (`builder/codex-ssh-key`) — validate a remote build
       from codex to gammu still works.
       - **Note for whoever picks this up**: an agent session attempted to decrypt the existing
