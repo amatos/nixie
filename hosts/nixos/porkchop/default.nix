@@ -133,9 +133,14 @@ in
     # it's Tailscale-only for now (trustedInterfaces in common-nixos.nix).
     # Add explicit 3000/3100 LAN firewall rules here if LAN-wide access is
     # wanted instead.
+    # Grafana Alloy (Stage 7c) — tails the rsyslog-written per-host files
+    # under /var/log/remote/ and ships them into Loki, labeled by host and
+    # program. Runs as root (see module comment) rather than the default
+    # DynamicUser, since it only reads local files on this same host.
     syslogServer = {
       enable = true;
       grafana.enable = true;
+      alloy.enable = true;
     };
 
     # Certbot — certificates via LuaDNS DNS-01 challenge.

@@ -22,6 +22,14 @@ in
       Independently toggleable from the receiver itself so either half can
       be validated/rolled back on its own.
     '';
+
+    alloy.enable = lib.mkEnableOption ''
+      Grafana Alloy, tailing the rsyslog receiver's per-host log files and
+      shipping them into Loki (Stage 7c). Independently toggleable from
+      grafana.enable for the same reason. Promtail (the tool originally
+      planned here) has been removed from nixpkgs -- reached end of life
+      upstream -- so this uses its official Grafana Labs successor instead.
+    '';
   };
 
   config = lib.mkMerge [
@@ -118,6 +126,58 @@ in
           }
         ];
       };
+    })
+
+    (lib.mkIf cfg.alloy.enable {
+      services.alloy.enable = true;
+
+      # The module defaults to DynamicUser = true, which can't read
+      # /var/log/remote (root:root, 0750) without extra group wiring — and
+      # getting a dynamic group readable at first boot has the same class of
+      # ordering risk as the openldap/agenix race hit in Stage 2. Alloy here
+      # only reads local files on this same host and forwards to a local
+      # Loki, so running it as root sidesteps that entirely.
+      systemd.services.alloy.serviceConfig = {
+        DynamicUser = lib.mkForce false;
+        User = lib.mkForce "root";
+      };
+
+      environment.etc."alloy/config.alloy".text = ''
+        local.file_match "remote_syslog" {
+          path_targets = [
+            {"__path__" = "/var/log/remote/*/*.log"},
+          ]
+        }
+
+        discovery.relabel "remote_syslog" {
+          targets = local.file_match.remote_syslog.targets
+
+          rule {
+            source_labels = ["__path__"]
+            regex         = ".*/var/log/remote/([^/]+)/([^/]+)\\.log"
+            target_label  = "host"
+            replacement   = "$1"
+          }
+
+          rule {
+            source_labels = ["__path__"]
+            regex         = ".*/var/log/remote/([^/]+)/([^/]+)\\.log"
+            target_label  = "program"
+            replacement   = "$2"
+          }
+        }
+
+        loki.source.file "remote_syslog" {
+          targets    = discovery.relabel.remote_syslog.output
+          forward_to = [loki.write.default.receiver]
+        }
+
+        loki.write "default" {
+          endpoint {
+            url = "http://127.0.0.1:3100/loki/api/v1/push"
+          }
+        }
+      '';
     })
   ];
 }
