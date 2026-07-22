@@ -129,6 +129,33 @@ in
             smtp_tls_security_level = "may";
           };
         };
+
+    # Syslog forwarding client — Stage 7d of ARCHITECTURE.md §10. Ships this
+    # host's local syslog/journal messages to porkchop's centralized
+    # receiver (Stage 7a) over TCP, via the imuxsock input every rsyslogd
+    # instance loads unconditionally (reads journald's syslog-compatible
+    # forwarding socket) — no extra input config needed here, just the
+    # forward action. Guard excludes only porkchop itself (the receiver);
+    # unlike the postfix client guard, huginn doesn't need excluding here
+    # since it isn't also running its own syslog receiver.
+    rsyslogd = lib.mkIf (config.networking.hostName != "porkchop") {
+      enable = true;
+      # This host only forwards — skip the default local file layout
+      # (dhcpd/mail/warn/messages); porkchop's Grafana is now the place to
+      # look, not this host's own /var/log/*.
+      defaultConfig = "";
+      extraConfig = ''
+        action(
+          type="omfwd"
+          target="porkchop.ts.matos.cc"
+          port="514"
+          protocol="tcp"
+          action.resumeRetryCount="-1"
+          queue.type="linkedList"
+          queue.filename="fwd_queue"
+        )
+      '';
+    };
   };
 
   # Generic table rewriting the bare hostname domain to the LAN FQDN on
