@@ -37,6 +37,18 @@
     mode = "0600";
   };
 
+  # sops-nix PoC (SOPS_MIGRATION.md Step 15) — alongside, not replacing, the
+  # age.secrets version above. /etc/nix/machines still references the agenix
+  # path; this just validates the encrypt/deploy/decrypt pipeline before the
+  # actual cutover.
+  sops.secrets.remote-build-ssh-key-sops-poc = {
+    sopsFile = "${nix-secrets}/builder-codex-ssh-key.yaml";
+    key = "builder-codex-ssh-key";
+    path = "/etc/nix/remotebuild_ed25519-sops-poc";
+    owner = "root";
+    mode = "0600";
+  };
+
   # Format: see build-remote.pl / nix-darwin's linux-builder.nix — one line
   # per machine: "[ssh://][user@]host system(s) sshKey maxJobs speedFactor
   # supportedFeatures mandatoryFeatures [publicHostKey]". publicHostKey is
