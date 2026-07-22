@@ -20,6 +20,7 @@ in
     ../../../modules/nixos/smtp-relay.nix
     ../../../modules/nixos/dyndns-luadns.nix
     ../../../modules/nixos/unifi-backup.nix
+    ../../../modules/nixos/syslog-server.nix
   ];
 
   networking.hostName = "porkchop";
@@ -28,8 +29,9 @@ in
   # see syncthing block below); Syncthing sync protocol (22000) open globally
   # for peer connectivity. SMTP (25) and SMTPS (465) restricted to local
   # subnet on IPv4. NTP (123 UDP) and NTS-KE (4460 TCP) restricted to local
-  # subnet on IPv4. Tailscale is already covered by trustedInterfaces =
-  # ["tailscale0"] in common-nixos.nix.
+  # subnet on IPv4. Syslog (514 UDP+TCP) restricted to local subnet on IPv4.
+  # Tailscale is already covered by trustedInterfaces = ["tailscale0"] in
+  # common-nixos.nix.
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22000 ];
@@ -40,6 +42,8 @@ in
       ip  saddr 10.0.4.0/22 tcp dport 465  accept
       ip  saddr 10.0.4.0/22 udp dport 123  accept
       ip  saddr 10.0.4.0/22 tcp dport 4460 accept
+      ip  saddr 10.0.4.0/22 tcp dport 514  accept
+      ip  saddr 10.0.4.0/22 udp dport 514  accept
     '';
   };
 
@@ -117,6 +121,12 @@ in
     };
 
     krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-porkchop.age";
+
+    # Centralized syslog receiver — Stage 7a of ARCHITECTURE.md §10.
+    # rsyslog listens on UDP+TCP 514, restricted to LAN/Tailscale by the
+    # firewall above. Writes one log file per sending host under
+    # /var/log/remote/<hostname>/<program>.log.
+    syslogServer.enable = true;
 
     # Certbot — certificates via LuaDNS DNS-01 challenge.
     # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
