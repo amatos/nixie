@@ -550,8 +550,18 @@ lower-effort CLI-only fallback if the full stack isn't wanted.
       Committed as `dd77f34` (+ `flake.lock` bump `dbcc941`). **Validated**: Grafana reachable
       at `porkchop.ts.matos.cc:3000`, a manually-pushed Loki log line queried successfully via
       Explore.
-- [ ] **7c**: add `services.promtail` on porkchop, tailing the rsyslog output files (or journald)
-      into Loki. Validate: one real host's logs appear end-to-end in Grafana.
+- [x] **7c**: `services.promtail` is gone from nixpkgs — reached end of life upstream (see
+      `nixos/modules/rename.nix`), pointing to `grafana-alloy` or `fluent-bit` as successors.
+      Used **Grafana Alloy** instead (`nixie.syslogServer.alloy.enable`,
+      `modules/nixos/syslog-server.nix`): `local.file_match` discovers
+      `/var/log/remote/*/*.log`, `discovery.relabel` extracts `host`/`program` labels from the
+      path, `loki.source.file` ships to the local Loki. Runs as root rather than the module's
+      default `DynamicUser` — the dynamic user can't read `/var/log/remote` (`root:root 0750`)
+      without extra group wiring, and getting a dynamic group readable at first boot risked the
+      same class of ordering bug as the openldap/agenix race from Stage 2; since Alloy here only
+      reads local files and forwards to a local Loki, root sidesteps that entirely. Committed as
+      `4bd3883`. **Validated**: `logger` test message from huginn confirmed end-to-end in
+      Grafana via `{host="huginn"}`.
 - [ ] **7d**: roll fleet-wide log forwarding out via a `common-nixos.nix` default (mirroring the
       postfix-client-default pattern), one host at a time. Validate each host's logs appear in
       Grafana before moving to the next.
