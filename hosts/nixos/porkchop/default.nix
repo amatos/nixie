@@ -126,7 +126,17 @@ in
     # rsyslog listens on UDP+TCP 514, restricted to LAN/Tailscale by the
     # firewall above. Writes one log file per sending host under
     # /var/log/remote/<hostname>/<program>.log.
-    syslogServer.enable = true;
+    #
+    # Grafana + Loki (Stage 7b) — log review UI. Deliberately NOT opened on
+    # the LAN firewall below (unlike the receiver itself): a log-browsing
+    # dashboard is more sensitive than the ports that just accept syslog, so
+    # it's Tailscale-only for now (trustedInterfaces in common-nixos.nix).
+    # Add explicit 3000/3100 LAN firewall rules here if LAN-wide access is
+    # wanted instead.
+    syslogServer = {
+      enable = true;
+      grafana.enable = true;
+    };
 
     # Certbot — certificates via LuaDNS DNS-01 challenge.
     # postfixDeploy copies renewed cert+key to /etc/postfix/ssl/ (root:postfix 640)
