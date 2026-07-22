@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- `hosts/nixos/gammu/default.nix` — gammu still booted straight into GDM
+  despite `systemd.services.display-manager.wantedBy = mkForce [ ]`.
+  Root cause: upstream systemd's `graphical.target` hardcodes
+  `Wants=display-manager.service` in its own `[Unit]` section,
+  independent of that setting, and `services.xserver`/`displayManager`
+  defaults `systemd.defaultUnit` to `graphical.target`. Now forces
+  `systemd.defaultUnit = "multi-user.target"` so boot never reaches
+  `graphical.target` at all; GDM remains startable on demand via
+  `systemctl start display-manager`.
+
 ---
 
 ## 26.07.19

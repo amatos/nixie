@@ -63,9 +63,22 @@ in
 
   # GDM is configured (for xrdp's GNOME session, below) but must not launch
   # automatically at boot — this host is normally accessed headlessly over
-  # SSH/RDP, not via a local console login screen. graphical.target normally
-  # pulls in display-manager.service; dropping that wantedBy leaves gdm
-  # startable on demand only (`systemctl start display-manager`).
+  # SSH/RDP, not via a local console login screen.
+  #
+  # Dropping display-manager.service's own wantedBy is not sufficient on its
+  # own: upstream systemd's graphical.target unconditionally hardcodes
+  # `Wants=display-manager.service` in its own [Unit] section (confirmed via
+  # `systemctl cat graphical.target` on gammu — that file is an unmodified
+  # symlink into the systemd package, not something NixOS rewrites), so as
+  # long as display-manager.service exists at all, reaching graphical.target
+  # pulls it in regardless of wantedBy. services.xserver/displayManager sets
+  # `systemd.defaultUnit = mkDefault "graphical.target"`, so boot lands there
+  # by default. Forcing defaultUnit back to multi-user.target is what
+  # actually keeps gdm from auto-starting; the wantedBy override below is
+  # kept as well so an imperative `systemctl enable display-manager` can't
+  # re-introduce it. GDM remains startable on demand either way
+  # (`systemctl start display-manager`).
+  systemd.defaultUnit = lib.mkForce "multi-user.target";
   systemd.services.display-manager.wantedBy = lib.mkForce [ ];
 
   services = {
