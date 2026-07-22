@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/darwin/codex/homebrew.nix` — `elgato-control-center` cask, to
+  control Elgato Key Light, Ring Light, and other Elgato lighting gear.
+
 ### Fixed
 
 - `hosts/nixos/gammu/default.nix` — gammu still booted straight into GDM

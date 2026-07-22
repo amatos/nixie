@@ -190,6 +190,10 @@ in
         greedy = true;
       }
       {
+        name = "elgato-control-center"; # Control Elgato Key Light, Ring Light, and other gear
+        greedy = true;
+      }
+      {
         name = "elgato-stream-deck"; # Assign keys, and then decorate and label them
         greedy = true;
       }
