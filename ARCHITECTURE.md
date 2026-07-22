@@ -541,8 +541,15 @@ lower-effort CLI-only fallback if the full stack isn't wanted.
       quirk hit during validation). Committed as `caa6e00`. **Validated**: sent a test message
       from huginn via `logger`, confirmed it landed at
       `/var/log/remote/huginn/alberth.log` with correct timestamp/hostname/tag.
-- [ ] **7b**: add `services.loki` + `services.grafana` on porkchop. Validate: Grafana UI
-      reachable, can query a manually-inserted log line in Loki.
+- [x] **7b**: added `services.loki` + `services.grafana` on porkchop, gated by an independently
+      toggleable `nixie.syslogServer.grafana.enable` in `modules/nixos/syslog-server.nix`.
+      Required a new `grafana-secret-key.age` secret (NixOS 26.05's Grafana module has no
+      default `secret_key` anymore) — `nix-secrets` commit `dd944c0`, scoped to a new
+      `grafanaHosts = [ porkchop ]` group. Grafana is Tailscale-only (not opened on the LAN
+      firewall — a log-browsing dashboard is more sensitive than the receiver ports).
+      Committed as `dd77f34` (+ `flake.lock` bump `dbcc941`). **Validated**: Grafana reachable
+      at `porkchop.ts.matos.cc:3000`, a manually-pushed Loki log line queried successfully via
+      Explore.
 - [ ] **7c**: add `services.promtail` on porkchop, tailing the rsyslog output files (or journald)
       into Loki. Validate: one real host's logs appear end-to-end in Grafana.
 - [ ] **7d**: roll fleet-wide log forwarding out via a `common-nixos.nix` default (mirroring the
