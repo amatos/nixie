@@ -125,6 +125,45 @@ is written to stand on its own.
       goes wrong). Encrypt it under SOPS per the Phase 1 decisions, wire
       `sops.secrets.<name>` on one real host **alongside** (not replacing) the existing
       `age.secrets.<name>` for the same content.
+      - **IN PROGRESS, BLOCKED — see below.** Used `codex` as the one real host (this repo
+        happens to run on codex itself, so its real SSH host key was available locally without
+        needing remote access to another fleet host). Encryption half done: `nix-secrets`'
+        `.sops.yaml` (moved there from nixie per Step 6) has a PoC `creation_rule` for
+        `ghostty-themes.yaml` scoped to `users` + `*codex_ssh`
+        (`age1dq4gttszvhkf5j6kcvquggnc7a4vxrwgyk6k4ldxmmpekc7pzupqegqrdm`, derived via
+        `ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub`), and `ghostty-themes.yaml` itself
+        has the real `dracula` theme content (from the plaintext at
+        `nix-secrets/ghostty-themes/dracula` — untracked, **not committed**, still sitting on
+        disk; decide whether to delete it) encrypted under that rule. Verified the encrypted
+        file's embedded recipient list is exactly the intended 8 keys (`users` + codex), not
+        the broader fleet-wide 12.
+      - **Still not done**: wiring `sops.secrets.<name>` into codex's actual nix host config
+        (`hosts/darwin/codex/`) — blocked on the finding below, no point wiring a secret that
+        can't be proven to decrypt yet.
+      - **Blocker — resolve before continuing**: decrypting `ghostty-themes.yaml`'s `dracula`
+        key against codex's real SSH host private key fails, via *two independent paths*:
+        `sops -d` with `SOPS_AGE_SSH_PRIVATE_KEY_FILE=/etc/ssh/ssh_host_ed25519_key`, and plain
+        `age -d -i /etc/ssh/ssh_host_ed25519_key` against a fresh test message encrypted
+        straight to the same recipient. Both fail with "no identity matched any of the
+        recipients" — even though `ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key |
+        age-keygen -y` (private key piped directly, never printed) reproduces the *exact same*
+        public key computed from the `.pub` file. That's a contradiction: the same key, through
+        two derivation paths, produces a recipient neither `sops` nor `age`'s own SSH-decrypt
+        logic can open. Likely cause: an ed25519→X25519 conversion mismatch between the
+        standalone `ssh-to-age` tool and `age`/`sops`'s built-in SSH support (there are
+        historically two incompatible conversion conventions in this ecosystem for ed25519
+        keys specifically). **Not yet tested**: sops-nix doesn't use plain `sops`/`age` for
+        this at all — it ships its own `sops-install-secrets` Go binary
+        (`sops-nix.packages.<system>.sops-install-secrets`, confirmed buildable) driven by a
+        generated manifest, which is the actual code path used at real deploy time and may not
+        share the same bug. Testing it needs a standalone manifest built outside the full
+        module system — more involved, and touches private-key material further, which is
+        worth doing carefully (ideally by a human with direct shell access) rather than by an
+        agent working around sandboxing. **This must be resolved before Step 10** — if
+        sops-nix's own decrypt path has the same mismatch, Step 8's decision (host identity via
+        `ssh-to-age`) needs revisiting (e.g. recipients may need computing via sops-nix's own
+        tooling instead of the standalone `ssh-to-age` binary, or a specific version pinning
+        issue needs chasing down).
 - [ ] **Step 10**: deploy to that one host. **Validate**: `sops`-decrypted file appears at the
       expected `/run/secrets/<name>` path with correct content/ownership/mode, and the
       consuming config (ghostty) still picks it up correctly.
