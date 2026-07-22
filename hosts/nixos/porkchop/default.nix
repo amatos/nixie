@@ -1,10 +1,4 @@
-{
-  config,
-  lib,
-  nix-secrets,
-  nix-keytabs-matos-cc,
-  ...
-}:
+{ nix-keytabs-matos-cc, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -121,10 +115,6 @@ in
         "100.64.0.0/10" # Tailscale CGNAT — fallback relay via porkchop.ts.matos.cc
       ];
       smtps.enable = true;
-      # sops-nix cutover (SOPS_MIGRATION.md Step 12) — repointed from the
-      # default age.secrets.smtp-relay-sasl path to validate the SOPS-sourced
-      # secret with a real test email before removing the agenix version.
-      saslSecretPath = config.sops.secrets.smtp-relay-sasl-sops.path;
     };
 
     krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-porkchop.age";
@@ -191,27 +181,4 @@ in
     };
   };
 
-  # sops-nix PoC (SOPS_MIGRATION.md Step 12) — alongside, not replacing,
-  # age.secrets.smtp-relay-sasl (modules/common/smtp-relay-secrets.nix).
-  # Deployed to sops-nix's default runtime path for validation before
-  # nixie.smtpRelay.saslSecretPath is repointed at it.
-  sops.secrets.smtp-relay-sasl-sops = {
-    sopsFile = "${nix-secrets}/smtp-relay-sasl.yaml";
-    key = "smtp-relay-sasl";
-    owner = "root";
-    mode = "0400";
-  };
-
-  # sops-nix cutover (SOPS_MIGRATION.md Step 16) — alongside, not replacing,
-  # age.secrets.grafanaSecretKey (modules/nixos/syslog-server.nix). Grafana's
-  # secret_key is a plain assignment there (not mkDefault), so overriding it
-  # here needs mkForce.
-  sops.secrets.grafana-secret-key-sops = {
-    sopsFile = "${nix-secrets}/grafana-secret-key.yaml";
-    key = "grafana-secret-key";
-    owner = "grafana";
-    mode = "0400";
-  };
-  services.grafana.settings.security.secret_key =
-    lib.mkForce "$__file{${config.sops.secrets.grafana-secret-key-sops.path}}";
 }
