@@ -231,11 +231,36 @@ needs it. Do not batch multiple groups together.
         activation-script phase NixOS itself uses, which completes before services start).
         `smtp-relay-sasl.age` deleted from `nix-secrets`, along with its now-dead
         `smtpSmartRelays` binding in `secrets.nix`.
-- [ ] **Step 13**: `ldapHosts` group (`ldap/admin-password`, `ldap/kdc-password`,
-      `ldap/krb5-master-key`) — **highest-consequence step in this phase**: these are boot-time
-      secrets for muninn's KDC/LDAP. Validate with a full `kinit`/`ldapwhoami` check on muninn,
-      matching the depth of validation used in the original Kerberos+LDAP migration, before
-      removing the agenix version.
+- [x] **Step 13** (PoC scope only — see below): `ldapHosts` group (`ldap/admin-password`,
+      `ldap/kdc-password`, `ldap/krb5-master-key`) — **highest-consequence step in this phase**:
+      these are boot-time secrets for muninn's KDC/LDAP. Validate with a full
+      `kinit`/`ldapwhoami` check on muninn, matching the depth of validation used in the original
+      Kerberos+LDAP migration, before removing the agenix version.
+      - **Structural finding, changed this step's scope**: unlike `smtp-relay-sasl`/
+        `grafana-secret-key` (declared directly in `nixie`'s own modules), these three secrets
+        are consumed by `age.secrets.{krb5MasterKey,kdcLdapPassword,ldapAdminPassword,
+        ldapKdcPassword}` declared *inside the external `nix-kerberos-ldap` repo's own module
+        code* (`modules/kerberos.nix`, `modules/ldap.nix`). Switching that to `sops.secrets.*` is
+        explicitly Phase 5's job (Steps 22–23), not this one — so the real
+        `kinit`/`ldapwhoami`-against-the-live-service validation this step originally called for
+        isn't reachable without either doing Phase 5 early, or scoping this step down. User chose
+        to scope it down: PoC-only for now (matching Step 9's pattern), full cutover deferred to
+        Phase 5 in its planned order.
+      - Confirmed all three secrets are plain text (no non-printable bytes — checked before
+        assuming, per user instruction to verify this for `nix-keytabs-matos-cc`/
+        `nix-kerberos-ldap` too when those phases come up) and consolidated into a single
+        `ldap.yaml` (Step 7 decision), preserving exact original bytes (including trailing
+        newlines, via YAML block-literal style — a quoted-flow-scalar + `tr -d '\n'` approach
+        used for Step 12/16 would have silently dropped them, harmlessly there but not verified
+        safe here). Scoped to `users` + muninn's real `ssh-to-age` key (`*muninn_ssh`, separate
+        from the legacy `*muninn` ragenix anchor, which stays for the old per-file secrets).
+      - Deployed to muninn as three side-path PoC secrets (`ldap-admin-password-sops-poc`, etc.)
+        — not wired into the live KDC/LDAP config at all. `sops-install-secrets` imported
+        `/etc/ssh/ssh_host_ed25519_key` with fingerprint exactly matching `*muninn_ssh`; agenix's
+        existing KDC/LDAP secrets decrypted and the live service was untouched. All three PoC
+        secrets landed with correct `0400 root:root` permissions, matching the manifest exactly;
+        content was already verified byte-identical to the original `.age` files before
+        encryption. Full live-service cutover validation (`kinit`/`ldapwhoami`) is Phase 5's job.
 - [ ] **Step 14**: `unifiBackupHosts` group (`unifi/backup-ssh-key`) — validate the unifi-backup
       service on porkchop still runs successfully.
 - [ ] **Step 15**: `remoteBuildHosts` group (`builder/codex-ssh-key`) — validate a remote build
@@ -302,10 +327,20 @@ needs it. Do not batch multiple groups together.
 - [ ] **Step 22**: update `nix-kerberos-ldap`'s `ldap.nix`/`kerberos.nix` to consume
       `sops.secrets.*` instead of `age.secrets.*`, on its own `sops-nix-migration` branch
       (created in Step 2).
+      - **Groundwork already done in Step 13**: `nix-secrets/ldap.yaml` exists (consolidated
+        `admin-password`/`kdc-password`/`krb5-master-key`, byte-identical to the originals),
+        `.sops.yaml` already has a `*muninn_ssh`-scoped rule for it, and muninn already has
+        `sops-nix.nixosModules.sops` in its module list (`flake.nix`) and three PoC secrets
+        wired to side paths (`hosts/nixos/muninn/default.nix`) proving the pipeline works. This
+        step just needs the module code itself switched over — point
+        `age.secrets.ldapAdminPassword`/etc. (currently in `nix-kerberos-ldap`'s own
+        `modules/ldap.nix`/`modules/kerberos.nix`) at `sops.secrets.*` reading the same
+        `ldap.yaml` keys, then remove Step 13's now-redundant PoC secrets from muninn's config.
 - [ ] **Step 23**: bump `nixie`'s `flake.lock` for `nix-kerberos-ldap` to the new branch's
       revision (temporary, branch-to-branch reference during the experiment — resolved to a
       normal `main`-to-`main` reference in Phase 8 if kept). Validate muninn's full KDC/LDAP
-      stack against the updated module.
+      stack against the updated module — this is where the `kinit`/`ldapwhoami` check deferred
+      from Step 13 actually happens.
 
 ## Phase 6 — Fleet-wide agenix removal
 
