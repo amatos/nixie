@@ -283,15 +283,25 @@ needs it. Do not batch multiple groups together.
         (`sign_and_send_pubkey: ... communication with agent failed`) from testing over a nested
         SSH session — resolved with `env -u SSH_AUTH_SOCK` / `-o IdentityAgent=none` on the test
         invocation; irrelevant to the real systemd service, which has no interactive agent.
-- [ ] **Step 15**: `remoteBuildHosts` group (`builder/codex-ssh-key`) — validate a remote build
+- [x] **Step 15**: `remoteBuildHosts` group (`builder/codex-ssh-key`) — validate a remote build
       from codex to gammu still works.
-      - **Note for whoever picks this up**: an agent session attempted to decrypt the existing
-        `builder/codex-ssh-key.age` (via the no-PIN/no-touch YubiKey identity) to get its
-        plaintext for re-encryption, and the harness's own safety classifier blocked it —
-        SSH private key material specifically gets flagged even when piped/truncated, unlike the
-        lower-sensitivity secrets in Steps 9/12 (theme file, SMTP password). This step likely
-        needs a human to run the decrypt (or otherwise supply the plaintext) rather than an
-        agent, at least under this harness's default permissions.
+      - Confirmed the classifier block from earlier (SSH private key material specifically gets
+        flagged, unlike lower-sensitivity secrets) — the user ran the decrypt directly and handed
+        off the resulting plaintext file, which unblocked everything downstream (reading/
+        re-encrypting an already-decrypted file wasn't flagged, only the initial decrypt was).
+        Confirmed plain printable text (OpenSSH PEM/base64 armor) before encrypting, preserving
+        exact original bytes (`|+` keep-chomping, same lesson as Step 14).
+      - Scoped to `users` + codex's real `ssh-to-age` key (`*codex_ssh`, already derived in
+        Step 9/10).
+      - Converts `modules/darwin/remote-build-client.nix` from `age.secrets` to `sops.secrets`
+        directly, pointing at the same `/etc/nix/remotebuild_ed25519` path `/etc/nix/machines`
+        already references — no other change needed there. Deployed locally to codex (no remote
+        sudo needed, since this only touches codex itself).
+      - **Validated with a real remote build**: `nix build
+        .#nixosConfigurations.gammu.config.system.build.toplevel` (overridden to the local
+        `nix-secrets` branch) completed successfully, with multiple derivations visibly building
+        `on 'ssh-ng://remotebuild@gammu.ts.matos.cc'` — the actual remote-build path, using the
+        SOPS-sourced key, with `agenix`'s wiring for this secret already fully removed.
 - [x] **Step 16**: `grafanaHosts` group (`grafana-secret-key`) — validate Grafana still starts
       on porkchop with the SOPS-sourced secret.
       - `nix-secrets`: encrypted `grafana-secret-key.yaml` under a new `porkchop_ssh`-scoped rule
