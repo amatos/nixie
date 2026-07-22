@@ -270,6 +270,9 @@
             ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
             zapp.darwinModules.default
+            # sops-nix PoC (SOPS_MIGRATION.md Step 9) — alongside, not replacing,
+            # ragenix. codex is the one real host validated so far.
+            sops-nix.darwinModules.sops
             ./hosts/darwin/codex
           ];
         };

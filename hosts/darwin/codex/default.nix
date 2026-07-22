@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  nix-secrets,
   nix-keytabs-matos-cc,
   homebrew-autoupdate,
   homebrew-cirruslabs-cli,
@@ -93,4 +94,17 @@ in
   };
 
   nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";
+
+  # sops-nix PoC (SOPS_MIGRATION.md Step 9) — alongside, not replacing, the
+  # existing age.secrets.ghostty-theme-dracula from
+  # modules/common/ghostty-theme-secrets.nix. Deployed to a separate path
+  # (not the live theme file ghostty actually reads) purely to validate the
+  # encrypt -> deploy -> decrypt pipeline end-to-end on one real host.
+  sops.secrets.ghostty-theme-dracula-sops-poc = {
+    sopsFile = "${nix-secrets}/ghostty-themes.yaml";
+    key = "dracula";
+    path = "/Users/${primaryUser}/.config/ghostty/themes/dracula-sops-poc";
+    owner = primaryUser;
+    mode = "0400";
+  };
 }

@@ -127,7 +127,7 @@ is written to stand on its own.
 
 ## Phase 2 — Proof of concept on one low-risk secret
 
-- [ ] **Step 9**: migrate exactly one low-stakes secret end-to-end — recommend a
+- [x] **Step 9**: migrate exactly one low-stakes secret end-to-end — recommend a
       `ghostty-themes/*.age` file (cosmetic, no boot-time dependency, nothing breaks if this
       goes wrong). Encrypt it under SOPS per the Phase 1 decisions, wire
       `sops.secrets.<name>` on one real host **alongside** (not replacing) the existing
@@ -157,15 +157,25 @@ is written to stand on its own.
         the corrected recipient, and the full loop validated: `sudo env
         SOPS_AGE_SSH_PRIVATE_KEY_FILE=/etc/ssh/ssh_host_ed25519_key sops -d ghostty-themes.yaml`
         returns the exact original `dracula` theme content.
-      - **Not yet verified**: sops-nix's own `sops-install-secrets` binary (the actual code path
-        used at real deploy time, via `sops.age.sshKeyPaths`) hasn't been tested standalone —
-        but since it depends on the same `filippo.io/age` library as plain `sops`/`age` (not
-        `ssh-to-age`), and the raw-`.pub`-string recipient format is exactly what that library
-        expects, this is expected to carry through cleanly to Step 10's real deploy.
-      - **Still not done**: wiring `sops.secrets.<name>` into codex's actual nix host config
-        (`hosts/darwin/codex/`), and adding `sops-nix.darwinModules.sops` to codex's own module
-        list in `flake.nix` (currently only on `darwintron`) — decrypt is now proven, so nothing
-        blocks this anymore.
+      - **Wired**: added `sops-nix.darwinModules.sops` to codex's module list in `flake.nix`
+        (alongside `darwintron`'s existing smoke-test entry) and
+        `sops.secrets.ghostty-theme-dracula-sops-poc` to `hosts/darwin/codex/default.nix`
+        (`sopsFile = "${nix-secrets}/ghostty-themes.yaml"`, `key = "dracula"`, deployed to a
+        separate `dracula-sops-poc` path rather than the live theme file, so it sits alongside
+        the existing `age.secrets.ghostty-theme-dracula` without disturbing it). Required adding
+        `nix-secrets` to codex's module function args (wasn't previously used there).
+      - **Build-validated** (not yet deployed — that's Step 10): `nix build
+        .#darwinConfigurations.codex.config.system.build.toplevel` succeeds
+        (`--override-input nix-secrets git+file:///Users/alberth/Projects/nix-secrets?ref=sops-nix-migration
+        --no-write-lock-file`, since nix-secrets' local commits aren't pushed — `flake.lock`
+        deliberately untouched). Inspected the built
+        `system.build.sops-nix-manifest` directly: `ageSshKeyPaths` is
+        `["/etc/ssh/ssh_host_ed25519_key"]` (nix-darwin's sops-nix module default, matching
+        Step 8's decision with no extra config needed), and the secret entry resolves exactly as
+        configured — correct `sopsFile` store path, `key: "dracula"`, `path`, `owner: "alberth"`,
+        `mode: "0400"`. This is real `sops-install-secrets`/`filippo.io/age` code (not plain
+        `sops`/`age` CLI), so it exercises the actual deploy-time code path, just not yet run for
+        real on the live system.
 - [ ] **Step 10**: deploy to that one host. **Validate**: `sops`-decrypted file appears at the
       expected `/run/secrets/<name>` path with correct content/ownership/mode, and the
       consuming config (ghostty) still picks it up correctly.
