@@ -24,6 +24,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # sops-nix migration experiment (sops-nix-migration branch) — see
+    # SOPS_MIGRATION.md. Not yet consumed by any real host.
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-secrets = {
       url = "github:amatos/nix-secrets";
       flake = false; # plain git repo, not a flake
@@ -122,6 +129,7 @@
       determinate,
       home-manager,
       ragenix,
+      sops-nix,
       nix-secrets,
       nix-keytabs-matos-cc,
       nvf,
@@ -289,6 +297,10 @@
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
             ragenix.nixosModules.default
+            # sops-nix smoke test (SOPS_MIGRATION.md Step 3) — darwinModules.sops,
+            # not nixosModules.sops, since darwintron is a nix-darwin host. Present
+            # but unused: no sops.secrets.* wired up yet.
+            sops-nix.darwinModules.sops
             ./hosts/darwin/darwintron
           ];
         };
@@ -436,6 +448,9 @@
               nil # Nix LSP
               nixfmt # canonical Nix formatter
               ragenix.packages.${system}.default # rekey secrets, add recipients
+              sops # sops-nix migration experiment — see SOPS_MIGRATION.md
+              age # sops-nix migration experiment — see SOPS_MIGRATION.md
+              ssh-to-age # sops-nix migration experiment — see SOPS_MIGRATION.md
               nixos-anywhere # provision new hosts via nixos-anywhere
               nix-tree # visualize derivation dependency graph
               nvd # diff two NixOS/darwin closures before switching

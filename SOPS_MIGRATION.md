@@ -11,10 +11,10 @@ path, checked directly rather than assumed):
 | Repo | Why it's affected | `sops-nix-migration` branch created? |
 | --- | --- | --- |
 | `nixie` | Consumes `age.secrets.*` throughout; owns the `ragenix` flake input | [x] (this repo) |
-| `nix-secrets` | Text secrets repo — Phase 3 migrates its content | [ ] |
-| `nix-keytabs-matos-cc` | Binary keytabs repo — Phase 4 migrates its content | [ ] |
-| `nix-kerberos-ldap` | External module consumes `age.secrets.ldapAdminPassword` etc. directly — Phase 5 | [ ] |
-| `nix-home-alberth` | `alberth/common/packages.nix` installs the `ragenix` CLI; `alberth/common/cachix.nix` hardcodes `/run/agenix/cachix-authtoken`; `alberth/default.nix` symlinks the YubiKey identity stub for interactive `ragenix`/`age` use | [ ] |
+| `nix-secrets` | Text secrets repo — Phase 3 migrates its content | [x] |
+| `nix-keytabs-matos-cc` | Binary keytabs repo — Phase 4 migrates its content | [x] |
+| `nix-kerberos-ldap` | External module consumes `age.secrets.ldapAdminPassword` etc. directly — Phase 5 | [x] |
+| `nix-home-alberth` | `alberth/common/packages.nix` installs the `ragenix` CLI; `alberth/common/cachix.nix` hardcodes `/run/agenix/cachix-authtoken`; `alberth/default.nix` symlinks the YubiKey identity stub for interactive `ragenix`/`age` use | [x] |
 
 See the proposal discussed in chat for full background/rationale and the areas-of-concern list.
 This file is the actionable checklist version of that proposal.
@@ -30,21 +30,30 @@ is written to stand on its own.
 
 - [x] **Step 1**: create the `sops-nix-migration` branch off `main` in `nixie`, clean working
       tree.
-- [ ] **Step 2**: create a matching `sops-nix-migration` branch (off a clean `main`) in each of
+- [x] **Step 2**: create a matching `sops-nix-migration` branch (off a clean `main`) in each of
       the other four affected repos — `nix-secrets`, `nix-keytabs-matos-cc`, `nix-kerberos-ldap`,
       `nix-home-alberth` — even before there's any content to put on them. Keeps every repo
       individually revertible from Step 1 onward, rather than only nixie. Update the table
       above once done.
-- [ ] **Step 3**: add `sops-nix` (Mic92/sops-nix) as a flake input in `flake.nix`. Add
+- [x] **Step 3**: add `sops-nix` (Mic92/sops-nix) as a flake input in `flake.nix`. Add
       `sops-nix.nixosModules.sops` to one low-stakes NixOS host's module list first (recommend
       `ephemeraltron` or `darwintron`, the CI build targets — no real secrets, pure eval/build
       smoke test) before touching any real host. **Validate**: `nix flake check` /
       `nix eval .#nixosConfigurations.<test-host>.config.system.build.toplevel.drvPath`
       succeeds with the module present but unused.
-- [ ] **Step 4**: add `sops`, `age`, `ssh-to-age` (and keep `age-plugin-yubikey`) to the
+      - Used `darwintron` (per instruction) instead of `ephemeraltron`. Since darwintron is a
+        nix-darwin host, not NixOS, wired `sops-nix.darwinModules.sops` — the checklist's
+        `nixosModules.sops` wording assumed the NixOS option; darwin needs its own module name.
+        Validated with `nix flake check` and
+        `nix eval .#darwinConfigurations.darwintron.config.system.build.toplevel.drvPath`, both
+        clean.
+- [x] **Step 4**: add `sops`, `age`, `ssh-to-age` (and keep `age-plugin-yubikey`) to the
       devShell in `flake.nix`, alongside (not replacing) the existing `ragenix` package.
       **Validate**: `nix develop` succeeds, all four tools are on `PATH`.
-- [ ] **Step 5**: create a `.sops.yaml` at the repo root (or within whichever secrets repo ends
+      - `age-plugin-yubikey` already lives fleet-wide in `modules/common/packages.nix`, not the
+        devShell — left untouched. Validated `nix develop --command which sops age ssh-to-age
+        ragenix`, all four resolved.
+- [x] **Step 5**: create a `.sops.yaml` at the repo root (or within whichever secrets repo ends
       up hosting it — see the Phase 1 decision point) with age recipients transcribed from the
       current `nix-secrets/secrets.nix` groups (`users`, `systems`, `ldapHosts`,
       `syncthingHosts`, `unifiBackupHosts`, `smtpSmartRelays`, `remoteBuildHosts`,
@@ -52,24 +61,62 @@ is written to stand on its own.
       encrypted yet. **Validate**: `sops --config .sops.yaml -e --input-type binary
       --output-type binary /dev/null` (or a throwaway test file matching one rule's path
       pattern) round-trips: encrypt then `sops -d` successfully, content matches.
+      - Placed at nixie's repo root (Step 6/7 location decision still open). Encrypted a
+        throwaway `ldap/scratch-test.txt` (deleted after) — the resulting file embedded exactly
+        8 age recipients (alberth + 6 yubikeys + muninn), confirming the `ldapHosts`
+        `path_regex` rule resolves independently of the fleet-wide catch-all (which would embed
+        12). Actual decryption needs a physically-touched YubiKey (`age-plugin-yubikey`'s cached
+        touch policy), unavailable non-interactively here, so full mechanics (encrypt → decrypt
+        → content match) were verified separately with a throwaway self-generated age keypair
+        outside the real recipient set — round-trip succeeded, content matched exactly.
 
 ## Phase 1 — Decisions before migrating real secrets
 
-- [ ] **Step 6**: decide **one repo or two**: does `nix-keytabs-matos-cc` stay separate (SOPS's
+- [x] **Step 6**: decide **one repo or two**: does `nix-keytabs-matos-cc` stay separate (SOPS's
       binary mode removes the original technical reason for the split, but there may be
       access-control/workflow reasons to keep it), or fold into `nix-secrets`? Record the
       decision here before Step 9.
-      - Decision: `_______________`
-- [ ] **Step 7**: decide **file granularity for text secrets**: keep one file per secret
+      - Decision: **one repo** — consolidate `nix-keytabs-matos-cc`'s content into `nix-secrets`.
+        SOPS's binary mode (`--input-type binary --output-type binary`) removes the git-diff and
+        plaintext-editing-workflow reasons the split existed for under agenix; no remaining
+        reason to keep two repos once both are SOPS-encrypted. Phase 4 (Steps 19–21) migrates
+        keytab content into `nix-secrets` rather than into a standalone
+        `nix-keytabs-matos-cc`-on-SOPS repo; `nix-keytabs-matos-cc`'s own
+        `sops-nix-migration` branch (created in Step 2) ends up unused and the repo itself is
+        retired once Phase 4 completes and Phase 6 removes stale agenix wiring.
+- [x] **Step 7**: decide **file granularity for text secrets**: keep one file per secret
       (mirroring today's structure, simplest mechanical migration) or consolidate into fewer
       multi-key YAML files per recipient-group (the option SOPS's structured-value model
       actually enables)? Record the decision here before Step 9.
-      - Decision: `_______________`
-- [ ] **Step 8**: decide **host identity source**: keep generating a dedicated per-host age key
+      - Decision: **consolidate into one multi-key YAML file per recipient-group, where
+        possible** — group secrets by the same recipient set they already share in
+        `nix-secrets/secrets.nix` (`ldapHosts`, `unifiBackupHosts`, `smtpSmartRelays`,
+        `remoteBuildHosts`, `grafanaHosts`, and the big `users ++ systems` bucket) into one
+        `.yaml` per group, keyed by secret name. "Where possible" carves out an exception for
+        secrets that can't cleanly share a file — e.g. `nix-keytabs-matos-cc`'s binary keytabs
+        (Step 6: folding into `nix-secrets`) still need their own file each, since SOPS's
+        structured multi-key model doesn't apply to opaque binary blobs the same way it does to
+        text values. This maps directly onto the `.sops.yaml` `creation_rules` already drafted
+        in Step 5 — each rule's recipient group becomes one consolidated file's `path_regex`
+        target instead of matching many individual per-secret files.
+- [x] **Step 8**: decide **host identity source**: keep generating a dedicated per-host age key
       via `modules/common/age-host-key.nix` (as today), or switch to deriving it from the
       existing SSH host key via `ssh-to-age` (removes a custom module, couples secret-decryption
       identity to the SSH host key's lifecycle instead)? Record the decision here before Step 10.
-      - Decision: `_______________`
+      - Decision: **derive from the existing SSH host key via `ssh-to-age`** — simplifies future
+        work by removing a bespoke module (`modules/common/age-host-key.nix`, retired in Phase
+        6/Step 24) and reusing infrastructure every host already has (`/etc/ssh/ssh_host_ed25519_key`)
+        instead of provisioning and rotating a second, parallel identity. sops-nix's
+        `sops.age.sshKeyPaths` option consumes the SSH host key directly (no manual `ssh-to-age`
+        conversion step needed at activation time — sops-nix does it internally); the recipient
+        side of `.sops.yaml` still needs each host's derived age public key, computed once via
+        `ssh-to-age -i /etc/ssh/ssh_host_ed25519_key` (or `ssh-keyscan` + `ssh-to-age` remotely)
+        per host, to replace the `codex`/`gammu`/`porkchop`/`huginn`/`muninn` anchors currently
+        in `.sops.yaml` (Step 5) — those were transcribed from `nix-secrets/secrets.nix`'s
+        existing ragenix host keys and will need re-deriving from each host's SSH key before
+        Phase 3 (Step 12+) encrypts anything for real. Coupling secret-decryption identity to
+        the SSH host key's lifecycle is an accepted tradeoff: rotating a host's SSH host key
+        would now also require re-encrypting its secrets, which doesn't happen today.
 
 ## Phase 2 — Proof of concept on one low-risk secret
 

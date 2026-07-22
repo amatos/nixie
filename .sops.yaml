@@ -1,0 +1,107 @@
+# sops-nix migration experiment (SOPS_MIGRATION.md) — age recipients
+# transcribed from nix-secrets/secrets.nix. Location (nixie vs nix-secrets)
+# and file granularity (.age-per-secret vs consolidated) are still open per
+# Phase 1 Steps 6/7; nothing here is final. No real secret is encrypted
+# under this config yet.
+keys:
+  - &alberth age1gp5d3tzdpufcrk7f6dkr92xtx2p847k79kxxdp9nn0yjk2qvw34sws84m7
+  - &yubikey_d43f4e92 age1yubikey1qdxkz5rs00du7y4284ehlkktq0h93wsqszwegjrx97scqs8ptq3f6kws7sq
+  - &yubikey_2ab5ff2f age1yubikey1qtn8y2ad0vr9ddazfsxy4fmlt64kknhjsll2xvfgekck3n0dc0xjvf5rah6
+  - &yubikey_be7a2b66 age1yubikey1qgmkn4s840hwg4kfazjn6u4r2nq9utl60chscraq4sqg9jsf0wleu5eldvv
+  - &yubikey_49705840 age1yubikey1qtkf5924nev2a5vqncdurp729tq6xmdf27y6x95fv7kk5zje5vqr6umpnj8
+  - &yubikey_7cb1cad0 age1yubikey1q0pmgm34s0ckw8jj9auzlvm5mc6mpxxgc5syu0aw55cqu2hnm7krqrnq60a
+  - &yubikey_b4d67c6f age1yubikey1qt9a6xc0nzpe484kzeuw55hsm4shu3ug9j6m4ngtsexqrgptd6zfx596dqn
+  - &codex age1yl42nc3qmtper3vt7am3f2u6f2afp7scu2nqxfqjlw4qn64qeaqq20xkcc
+  - &gammu age12vhj5z6zepnz7uyzks23p6rgwa7rudja7ectsrl89zf96nnmfcnq264972
+  - &porkchop age1yegmaunkewrxj3v6lt86nalta0xq5gq7dpcxrggqp8p7nlzdde4qsnq5jz
+  - &huginn age1je5xg9s90g8l0307xpphclxj3fugvkl59ne9yna46lne9fw0wfpq59lzux
+  - &muninn age1hryy6kdlt3ufej07r9rp2g8x8pm0e6ndgdyke6jdq95uchnjdghqprayh9
+
+creation_rules:
+  # ldapHosts — muninn's KDC/LDAP boot-time secrets (highest-consequence group)
+  - path_regex: ^ldap/.*$
+    key_groups:
+      - age:
+          - *alberth
+          - *yubikey_d43f4e92
+          - *yubikey_2ab5ff2f
+          - *yubikey_be7a2b66
+          - *yubikey_49705840
+          - *yubikey_7cb1cad0
+          - *yubikey_b4d67c6f
+          - *muninn
+
+  # unifiBackupHosts — unifi-backup runs on porkchop
+  - path_regex: ^unifi/backup-ssh-key.*$
+    key_groups:
+      - age:
+          - *alberth
+          - *yubikey_d43f4e92
+          - *yubikey_2ab5ff2f
+          - *yubikey_be7a2b66
+          - *yubikey_49705840
+          - *yubikey_7cb1cad0
+          - *yubikey_b4d67c6f
+          - *porkchop
+
+  # smtpSmartRelays — huginn (primary) + porkchop (backup)
+  - path_regex: ^smtp-relay-sasl.*$
+    key_groups:
+      - age:
+          - *alberth
+          - *yubikey_d43f4e92
+          - *yubikey_2ab5ff2f
+          - *yubikey_be7a2b66
+          - *yubikey_49705840
+          - *yubikey_7cb1cad0
+          - *yubikey_b4d67c6f
+          - *porkchop
+          - *huginn
+
+  # remoteBuildHosts — codex is the remote-build client
+  - path_regex: ^builder/codex-ssh-key.*$
+    key_groups:
+      - age:
+          - *alberth
+          - *yubikey_d43f4e92
+          - *yubikey_2ab5ff2f
+          - *yubikey_be7a2b66
+          - *yubikey_49705840
+          - *yubikey_7cb1cad0
+          - *yubikey_b4d67c6f
+          - *codex
+
+  # grafanaHosts — Grafana runs on porkchop
+  - path_regex: ^grafana-secret-key.*$
+    key_groups:
+      - age:
+          - *alberth
+          - *yubikey_d43f4e92
+          - *yubikey_2ab5ff2f
+          - *yubikey_be7a2b66
+          - *yubikey_49705840
+          - *yubikey_7cb1cad0
+          - *yubikey_b4d67c6f
+          - *porkchop
+
+  # Fleet-wide catch-all — users ++ systems (also covers syncthingHosts,
+  # which is currently identical to systems). Must stay last: sops uses
+  # first-matching-rule-wins, so this is the fallback for every path not
+  # matched above (github/*, luadns.ini, tailscale-authkey, cachix-authtoken,
+  # default-nixos-user-password, unifi/api-key, users/*, ghostty-themes/*,
+  # syncthing-gui-password).
+  - path_regex: .*
+    key_groups:
+      - age:
+          - *alberth
+          - *yubikey_d43f4e92
+          - *yubikey_2ab5ff2f
+          - *yubikey_be7a2b66
+          - *yubikey_49705840
+          - *yubikey_7cb1cad0
+          - *yubikey_b4d67c6f
+          - *codex
+          - *gammu
+          - *porkchop
+          - *huginn
+          - *muninn
