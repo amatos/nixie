@@ -287,6 +287,10 @@
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
             ragenix.nixosModules.default
+            # sops-nix migration (SOPS_MIGRATION.md Step 17) — alongside, not
+            # replacing, ragenix. Needed since it reuses common-darwin.nix,
+            # which imports modules that now declare sops.secrets.*.
+            sops-nix.darwinModules.sops
             ./hosts/darwin/nhcodex
           ];
         };
@@ -316,6 +320,8 @@
             home-manager.darwinModules.home-manager
             ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
+            # sops-nix migration (SOPS_MIGRATION.md Step 17) — see nhcodex.
+            sops-nix.darwinModules.sops
             ./hosts/darwin/template-darwin
           ];
         };
@@ -333,6 +339,9 @@
             ragenix.nixosModules.default
             zapp.nixosModules.default
             orion-browser.nixosModules.default
+            # sops-nix migration (SOPS_MIGRATION.md Step 17) — alongside, not
+            # replacing, ragenix.
+            sops-nix.nixosModules.sops
             ./hosts/nixos/gammu
           ];
         };
@@ -358,6 +367,8 @@
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
             ragenix.nixosModules.default
+            # sops-nix migration (SOPS_MIGRATION.md Step 17) — see gammu.
+            sops-nix.nixosModules.sops
             ./hosts/nixos/template-nixos
           ];
         };

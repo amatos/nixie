@@ -1,4 +1,4 @@
-# Sets the Syncthing GUI user and password from a ragenix secret at runtime.
+# Sets the Syncthing GUI user and password from a sops-nix secret at runtime.
 #
 # The secret contains the plaintext password; Syncthing hashes it itself
 # when it receives the value via its REST API. This keeps the password out of
@@ -27,18 +27,16 @@ let
   stConfigDir = config.services.syncthing.configDir;
 in
 {
-  age.secrets.syncthing-gui-password = {
-    file = "${nix-secrets}/syncthing-gui-password.age";
+  sops.secrets.syncthing-gui-password = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "syncthing-gui-password";
     owner = primaryUser;
     mode = "0400";
   };
 
   systemd.services.syncthing-gui-password = {
-    description = "Set Syncthing GUI user and password from ragenix secret";
-    after = [
-      "syncthing.service"
-      "agenix.service"
-    ];
+    description = "Set Syncthing GUI user and password from sops-nix secret";
+    after = [ "syncthing.service" ];
     # partOf: propagates stop AND restart from syncthing.service to this unit,
     # so credentials are re-applied every time syncthing restarts (e.g. after
     # nixos-rebuild switch), not just on first boot.
@@ -91,7 +89,7 @@ in
           -X PATCH \
           -H "X-API-Key: $APIKEY" \
           -H "Content-Type: application/json" \
-          --data-raw "{\"user\":\"syncthing\",\"password\":\"$(cat /run/agenix/syncthing-gui-password)\"}" \
+          --data-raw "{\"user\":\"syncthing\",\"password\":\"$(cat ${config.sops.secrets.syncthing-gui-password.path})\"}" \
           "$BASE_URL/rest/config/gui"
       '';
     };

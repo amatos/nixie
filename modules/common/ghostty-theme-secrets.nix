@@ -23,11 +23,12 @@ let
   ];
 in
 {
-  age.secrets = builtins.listToAttrs (
+  sops.secrets = builtins.listToAttrs (
     map (theme: {
       name = "ghostty-theme-${theme}";
       value = {
-        file = "${nix-secrets}/ghostty-themes/${theme}.age";
+        sopsFile = "${nix-secrets}/ghostty-themes.yaml";
+        key = theme;
         path = "${home}/.config/ghostty/themes/${theme}";
         owner = primaryUser;
         mode = "0400";

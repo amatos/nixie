@@ -11,7 +11,7 @@
 #   2. compares it to the last IP recorded in /var/lib/dyndns-luadns/current-ip
 #   3. if changed, calls LuaDNS's dyndns2 endpoint over HTTPS
 #      (https://app.luadns.com/nic/update) to update the A record, using
-#      the email+token pair from /run/agenix/luadns-ini
+#      the email+token pair from /run/secrets/luadns-ini
 #
 # The target hostname's A (and/or AAAA) record must already exist in LuaDNS
 # before enabling this — the dyndns2 protocol updates existing records, it
@@ -38,14 +38,14 @@ let
     set -euo pipefail
 
     # LuaDNS credentials — reuse certbot's luadns-ini (same account/token).
-    luadnsEmail=$(sed -n 's/^dns_luadns_email *= *//p' /run/agenix/luadns-ini | tr -d '[:space:]')
-    luadnsToken=$(sed -n 's/^dns_luadns_token *= *//p' /run/agenix/luadns-ini | tr -d '[:space:]')
+    luadnsEmail=$(sed -n 's/^dns_luadns_email *= *//p' ${config.sops.secrets.luadns-ini.path} | tr -d '[:space:]')
+    luadnsToken=$(sed -n 's/^dns_luadns_token *= *//p' ${config.sops.secrets.luadns-ini.path} | tr -d '[:space:]')
     if [ -z "$luadnsEmail" ] || [ -z "$luadnsToken" ]; then
-      echo "dyndns-luadns: could not read dns_luadns_email/dns_luadns_token from /run/agenix/luadns-ini" >&2
+      echo "dyndns-luadns: could not read dns_luadns_email/dns_luadns_token from ${config.sops.secrets.luadns-ini.path}" >&2
       exit 1
     fi
 
-    unifiApiKey=$(cat /run/agenix/unifi-api-key)
+    unifiApiKey=$(cat ${config.sops.secrets.unifi-api-key.path})
 
     # Query the UDM's local (legacy-path) controller API for the current WAN
     # IP. Authenticated with the UniFi Network read-only API key via
@@ -139,10 +139,7 @@ in
 
       services.dyndns-luadns = {
         description = "LuaDNS dyndns2 update for ${cfg.hostname}";
-        after = [
-          "network-online.target"
-          "agenix.service"
-        ];
+        after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
         serviceConfig = {
           Type = "oneshot";

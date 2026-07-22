@@ -12,15 +12,17 @@ let
   home = if pkgs.stdenv.isDarwin then "/Users/${primaryUser}" else "/home/${primaryUser}";
 in
 {
-  age.secrets.github-ratelimit = {
-    file = "${nix-secrets}/github/ratelimit.age";
+  sops.secrets.github-ratelimit = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "github-ratelimit";
     path = "${home}/.ssh/github-ratelimit";
     owner = primaryUser;
     mode = "0600";
   };
 
-  age.secrets.github-ssh-key = {
-    file = "${nix-secrets}/github/ssh-key.age";
+  sops.secrets.github-ssh-key = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "github-ssh-key";
     path = "${home}/.ssh/github-ssh-key";
     owner = primaryUser;
     mode = "0600";

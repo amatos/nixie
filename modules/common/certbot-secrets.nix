@@ -1,16 +1,17 @@
 # Deploys the LuaDNS API credentials for certbot from nix-secrets.
-# Decrypted to tmpfs at /run/agenix/luadns-ini — never written to disk.
-#
-# NOTE: do NOT set a `path` pointing inside /run/agenix/. Doing so causes
-# agenix to run `mkdir -p /run/agenix` to create the parent directory,
-# which prevents agenix from replacing /run/agenix with its generation symlink.
+# Decrypted to tmpfs at /run/secrets/luadns-ini — never written to disk.
 { nix-secrets, ... }:
 
 {
-  age.secrets.luadns-ini = {
-    file = "${nix-secrets}/luadns.ini.age";
+  sops.secrets.luadns-ini = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "luadns-ini";
     owner = "root";
     mode = "0400";
-    # path intentionally omitted — defaults to /run/agenix/luadns-ini
+    # No restartUnits here: this module is shared by every host (darwin +
+    # NixOS), but only porkchop actually runs dyndns-luadns.service — a
+    # hardcoded restart target here would be wrong for everyone else.
+    # certbot itself runs via a periodic timer/oneshot, not a persistent
+    # daemon that needs restarting on credential rotation.
   };
 }

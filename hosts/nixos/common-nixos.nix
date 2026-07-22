@@ -55,7 +55,7 @@ in
   services = {
     tailscale = {
       enable = true;
-      authKeyFile = config.age.secrets.tailscale-authkey.path;
+      authKeyFile = config.sops.secrets.tailscale-authkey.path;
     };
 
     # SSH daemon — password auth disabled; GSSAPI enabled for Kerberos auth.

@@ -1,8 +1,9 @@
 # Deploys per-user password secrets and applies them via hashedPasswordFile.
 #
 # Each secret must contain a hashed password (e.g. the output of
-# mkpasswd -m sha-512). Decrypted to /run/agenix at activation time by
-# ragenix, before the users activation script runs.
+# mkpasswd -m sha-512). neededForUsers = true ensures sops-nix decrypts these
+# before the users activation script runs (same ordering guarantee ragenix
+# gave for free, since agenix always ran before users activation).
 #
 # root shares the "nixos" account's password rather than getting its own
 # secret — both exist purely for initial setup/emergency access, matching
@@ -14,20 +15,24 @@ let
   inherit (userDefs) primaryUser;
 in
 {
-  age.secrets.user-password-alberth = {
-    file = "${nix-secrets}/users/alberth.age";
+  sops.secrets.user-password-alberth = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "user-password-alberth";
     owner = "root";
     mode = "0400";
+    neededForUsers = true;
   };
-  age.secrets.user-password-nixos = {
-    file = "${nix-secrets}/users/nixos.age";
+  sops.secrets.user-password-nixos = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "user-password-nixos";
     owner = "root";
     mode = "0400";
+    neededForUsers = true;
   };
 
   users.users = {
-    ${primaryUser}.hashedPasswordFile = config.age.secrets.user-password-alberth.path;
-    nixos.hashedPasswordFile = config.age.secrets.user-password-nixos.path;
-    root.hashedPasswordFile = config.age.secrets.user-password-nixos.path;
+    ${primaryUser}.hashedPasswordFile = config.sops.secrets.user-password-alberth.path;
+    nixos.hashedPasswordFile = config.sops.secrets.user-password-nixos.path;
+    root.hashedPasswordFile = config.sops.secrets.user-password-nixos.path;
   };
 }

@@ -1,4 +1,4 @@
-# Sets the Syncthing GUI user and password from a ragenix secret at runtime.
+# Sets the Syncthing GUI user and password from a sops-nix secret at runtime.
 #
 # On darwin, Syncthing is installed as a Homebrew cask (syncthing-app) and
 # not managed by nix-darwin services, so credentials cannot be set
@@ -6,6 +6,7 @@
 # API to become available, then applies the GUI user and password via
 # `syncthing cli`. The password never touches the Nix store.
 {
+  config,
   pkgs,
   nix-secrets,
   ...
@@ -16,8 +17,9 @@ let
   inherit (userDefs) primaryUser;
 in
 {
-  age.secrets.syncthing-gui-password = {
-    file = "${nix-secrets}/syncthing-gui-password.age";
+  sops.secrets.syncthing-gui-password = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "syncthing-gui-password";
     owner = primaryUser;
     mode = "0400";
   };
@@ -34,7 +36,7 @@ in
           done
           ${pkgs.syncthing}/bin/syncthing cli config gui user set "syncthing"
           ${pkgs.syncthing}/bin/syncthing cli config gui password set \
-            "$(cat /run/agenix/syncthing-gui-password)"
+            "$(cat ${config.sops.secrets.syncthing-gui-password.path})"
         ''}"
       ];
       RunAtLoad = true;

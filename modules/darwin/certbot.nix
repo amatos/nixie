@@ -1,5 +1,5 @@
 # Certbot with the LuaDNS DNS-01 challenge plugin.
-# Credentials are read from /run/agenix/luadns-ini (deployed by ragenix).
+# Credentials are read from /run/secrets/luadns-ini (deployed by sops-nix).
 #
 # certbot-dns-luadns is not in nixpkgs; packaged locally in pkgs/python/.
 # It uses dns-lexicon (which IS in nixpkgs) for the LuaDNS API calls.
@@ -50,7 +50,7 @@ let
     lib.concatMapStringsSep "\n" (domains: ''
       ${certbotWithLuadns}/bin/certbot certonly \
         --dns-luadns \
-        --dns-luadns-credentials /run/agenix/luadns-ini \
+        --dns-luadns-credentials ${config.sops.secrets.luadns-ini.path} \
         --email ${cfg.email} \
         --agree-tos \
         --non-interactive \
