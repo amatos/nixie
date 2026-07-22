@@ -6,7 +6,7 @@
 # YubiKey is still required that one time. After the public key has been
 # added to nix-secrets and secrets have been rekeyed, all subsequent
 # boots are fully automatic.
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   generateHostKeyScript = ''
@@ -41,7 +41,22 @@ lib.mkMerge [
       deps = [ ];
     };
 
-    # Ensure the host key exists before ragenix runs
+  })
+  (lib.mkIf (!pkgs.stdenv.isDarwin && config.age.secrets != { }) {
+    # Ensure the host key exists before ragenix runs. ragenix only defines
+    # its own "agenix" activationScripts sentinel when age.secrets is
+    # non-empty (see its modules/age.nix: config = mkIf (cfg.secrets != {})
+    # (...)). Referencing system.activationScripts.agenix at all — even
+    # wrapped in `lib.mkIf cond (mkAfter [...])` as the *value* — still
+    # instantiates the "agenix" submodule key structurally (attrsOf
+    # submodule merging collects keys from every module's definitions
+    # before resolving individual mkIf conditions), leaving its required
+    # .text unset on any host with zero agenix secrets left: "The option
+    # `system.activationScripts.agenix.text' was accessed but has no value
+    # defined." (hit while migrating gammu to sops-nix, once its last
+    # age.secrets was converted). Wrapping the whole attribute path in an
+    # outer mkIf, rather than just the assigned value, is what actually
+    # avoids touching the key at all when there's nothing to gate.
     system.activationScripts.agenix.deps = lib.mkAfter [ "generateAgeHostKey" ];
   })
 ]

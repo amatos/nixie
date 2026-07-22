@@ -1,7 +1,7 @@
 {
   pkgs,
   lib,
-  nix-keytabs-matos-cc,
+  nix-secrets,
   ...
 }:
 
@@ -245,5 +245,5 @@ in
     xrdpDeploy = true;
   };
 
-  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-gammu.age";
+  nixie.krb5.keytabFile = "${nix-secrets}/keytab-gammu.age";
 }

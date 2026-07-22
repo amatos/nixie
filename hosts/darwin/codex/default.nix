@@ -1,7 +1,7 @@
 {
   pkgs,
   lib,
-  nix-keytabs-matos-cc,
+  nix-secrets,
   homebrew-autoupdate,
   homebrew-cirruslabs-cli,
   homebrew-dracula-install,
@@ -92,5 +92,5 @@ in
     syncthingDeploy = true; # copy renewed cert to syncthing and restart on renewal
   };
 
-  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";
+  nixie.krb5.keytabFile = "${nix-secrets}/keytab-codex.age";
 }

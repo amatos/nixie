@@ -123,7 +123,7 @@ in
     };
   };
 
-  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-muninn.age";
+  nixie.krb5.keytabFile = "${nix-secrets}/keytab-muninn.age";
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # ldapDeploy copies renewed cert+key to /var/lib/openldap-tls/ (root:openldap 640)

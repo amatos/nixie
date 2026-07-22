@@ -1,4 +1,4 @@
-{ nix-keytabs-matos-cc, ... }:
+{ nix-secrets, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -117,7 +117,7 @@ in
       smtps.enable = true;
     };
 
-    krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-porkchop.age";
+    krb5.keytabFile = "${nix-secrets}/keytab-porkchop.age";
 
     # Centralized syslog receiver — Stage 7a of ARCHITECTURE.md §10.
     # rsyslog listens on UDP+TCP 514, restricted to LAN/Tailscale by the

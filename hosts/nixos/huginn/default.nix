@@ -1,4 +1,4 @@
-{ nix-keytabs-matos-cc, ... }:
+{ nix-secrets, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -32,7 +32,7 @@ in
   };
 
   nixie = {
-    krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-huginn.age";
+    krb5.keytabFile = "${nix-secrets}/keytab-huginn.age";
 
     # SMTP relay — Postfix smarthost via Fastmail; primary relay for the fleet
     # (see ARCHITECTURE.md §10 Stage 5/6 — porkchop becomes the backup relay).

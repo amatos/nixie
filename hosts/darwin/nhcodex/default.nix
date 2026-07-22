@@ -10,7 +10,7 @@
 # home-manager is already in this host's flake.nix module list — set
 # home-manager.users.${primaryUser} here directly as you experiment.
 {
-  nix-keytabs-matos-cc,
+  nix-secrets,
   ...
 }:
 
@@ -36,5 +36,5 @@
     syncthingDeploy = true; # copy renewed cert to syncthing and restart on renewal
   };
 
-  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";
+  nixie.krb5.keytabFile = "${nix-secrets}/keytab-codex.age";
 }
