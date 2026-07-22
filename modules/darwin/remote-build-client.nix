@@ -28,23 +28,12 @@
 }:
 
 {
-  age.secrets.remote-build-ssh-key = {
-    file = "${nix-secrets}/builder/codex-ssh-key.age";
+  sops.secrets.remote-build-ssh-key = {
+    sopsFile = "${nix-secrets}/builder-codex-ssh-key.yaml";
+    key = "builder-codex-ssh-key";
     path = "/etc/nix/remotebuild_ed25519";
     # The nix-daemon (and thus remote-build ssh connections) runs as root on
     # darwin, unlike the primaryUser-owned secrets elsewhere in this repo.
-    owner = "root";
-    mode = "0600";
-  };
-
-  # sops-nix PoC (SOPS_MIGRATION.md Step 15) — alongside, not replacing, the
-  # age.secrets version above. /etc/nix/machines still references the agenix
-  # path; this just validates the encrypt/deploy/decrypt pipeline before the
-  # actual cutover.
-  sops.secrets.remote-build-ssh-key-sops-poc = {
-    sopsFile = "${nix-secrets}/builder-codex-ssh-key.yaml";
-    key = "builder-codex-ssh-key";
-    path = "/etc/nix/remotebuild_ed25519-sops-poc";
     owner = "root";
     mode = "0600";
   };
