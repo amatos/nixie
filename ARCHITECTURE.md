@@ -535,9 +535,12 @@ Independent of Stages 1–6; can be done in parallel at any point. Recommended s
 OpenSearch/Elasticsearch + MongoDB, not packaged in nixpkgs) or full ELK; `lnav` is a
 lower-effort CLI-only fallback if the full stack isn't wanted.
 
-- [ ] **7a**: new `modules/nixos/syslog-server.nix` (imported only by porkchop) —
+- [x] **7a**: new `modules/nixos/syslog-server.nix` (imported only by porkchop) —
       `services.rsyslogd` listening on UDP+TCP 514, firewalled to `10.0.4.0/22` + Tailscale.
-      Validate: one test host sends a message, confirm it lands in `/var/log/remote/<hostname>/`.
+      Systemd unit is named `syslog.service`, not `rsyslog.service` (a NixOS module naming
+      quirk hit during validation). Committed as `caa6e00`. **Validated**: sent a test message
+      from huginn via `logger`, confirmed it landed at
+      `/var/log/remote/huginn/alberth.log` with correct timestamp/hostname/tag.
 - [ ] **7b**: add `services.loki` + `services.grafana` on porkchop. Validate: Grafana UI
       reachable, can query a manually-inserted log line in Loki.
 - [ ] **7c**: add `services.promtail` on porkchop, tailing the rsyslog output files (or journald)
