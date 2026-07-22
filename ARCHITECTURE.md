@@ -562,9 +562,16 @@ lower-effort CLI-only fallback if the full stack isn't wanted.
       reads local files and forwards to a local Loki, root sidesteps that entirely. Committed as
       `4bd3883`. **Validated**: `logger` test message from huginn confirmed end-to-end in
       Grafana via `{host="huginn"}`.
-- [ ] **7d**: roll fleet-wide log forwarding out via a `common-nixos.nix` default (mirroring the
-      postfix-client-default pattern), one host at a time. Validate each host's logs appear in
-      Grafana before moving to the next.
+- [x] **7d**: rolled fleet-wide log forwarding out via a `common-nixos.nix` `services.rsyslogd`
+      client default — every NixOS host except porkchop itself forwards to
+      `porkchop.ts.matos.cc:514` over TCP (disk-backed, infinite-retry queue), relying on every
+      rsyslogd instance's unconditional `imuxsock` input (no extra journal-reading config
+      needed client-side). Committed as `d75c4b3`. **Validated one host at a time**: gammu,
+      then muninn, then huginn — each confirmed via `logger` + a `{host="<name>"}` Grafana query
+      before moving to the next.
+
+This completes Stage 7 (centralized syslog: receiver → Alloy → Loki → Grafana) and the full
+porkchop service realignment migration (Stages 0–8, plus the UniFi DNS cleanup).
 
 ### Stage 8 — UniFi internal DNS CNAMEs
 
