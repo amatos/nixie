@@ -1,6 +1,6 @@
 # Architecture
 
-This document explains how `nixie`, `nix-secrets`, `nix-keytabs-matos-cc`, and `nix-home-alberth` fit
+This document explains how `nixie`, `nix-secrets`, and `nix-home-alberth` fit
 together as one system. It's written for both humans and AI coding agents. Its job is the
 cross-repo "why" and "how the pieces connect" — for authoritative, per-repo detail, always defer
 to that repo's own `CLAUDE.md` and `README.md` (linked throughout). If this document ever
@@ -9,23 +9,29 @@ file.
 
 ## 1. System at a glance
 
-Four repositories, each with a single, non-overlapping responsibility:
+Three repositories, each with a single, non-overlapping responsibility:
 
 | Repo | Responsibility | Contents | Is a flake? |
 | --- | --- | --- | --- |
 | `nixie` | System config for every host (NixOS + darwin) | Nix modules, hosts | Yes — top-level flake |
 | `nix-home-alberth` | Home-manager configuration for `alberth` | `alberth/` home-manager modules | Yes — real flake, also independently usable |
-| `nix-secrets` | sops/age-encrypted **text** secrets (SSH keys, tokens, `.ini` files) | `*.yaml` files, `.sops.yaml` recipients | No — `flake = false` |
-| `nix-keytabs-matos-cc` | sops/age-encrypted **binary** keytabs for `MATOS.CC` | `keytab-*.age` files, `.sops.yaml` recipients | No — `flake = false` |
+| `nix-secrets` | sops/age-encrypted secrets, **text and binary** (SSH keys, tokens, `.ini` files, `MATOS.CC` Kerberos keytabs) | `*.yaml` files, `keytab-*.age` files, `.sops.yaml` recipients | No — `flake = false` |
 
-`nixie` is the only thing that gets built/switched as a system. `nix-secrets` and
-`nix-keytabs-matos-cc` are pulled in purely as source trees (`flake = false` inputs) so `nixie` can
-reference sops-encrypted files by store path; they contain no Nix evaluation logic of their own
-beyond a `.sops.yaml` recipients manifest. `nix-home-alberth` is different from both: it's a real flake (its own
+`nixie` is the only thing that gets built/switched as a system. `nix-secrets` is pulled in
+purely as a source tree (`flake = false` input) so `nixie` can reference sops-encrypted files by
+store path; it contains no Nix evaluation logic of its own beyond a `.sops.yaml` recipients
+manifest. `nix-home-alberth` is different: it's a real flake (its own
 `nixpkgs`/`home-manager`/`nvf`/`qmd`/`stylix`/`nix-secrets` inputs, all `.follows`-pinned to
-`nixie`'s) that `nixie` consumes via `homeModules.<name>` outputs — and, unlike the other two, it
+`nixie`'s) that `nixie` consumes via `homeModules.<name>` outputs — and, unlike `nix-secrets`, it
 also works completely standalone (`home-manager switch --flake`) on any machine with Nix, with or
 without `nixie`. The dependency is one-way: `nix-home-alberth` never imports anything from `nixie`.
+
+A fourth repo, `nix-keytabs-matos-cc`, existed from the ragenix-to-sops-nix migration period
+until the sops-nix migration made it redundant — every keytab it held moved into `nix-secrets`
+(`SOPS_MIGRATION.md` Step 27), and the "binary secrets need their own repo" rationale (git diffs
+binary files poorly) never actually applied once secrets are sops ciphertext, which is opaque
+regardless of the plaintext's original type. It is retired; do not reintroduce it or reference it
+as a live input.
 
 ```mermaid
 flowchart TB
@@ -44,18 +50,13 @@ flowchart TB
     subgraph nixSecrets["nix-secrets (plain git repo)"]
         nsSopsYaml[".sops.yaml — recipients"]
         nsAge["*.yaml — text secrets"]
-    end
-
-    subgraph keytabs["nix-keytabs-matos-cc (plain git repo)"]
-        ktSopsYaml[".sops.yaml — recipients"]
-        ktAge["keytab-*.age — binary keytabs"]
+        nsKeytab["keytab-*.age — binary keytabs"]
     end
 
     flakeNix -- "flake input, flake = false" --> nsAge
-    flakeNix -- "flake input, flake = false" --> ktAge
     flakeNix -- "flake input, real flake" --> homeModules
     modules -- "sops.secrets.*.sopsFile = &quot;${nix-secrets}/x.yaml&quot;" --> nsAge
-    hosts -- "nixie.krb5.keytabFile = &quot;${nix-keytabs-matos-cc}/keytab-x.age&quot;" --> ktAge
+    hosts -- "nixie.krb5.keytabFile = &quot;${nix-secrets}/keytab-x.age&quot;" --> nsKeytab
     hosts -- "home-manager.users.alberth.imports" --> homeModules
     homeModules --> alberth
     homeConfigs --> alberth
@@ -63,25 +64,20 @@ flowchart TB
     hosts --> modules
 ```
 
-## 2. Why four repos, not one
+## 2. Why three repos, not one
 
 Each split is a deliberate security/workflow/reuse boundary, not historical accident:
 
-- **`nixie` vs. secrets repos**: system configuration is public-shareable (it's Nix code
+- **`nixie` vs. `nix-secrets`**: system configuration is public-shareable (it's Nix code
   describing *structure*), while secrets are sensitive *values*. Keeping them apart means the
   config repo can be freely inspected, forked, or shared without exposing credentials — only
-  encrypted `.age` blobs cross the boundary.
-- **`nix-secrets` vs. `nix-keytabs-matos-cc`**: text and binary secrets have fundamentally different
-  editing workflows. `nix-secrets` secrets are edited in place with `sops <file>` (opens `$EDITOR`,
-  you type/paste plaintext). Kerberos keytabs are binary artifacts generated by
-  `kadmin`/`ktutil`-style tooling — they can't be edited in `$EDITOR`, and git diffs binary files
-  poorly (no meaningful diff output, and history bloats fast with each rotation). Splitting them
-  into a dedicated repo keeps `nix-secrets` a clean, diffable, plaintext-editing workflow and
-  isolates keytab churn.
-- **The rule this produces**: *any* new binary secret type — not just keytabs — gets its own
-  dedicated repo following the `nix-keytabs-matos-cc` pattern. Never mix binary secrets into
-  `nix-secrets`, and never add a new binary secret *type* into `nix-keytabs-matos-cc` (it is
-  Kerberos-keytabs-only; see that repo's `CLAUDE.md`).
+  encrypted `.age`/`.yaml` blobs cross the boundary. Text and binary secrets both live in
+  `nix-secrets` — a prior split by payload type (`nix-keytabs-matos-cc` for binary keytabs) was
+  retired because it never bought anything real: sops-encrypted content is opaque ciphertext
+  regardless of whether the plaintext was text or binary, so there was no meaningful diff to lose
+  either way by keeping them together. Binary secrets use `sops.secrets.<name>.format = "binary"`
+  and the `keytab-*.age` naming convention (kept `.age`-suffixed even though it's sops's binary
+  envelope, not raw age output).
 - **`nixie` vs. `nix-home-alberth`**: a different motivation than the secrets split — reuse, not
   security. Home-manager configuration (dotfiles, shell, git/gpg identity, per-tool settings) is
   useful independent of any specific NixOS/darwin system, e.g. on a work laptop or an ephemeral
@@ -92,11 +88,9 @@ Each split is a deliberate security/workflow/reuse boundary, not historical acci
   (including non-`nixie` machines) can run `home-manager switch --flake
   github:amatos/nix-home-alberth#<user>@<host>` directly.
 
-Both secrets repos otherwise share an identical shape: sops/age encryption, a `.sops.yaml`
-recipients manifest, one or more YubiKey identity stubs (`age-yubikey-identity-*.txt`), and the
-same create/wire/commit/`updatekeys` workflow — only the payload type differs. `nix-home-alberth`
-shares none of that shape; it's evaluated Nix code, not sops-encrypted blobs, and is consumed for
-its exposed flake outputs rather than referenced by store path.
+`nix-home-alberth` shares none of `nix-secrets`'s shape; it's evaluated Nix code, not
+sops-encrypted blobs, and is consumed for its exposed flake outputs rather than referenced by
+store path.
 
 ## 3. `nixie` internals
 
@@ -106,18 +100,18 @@ its exposed flake outputs rather than referenced by store path.
 structure (see `nixie/CLAUDE.md` for the full, current host table — it changes more often than
 this document):
 
-- `nix-secrets` and `nix-keytabs-matos-cc` are declared as `flake = false` inputs (plain git repos,
-  not flakes); `nix-home-alberth` is declared as a real flake input, with `inputs.nixpkgs`,
+- `nix-secrets` is declared as a `flake = false` input (a plain git repo, not a flake);
+  `nix-home-alberth` is declared as a real flake input, with `inputs.nixpkgs`,
   `.home-manager`, `.nix-secrets`, `.nvf`, `.qmd`, and `.stylix` all `.follows`-pinned to `nixie`'s
-  own, so both repos evaluate against the exact same dependency versions. All three are threaded
-  through `outputs` into `sharedSpecialArgs = { inherit self nix-secrets nix-keytabs-matos-cc nvf
+  own, so both repos evaluate against the exact same dependency versions. Both are threaded
+  through `outputs` into `sharedSpecialArgs = { inherit self nix-secrets nvf
   nix-home-alberth ...; }`, which every `darwinConfigurations.*` / `nixosConfigurations.*` entry
-  receives as `specialArgs`. This is how any module in `nixie` gets a handle on the secrets repos'
-  store paths (e.g. `"${nix-secrets}/fleet-secrets.yaml"`) or on `nix-home-alberth`'s exposed
+  receives as `specialArgs`. This is how any module in `nixie` gets a handle on `nix-secrets`'
+  store path (e.g. `"${nix-secrets}/fleet-secrets.yaml"`) or on `nix-home-alberth`'s exposed
   `homeModules.<name>` outputs.
 - `minixie` is the deliberate exception: it's a generic `nixos-anywhere` bootstrap target with no
   identity of its own, and is intentionally **not** given `sharedSpecialArgs` — it never touches
-  `nix-secrets` or `nix-keytabs-matos-cc`. It exists only to get a fresh/rescued box to "reachable
+  `nix-secrets`. It exists only to get a fresh/rescued box to "reachable
   over SSH with disks partitioned"; once up, its host directory is replaced with a real one
   (following the `template-nixos` pattern) rather than extended in place.
 - Determinate Nix manages the Nix daemon on every host (`determinate.darwinModules.default` /
@@ -178,9 +172,9 @@ darwin fails silently rather than erroring.
 
 ## 4. Secrets architecture
 
-### 4.1 Shared model (both secrets repos)
+### 4.1 Shared model
 
-Both `nix-secrets` and `nix-keytabs-matos-cc` use identical machinery:
+`nix-secrets` uses the following machinery for every secret it holds, text or binary:
 
 - **Encryption**: [sops](https://github.com/getsops/sops) via
   [sops-nix](https://github.com/Mic92/sops-nix), with [age](https://github.com/FiloSottile/age) as
@@ -188,7 +182,7 @@ Both `nix-secrets` and `nix-keytabs-matos-cc` use identical machinery:
   content itself stays sops's own envelope format — YAML for multi-key text secrets, sops's
   binary envelope, conventionally still named `<name>.age`, for keytabs and other
   non-text content).
-- **Recipients**: declared in each repo's own `.sops.yaml`, a list of `key_groups` selected by
+- **Recipients**: declared in `nix-secrets`'s own `.sops.yaml`, a list of `key_groups` selected by
   `path_regex` — the *input file's* path, never an output redirect target (a real gotcha: `sops -e
   ... > out.yaml` matches the rule for the temp/source path being encrypted, not `out.yaml`; encrypt
   in place with `sops -e -i <correctly-named-file>` instead). Common recipient sets (the YubiKey
@@ -208,7 +202,7 @@ Both `nix-secrets` and `nix-keytabs-matos-cc` use identical machinery:
   key doubles as the decryption identity, configured via `sops.age.sshKeyPaths` (sops-nix's default
   whenever `services.openssh.enable` is true, so no explicit option is needed in this fleet).
 - **Consumption**: `nixie` never stores a recipient list itself — it only references
-  sops-encrypted file paths from the secrets repos via `sops.secrets.<name>.sopsFile` (or, for
+  sops-encrypted file paths from `nix-secrets` via `sops.secrets.<name>.sopsFile` (or, for
   keytabs, a dedicated option like `nixie.krb5.keytabFile` that a module threads into its own
   `sops.secrets.*`).
 
@@ -217,7 +211,7 @@ Both `nix-secrets` and `nix-keytabs-matos-cc` use identical machinery:
 ```mermaid
 sequenceDiagram
     participant Dev as Developer (YubiKey)
-    participant Secrets as nix-secrets / nix-keytabs-matos-cc
+    participant Secrets as nix-secrets
     participant Nixie as nixie
     participant Host as Target host
 
@@ -234,27 +228,29 @@ sequenceDiagram
 
 Concretely:
 
-1. **Confirm recipient coverage** — check the secrets repo's `.sops.yaml` for a `path_regex` rule
+1. **Confirm recipient coverage** — check `nix-secrets`'s `.sops.yaml` for a `path_regex` rule
    already matching the file (or the fleet-wide catch-all), or add a new scoped rule if this
    secret needs a narrower recipient set than any existing one.
-2. **Encrypt**: `sops <file>` inside that repo (requires the `sops`/`age`/`ssh-to-age` tools,
+2. **Encrypt**: `sops <file>` inside `nix-secrets` (requires the `sops`/`age`/`ssh-to-age` tools,
    available via `nix develop` in `nixie`'s devShell, and a YubiKey touch for the interactive
    identity). Binary content (keytabs) uses `sops --input-type binary --output-type binary <file>`.
 3. **Wire into `nixie`** — add a `sops.secrets.<name>` entry (text secrets, `format = "binary"` for
    keytabs) or a dedicated option like `nixie.krb5.keytabFile` (keytabs) in the appropriate module,
-   referencing `"${nix-secrets}/<file>.yaml"`/`.age` or `"${nix-keytabs-matos-cc}/keytab-<file>.age"`
-   as `sopsFile`, with `key = "<field>"` when the file is a multi-secret YAML document.
-4. **Commit both repos** — the secrets repo and the `nixie` module change that references it, so
+   referencing `"${nix-secrets}/<file>.yaml"`/`.age` as `sopsFile`, with `key = "<field>"` when the
+   file is a multi-secret YAML document.
+4. **Commit both repos** — `nix-secrets` and the `nixie` module change that references it, so
    the two never drift.
 5. **Rebuild** the host; `sops-install-secrets` (part of `sops-nix.nixosModules.sops` /
    `darwinModules.sops`) decrypts using the host's SSH host key (or the YubiKey identity, for
    manual/local use) during activation and exposes the plaintext at
    `config.sops.secrets.<name>.path`.
 
-### 4.3 Wiring a new secrets repo (if a fourth repo is ever needed)
+### 4.3 Wiring a second secrets repo (if one is ever needed)
 
-If a new binary secret *type* requires its own repo (per §2's rule), the pattern to wire it into
-`nixie` is:
+`nixie` briefly had a second secrets repo, `nix-keytabs-matos-cc`, dedicated to binary Kerberos
+keytabs — retired once the sops-nix migration made the split pointless (see §1/§2). If a genuinely
+new reason for a second repo ever comes up, the pattern to wire it into `nixie` is the same one
+`nix-keytabs-matos-cc` used:
 
 1. Add it as a `flake = false` input in `flake.nix`.
 2. Thread it through the `outputs` function arguments and add it to `sharedSpecialArgs`.
@@ -263,8 +259,7 @@ If a new binary secret *type* requires its own repo (per §2's rule), the patter
 5. Update `hosts/*/template-*` skeleton comments if relevant to future hosts.
 6. `nix flake lock --update-input <name>`, then verify with `nix eval
    .#<darwinConfigurations|nixosConfigurations>.<host>.config.<option>` before committing.
-7. Update the new repo's own `README.md`/`CLAUDE.md` following the
-   `nix-secrets`/`nix-keytabs-matos-cc` pattern.
+7. Update the new repo's own `README.md`/`CLAUDE.md` following `nix-secrets`'s pattern.
 
 ### 4.4 Adding a new host (or a new recipient to an existing secret)
 
@@ -274,8 +269,8 @@ already usable as a decryption identity. To grant a host access to existing secr
 
 1. Get the host's public SSH host key (`/etc/ssh/ssh_host_ed25519_key.pub`, or `ssh-keyscan
    <host>` from elsewhere) and convert it: `ssh-to-age -i <host>.pub`.
-2. Add the resulting `age1...` string as a new `&<host>_ssh` anchor under `.sops.yaml`'s `keys:`
-   list in the relevant secrets repo(s), then reference that anchor from each `key_groups` entry
+2. Add the resulting `age1...` string as a new `&<host>_ssh` anchor under `nix-secrets`'s
+   `.sops.yaml`'s `keys:` list, then reference that anchor from each `key_groups` entry
    the host needs access to.
 3. `sops updatekeys <file>` for each affected file (touch the YubiKey once per file) — this
    re-encrypts only the file's data key for the new recipient set, not the secret content itself,
@@ -287,9 +282,6 @@ The same `sops updatekeys` step is how a recipient is **removed**, too: delete i
 decrypt going forward — it doesn't rotate the secret's value, so a removed recipient who already
 had access could have retained a plaintext copy. Treat it as an access-list change, and rotate the
 underlying secret separately if that matters for the specific case.
-
-This must be repeated independently in `nix-secrets` and `nix-keytabs-matos-cc` if the new host or
-recipient needs secrets from both.
 
 ## 5. Host provisioning paths
 
@@ -308,40 +300,39 @@ CI build targets, not provisioning paths — see `CLAUDE.md`'s Hosts table for t
 
 ## 6. Invariants an agent must preserve
 
-These are the load-bearing rules that keep the four-repo system consistent. Violating them
+These are the load-bearing rules that keep the three-repo system consistent. Violating them
 silently breaks the security/reuse boundaries described in §2, even if the Nix evaluates fine.
 
-1. **Never put a binary secret in `nix-secrets`.** If it's not plaintext/text-editable via
-   `sops <file>` in `$EDITOR`, it belongs in `nix-keytabs-matos-cc` or a new dedicated repo.
-2. **Never put a non-keytab secret in `nix-keytabs-matos-cc`.** Even Kerberos-adjacent plaintext
-   (e.g. a KDC password) belongs in `nix-secrets`.
-3. **`nixie` never contains a recipient list.** Recipients (`.sops.yaml`) live only in the
-   secrets repos. `nixie` only references file paths.
-4. **A `systemd.*` option can only be set from `modules/nixos/`** (or a NixOS-only host file) —
+1. **Binary secrets belong in `nix-secrets`, alongside text secrets.** Use
+   `sops.secrets.<name>.format = "binary"` and the `keytab-*.age` naming convention. There is no
+   separate binary-secrets repo — `nix-keytabs-matos-cc` is retired; don't reintroduce it.
+2. **`nixie` never contains a recipient list.** Recipients (`.sops.yaml`) live only in
+   `nix-secrets`. `nixie` only references file paths.
+3. **A `systemd.*` option can only be set from `modules/nixos/`** (or a NixOS-only host file) —
    never gated inside `modules/common/`, even behind a platform conditional.
-5. **Every secret-touching commit spans (at least) two repos**: the secrets repo (new/re-keyed
+4. **Every secret-touching commit spans (at least) two repos**: `nix-secrets` (new/re-keyed
    sops file + `.sops.yaml`) and `nixie` (the module wiring). Commit both in the same change
    set so they don't drift.
-6. **`minixie` stays disconnected from `sharedSpecialArgs`.** Don't "fix" this by adding secrets
+5. **`minixie` stays disconnected from `sharedSpecialArgs`.** Don't "fix" this by adding secrets
    access to it — extend/replace its host directory instead once it's a real host.
-7. **Check for an existing `.sops.yaml` anchor/rule** (the YubiKey identities, a per-host
-   `*<host>_ssh` anchor, the fleet-wide catch-all, ...) in the target secrets repo before
-   inventing a new one.
-8. **`nix-home-alberth` never imports from `nixie`.** No relative-path import crossing the repo
+6. **Check for an existing `.sops.yaml` anchor/rule** (the YubiKey identities, a per-host
+   `*<host>_ssh` anchor, the fleet-wide catch-all, ...) in `nix-secrets` before inventing a new
+   one.
+7. **`nix-home-alberth` never imports from `nixie`.** No relative-path import crossing the repo
    boundary (the pre-migration bug this replaced), no shared `users.nix`. If a `nix-home-alberth`
    module needs data only `nixie` has, thread it through `extraSpecialArgs` from `nixie` (the
    consuming side), never by reaching backward from `nix-home-alberth`.
-9. **A new `nix-home-alberth` host overlay must be committed and pushed to `nix-home-alberth` first**,
+8. **A new `nix-home-alberth` host overlay must be committed and pushed to `nix-home-alberth` first**,
    then picked up in `nixie` via `nix flake lock --update-input nix-home-alberth` — there is no way to
    reference an uncommitted `nix-home-alberth` file from `nixie`.
 
-## 7. Shared conventions across all four repos
+## 7. Shared conventions across all three repos
 
-All four repos agree on:
+All three repos agree on:
 
 - **Commit style**: [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`,
-  `fix:`, `chore:`, `docs:`, ...). All four repos enforce this via the same commitlint hook
-  (each has its own `flake.nix`/`.commitlintrc.yaml`, installed via `nix develop`). All four
+  `fix:`, `chore:`, `docs:`, ...). All three repos enforce this via the same commitlint hook
+  (each has its own `flake.nix`/`.commitlintrc.yaml`, installed via `nix develop`). All three
   repos require every commit and every tag to be GPG-signed — see each repo's own `CLAUDE.md`.
 - **Releases**: CalVer, `yy.mm.release` (e.g. `26.07.01`), counter resets to `01` each new month,
   tags are GPG-signed, changelog entries are combined per release under a heading matching the
@@ -360,7 +351,6 @@ Use this document for the cross-repo picture. For anything repo-specific and aut
 | --- | --- |
 | `nixie` | [`CLAUDE.md`](./CLAUDE.md) (directives + conventions), [`README.md`](./README.md) (host table, dev shell, provisioning, feature docs) |
 | `nix-secrets` | `nix-secrets/CLAUDE.md`, `nix-secrets/README.md` (recipients + secrets tables) |
-| `nix-keytabs-matos-cc` | `nix-keytabs-matos-cc/CLAUDE.md`, `nix-keytabs-matos-cc/README.md` (recipients + secrets tables) |
 | `nix-home-alberth` | `nix-home-alberth/CLAUDE.md`, `nix-home-alberth/README.md` (`alberth/` layout, `homeModules`/`homeConfigurations`, standalone usage) |
 
 If you're an AI agent making a change that touches more than one of these repos, re-read the
@@ -374,9 +364,10 @@ current rules; this document only explains how those rules compose across repos.
 | `nixie` | `26.07.20` |
 | `nix-home-alberth` | `26.07.06` |
 | `nix-secrets` | `26.07.08` |
-| `nix-keytabs-matos-cc` | `26.07.06` |
 
-Kept in sync manually — update this table whenever any of the four repos cuts a new release (see
+`nix-keytabs-matos-cc` is retired (see §1/§2) and no longer tracked here.
+
+Kept in sync manually — update this table whenever any of the three repos cuts a new release (see
 `CLAUDE.md` "Before making changes").
 
 ## 10. Active migration: porkchop service realignment

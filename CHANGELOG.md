@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Removed
+
+- `nix-keytabs-matos-cc` flake input, `outputs` arg, and `sharedSpecialArgs`
+  entry. The repo held no live secrets — every keytab moved into
+  `nix-secrets` back in `SOPS_MIGRATION.md` Step 27 — so the input was
+  unused scaffolding. Binary secrets (Kerberos keytabs) now live in
+  `nix-secrets` alongside text secrets, using `format = "binary"` and the
+  existing `keytab-*.age` naming convention; there's no longer a repo split
+  by payload type. Updated `CLAUDE.md`/`ARCHITECTURE.md`/`README.md`
+  accordingly (three repos, not four); `nix-keytabs-matos-cc` itself is
+  marked retired in its own `CLAUDE.md`/`README.md`.
+
 ---
 
 ## 26.07.20

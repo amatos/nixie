@@ -3,7 +3,7 @@
 Combined NixOS and nix-darwin configuration using Determinate Nix, nix-darwin, and home-manager. All configuration is driven by Nix flakes.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for how this repo fits together with
-its companion secrets repos (`nix-secrets`, `nix-keytabs-matos-cc`).
+its companion secrets repo (`nix-secrets`).
 
 [![CI](https://github.com/amatos/nixie/actions/workflows/ci.yml/badge.svg)](https://github.com/amatos/nixie/actions/workflows/ci.yml)
 
@@ -109,7 +109,7 @@ nixie has two ways to get a fresh machine running, depending on what you're star
 | `template-nixos` | Console access, booted into a NixOS installer | Copy `hosts/nixos/template-nixos`, add to `flake.nix`, install manually |
 | `minixie` | SSH-only, no console (VPS/cloud host, or a booted installer) | `nixos-anywhere --flake .#minixie root@<ip>` — disko + identity-less install |
 
-`minixie` is intentionally disconnected from `nix-secrets`/`nix-keytabs-matos-cc` and
+`minixie` is intentionally disconnected from `nix-secrets` and
 `sharedSpecialArgs` — it exists only to get a box from "freshly booted/rescued" to
 "reachable over SSH with disks partitioned". Once it's up, replace
 `hosts/nixos/minixie` with a real host directory (following the `template-nixos`

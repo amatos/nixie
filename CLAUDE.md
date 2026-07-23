@@ -9,7 +9,7 @@ commits, deployments, or other side effects), regardless of how the rest
 of the phrasing reads.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for how nixie, nix-secrets,
-nix-keytabs-matos-cc, and nix-home-alberth fit together as a system — read it first
+and nix-home-alberth fit together as a system — read it first
 if you're new to this repo or making a change that spans more than one of
 these repos.
 
@@ -26,19 +26,19 @@ Homebrew on darwin).
 **Home-manager configuration** lives in the separate `github:amatos/nix-home-alberth` repo
 (input `nix-home-alberth`), a real flake (not `flake = false`) exposing `homeModules.<name>`
 outputs that every host imports — see "home-manager host overlays" below. Unlike
-`nix-secrets`/`nix-keytabs-matos-cc`, `nix-home-alberth` is also independently usable via
+`nix-secrets`, `nix-home-alberth` is also independently usable via
 `home-manager switch --flake` on any machine with Nix, with or without nixie — see its own
 `CLAUDE.md`.
 
-**Secrets** live in separate non-flake repos (`flake = false`) and are referenced via
-specialArgs: text/token secrets in `github:amatos/nix-secrets` (input `nix-secrets`),
-binary Kerberos keytabs in `github:amatos/nix-keytabs-matos-cc` (input `nix-keytabs-matos-cc`).
+**Secrets** live in a separate non-flake repo (`flake = false`) and are referenced via
+specialArgs: `github:amatos/nix-secrets` (input `nix-secrets`) — both text/token secrets and
+binary secrets (e.g. Kerberos keytabs, via `format = "binary"`).
 
 **`hosts/nixos/minixie`** is the one exception to the pattern above: a generic,
 identity-less nixos-anywhere bootstrap target (`nixosConfigurations.minixie`) used to
 get an unknown/fresh machine reachable over SSH before it gets a real host config. It
-deliberately does **not** receive `sharedSpecialArgs` and never touches `nix-secrets` or
-`nix-keytabs-matos-cc` — see README "Provisioning new hosts" for the full workflow. Formerly
+deliberately does **not** receive `sharedSpecialArgs` and never touches `nix-secrets`
+— see README "Provisioning new hosts" for the full workflow. Formerly
 its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 
 ---
@@ -174,7 +174,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 ### flake.nix
 
 - All hosts share
-  `sharedSpecialArgs = { inherit self nix-secrets nix-keytabs-matos-cc nvf homebrew-autoupdate qmd stylix direnv-instant nix-home-alberth; }`.
+  `sharedSpecialArgs = { inherit self nix-secrets nvf homebrew-autoupdate qmd stylix direnv-instant nix-home-alberth; }`.
 - Do not add per-host specialArgs unless there is no other way.
 
 ### Nix daemon settings (Determinate)
@@ -281,7 +281,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 
 Home-manager configuration lives in the separate `nix-home-alberth` repo
 (`github:amatos/nix-home-alberth`, input `nix-home-alberth`), a real flake exposing
-`homeModules.<name>` outputs — not `flake = false` like `nix-secrets`/`nix-keytabs-matos-cc`,
+`homeModules.<name>` outputs — not `flake = false` like `nix-secrets`,
 since `nix-home-alberth` must also work standalone. See its own `CLAUDE.md` for that repo's
 layout and conventions; here, only the consumption side:
 
@@ -309,9 +309,8 @@ layout and conventions; here, only the consumption side:
 ### Secrets
 
 - All secrets are sops-encrypted, deployed via sops-nix (`sops-nix.nixosModules.sops` /
-  `darwinModules.sops`). Recipients live in the external secrets repos' own `.sops.yaml`
-  (`nix-secrets` or `nix-keytabs-matos-cc`), not in nixie itself — nixie only references
-  `sops.secrets.<name>.sopsFile` paths.
+  `darwinModules.sops`). Recipients live in `nix-secrets`'s own `.sops.yaml`, not in nixie
+  itself — nixie only references `sops.secrets.<name>.sopsFile` paths.
 - Secrets are deployed by modules in `modules/common/` or platform modules declaring
   `sops.secrets.<name>` (`sopsFile`, `key` for multi-secret YAML files, `format = "binary"` for
   keytabs, `owner`/`mode`, `neededForUsers` for password hashes needed before user activation).
@@ -321,16 +320,15 @@ layout and conventions; here, only the consumption side:
   option is needed). No dedicated per-host age key or generation step exists — see
   [ARCHITECTURE.md](./ARCHITECTURE.md) §4.1 for the full identity model, including the
   YubiKey/`ssh-to-age` details for interactive use.
-- **Text secrets** (SSH keys, tokens, passwords, `.ini` credentials) go in `nix-secrets`.
-- **Binary secrets** (e.g. Kerberos keytabs) go in their own dedicated repo
-  (`nix-keytabs-matos-cc`) — git diffs binary files poorly and they don't share the
-  plaintext-editing workflow of the secrets above. Never add a binary secret to
-  `nix-secrets`; if a new binary secret type is needed, create a new repo for it
-  following the `nix-keytabs-matos-cc` pattern rather than mixing it into an existing repo.
+- **Both text secrets** (SSH keys, tokens, passwords, `.ini` credentials) **and binary secrets**
+  (e.g. Kerberos keytabs, via `sops.secrets.<name>.format = "binary"`, `keytab-*.age` naming
+  convention) go in `nix-secrets`. There is no separate repo for binary secrets — sops-encrypted
+  content is opaque ciphertext either way, so splitting by payload type never bought a real diff
+  benefit (see the retired `nix-keytabs-matos-cc` repo in CHANGELOG history for why this changed).
 
 #### Wiring an external secrets repo into nixie
 
-When a secrets repo (`nix-secrets`, `nix-keytabs-matos-cc`, or a new one) gains a file that a
+When `nix-secrets` (or a new secrets repo, if one is ever needed again) gains a file that a
 host needs to consume:
 
 1. If the repo is not yet a flake input, add it in `flake.nix`:
@@ -561,11 +559,11 @@ Releases use CalVer: `yy.mm.release` (e.g. `26.06.01`).
 - Unreleased changes must be grouped under an `## Unreleased` section at the
   top of `CHANGELOG.md` until they are included in a release.
 - `CHANGELOG.md` lines must be ≤ 80 characters; never exceed 100.
-- Whenever a release is tagged in `nixie`, `nix-secrets`, `nix-keytabs-matos-cc`, or
-  `nix-home-alberth`, update the "Latest releases" table in
-  [`ARCHITECTURE.md`](./ARCHITECTURE.md) (section "Latest releases") to match. Check
-  `git tag --list | sort -V | tail -1` in each of the four repos before starting any
-  release-adjacent work, since another repo's release may already be untracked there.
+- Whenever a release is tagged in `nixie`, `nix-secrets`, or `nix-home-alberth`, update the
+  "Latest releases" table in [`ARCHITECTURE.md`](./ARCHITECTURE.md) (section "Latest releases")
+  to match. Check `git tag --list | sort -V | tail -1` in each of the three repos before
+  starting any release-adjacent work, since another repo's release may already be untracked
+  there.
 
 ---
 

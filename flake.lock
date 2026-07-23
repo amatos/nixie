@@ -596,22 +596,6 @@
         "type": "github"
       }
     },
-    "nix-keytabs-matos-cc": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784773537,
-        "narHash": "sha256-uNZcfa4nTVmsqwA/zbZwzgCtEllXzgsdVE2XkHKDoyU=",
-        "owner": "amatos",
-        "repo": "nix-keytabs-matos-cc",
-        "rev": "59085100e9b83e495c57779b7e5bfd84851e9e63",
-        "type": "github"
-      },
-      "original": {
-        "owner": "amatos",
-        "repo": "nix-keytabs-matos-cc",
-        "type": "github"
-      }
-    },
     "nix-secrets": {
       "flake": false,
       "locked": {
@@ -810,7 +794,6 @@
         "nix-home-alberth": "nix-home-alberth",
         "nix-homebrew": "nix-homebrew",
         "nix-kerberos-ldap": "nix-kerberos-ldap",
-        "nix-keytabs-matos-cc": "nix-keytabs-matos-cc",
         "nix-secrets": "nix-secrets",
         "nixpkgs": "nixpkgs_2",
         "nvf": "nvf",

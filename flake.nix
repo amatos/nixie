@@ -29,11 +29,6 @@
       flake = false; # plain git repo, not a flake
     };
 
-    nix-keytabs-matos-cc = {
-      url = "github:amatos/nix-keytabs-matos-cc";
-      flake = false; # plain git repo, not a flake
-    };
-
     nvf = {
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -123,7 +118,6 @@
       home-manager,
       sops-nix,
       nix-secrets,
-      nix-keytabs-matos-cc,
       nvf,
       nix-homebrew,
       homebrew-autoupdate,
@@ -157,7 +151,6 @@
         inherit
           self
           nix-secrets
-          nix-keytabs-matos-cc
           nvf
           homebrew-autoupdate
           homebrew-cirruslabs-cli
@@ -381,8 +374,7 @@
         # Generic nixos-anywhere bootstrap target — no nixie identity baked
         # in. Deploy with: nixos-anywhere --flake .#minixie root@<target-ip>
         # Replace with a real host config once reachable; not part of
-        # sharedSpecialArgs on purpose (it never consumes nix-secrets or
-        # nix-keytabs-matos-cc).
+        # sharedSpecialArgs on purpose (it never consumes nix-secrets).
         minixie = lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
