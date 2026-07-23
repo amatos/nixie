@@ -586,8 +586,30 @@ needs it. Do not batch multiple groups together.
       age tools find it") — the symlink itself likely still applies unchanged (sops with age
       recipients uses the same `age-plugin-yubikey` identity files), but the comment referencing
       ragenix specifically should be updated for accuracy.
-- [ ] **Step 27**: delete the old `.age` files from both secrets repos (only once confirmed
+- [x] **Step 27**: delete the old `.age` files from both secrets repos (only once confirmed
       unreferenced anywhere).
+      - **`nix-secrets`**: deleted the legacy `ldap/admin-password.age`, `ldap/kdc-password.age`,
+        `ldap/krb5-master-key.age` — the per-file originals `ldap.yaml` (Step 13) replaced,
+        confirmed dead by grepping all five repos' `.nix` files for the path (only doc/CHANGELOG
+        mentions turned up) and by Step 22/23's live validation on muninn. Removed the matching
+        `^ldap/.*$` `.sops.yaml` rule and `secrets.nix` entries. The `codex`/`gammu`/`porkchop`/
+        `huginn`/`muninn` legacy ragenix per-host anchors in `.sops.yaml` — orphaned the moment
+        Step 24 deleted `age-host-key.nix` (nothing regenerates `/etc/age/host-key` anymore, and
+        no `age.identityPaths` option exists to read it even if it did) — were removed too, and
+        the fleet-wide catch-all rule (the one remaining consumer of the non-`_ssh` anchors) was
+        repointed at the five real `*_ssh` recipients instead. `secrets.nix` now declares no
+        secrets at all — every group had already migrated off it by the end of Phase 4/5.
+      - **`nix-keytabs-matos-cc`**: deleted `keytab-ldap-muninn.age` (the ragenix-encrypted
+        original; distinct from `nix-secrets/keytab-ldap-muninn.age`, the new sops-encrypted
+        file with the same name), confirmed dead since Step 24's fleet-wide grep already found
+        zero `.nix` files anywhere referencing `nix-keytabs-matos-cc` at all. `secrets.nix` now
+        declares no secrets — this was the last one.
+      - **Validated**: `python3 -c "import yaml; yaml.safe_load(...)"` confirms `.sops.yaml`
+        parses; real decrypts against the safe YubiKey identity
+        (`nix-secrets/age-yubikey-identity-0634d1c4.txt`) confirm `ldap.yaml`, `fleet-secrets.yaml`,
+        and `keytab-ldap-muninn.age` (346 bytes, matching Step 21's byte count) still decrypt
+        correctly after the `.sops.yaml` edits — nothing was accidentally re-scoped out of a
+        recipient's reach.
 
 ## Phase 7 — Documentation rewrite
 
