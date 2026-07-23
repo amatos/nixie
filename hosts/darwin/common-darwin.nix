@@ -1,8 +1,8 @@
 # Shared configuration for all nix-darwin hosts.
 # Each host imports this file, plus modules/darwin/home-manager.nix if it
 # wants nix-home-alberth-sourced home-manager config (see that file — split out
-# specifically so a host can opt out, e.g. hosts/darwin/nhcodex), a
-# host-specific overlay, and any host-only services on top.
+# specifically so a host can opt out), a host-specific overlay, and any
+# host-only services on top.
 {
   config,
   lib,

@@ -12,7 +12,6 @@ its companion secrets repo (`nix-secrets`).
 | Hostname | OS | Architecture | Physical / Virtual | Function |
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
-| `nhcodex` | nix-darwin | aarch64-darwin | Physical (same as `codex`) | Test bed for home-manager changes, no `nix-home-alberth` |
 | `darwintron` | nix-darwin | aarch64-darwin | Virtual | CI build target |
 | `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
 | `porkchop` | NixOS | x86_64-linux | Physical | SMTP backup relay, centralized syslog (rsyslog + Grafana/Loki/Alloy) |
@@ -35,7 +34,6 @@ hosts/
   darwin/
     common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias)
     codex/default.nix            # codex-specific: homebrew, certbot, dockutil
-    nhcodex/default.nix          # test bed, no nix-home-alberth; hostName still "codex"
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)

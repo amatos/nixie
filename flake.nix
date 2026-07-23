@@ -259,20 +259,6 @@
           ];
         };
 
-        # nhcodex — a lean test bed for future home-manager changes, with no
-        # nix-home-alberth involvement; see hosts/darwin/nhcodex/default.nix.
-        # networking.hostName stays "codex".
-        nhcodex = nix-darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
-          specialArgs = sharedSpecialArgs;
-          modules = [
-            determinate.darwinModules.default
-            home-manager.darwinModules.home-manager
-            sops-nix.darwinModules.sops
-            ./hosts/darwin/nhcodex
-          ];
-        };
-
         # CI build target — mirrors ephemeraltron's role on the darwin side.
         # Not provisioned or switched to interactively.
         darwintron = nix-darwin.lib.darwinSystem {

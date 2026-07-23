@@ -2,10 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 26.07.21
 
 ### Removed
 
+- `nhcodex` darwin host (`hosts/darwin/nhcodex/`, `darwinConfigurations.nhcodex`
+  in `flake.nix`). It was a lean test bed for home-manager changes with no
+  `nix-home-alberth` involvement, no longer in use as a build target. Updated
+  `CLAUDE.md`/`README.md` host tables and layout listings, and the module
+  comments in `common-darwin.nix`, `modules/darwin/home-manager.nix`, and
+  `modules/darwin/remote-build-client.nix` that referenced it as the
+  nix-home-alberth opt-out / remote-build-client example.
 - `nix-keytabs-matos-cc` flake input, `outputs` arg, and `sharedSpecialArgs`
   entry. The repo held no live secrets — every keytab moved into
   `nix-secrets` back in `SOPS_MIGRATION.md` Step 27 — so the input was

@@ -1,8 +1,7 @@
 # Home-manager base config for darwin hosts that use nix-home-alberth.
 # Mirrors modules/nixos/home-manager.nix's role on the NixOS side. Not part
 # of common-darwin.nix — split out specifically so a host can opt out of
-# nix-home-alberth entirely (see hosts/darwin/nhcodex, a testbed host with no
-# nix-home-alberth involvement) without duplicating anything.
+# nix-home-alberth entirely without duplicating anything.
 #
 # Hosts that want this import it alongside common-darwin.nix, then merge
 # their own overlay via:

@@ -48,7 +48,6 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 | Name | Platform | Arch | File | Notes |
 | --- | --- | --- | --- | --- |
 | `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | physical |
-| `nhcodex` | nix-darwin | aarch64-darwin | `hosts/darwin/nhcodex/` | test bed, no `nix-home-alberth`; `hostName` still `"codex"` |
 | `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual, CI build target |
 | `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
 | `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
@@ -89,7 +88,6 @@ hosts/
   darwin/
     common-darwin.nix            # shared darwin config (nix-daemon, Touch ID, mkalias)
     codex/default.nix            # codex-specific: homebrew, certbot, dockutil
-    nhcodex/default.nix          # test bed, no nix-home-alberth; hostName still "codex"
     darwintron/default.nix       # darwintron-specific: hostname only
   nixos/
     common-nixos.nix             # shared NixOS config (bootloader, locale, certbot, stateVersion)
@@ -208,7 +206,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
   — see the `nix.buildMachines`/`nix.linux-builder` bullet above. Instead, `gammu` (a physical
   x86_64-linux host already in the fleet) is wired up as a remote SSH builder for codex.
 - **codex side**: `modules/darwin/remote-build-client.nix` (imported only by codex, not
-  `nhcodex`/`darwintron`) writes `/etc/nix/machines` directly via `environment.etc`, bypassing
+  `darwintron`) writes `/etc/nix/machines` directly via `environment.etc`, bypassing
   `nix.buildMachines` entirely. This works because `builders = @/etc/nix/machines` is already
   Determinate Nix's effective default (confirmed via `nix show-config`, no
   `determinateNix.customSettings` entry needed) — the file was the only missing piece. The SSH
@@ -289,9 +287,7 @@ layout and conventions; here, only the consumption side:
   `nix-home-alberth.homeModules.alberth` and `.alberth-nvf`. It is **not** part of
   `common-darwin.nix` — each darwin host that wants `nix-home-alberth` imports both
   explicitly (`../common-darwin.nix` and `../../../modules/darwin/home-manager.nix`),
-  so a host can opt out of `nix-home-alberth` entirely by only importing the former. See
-  `hosts/darwin/nhcodex` — a lean test bed with zero `nix-home-alberth` involvement,
-  reusing `common-darwin.nix` without duplicating anything.
+  so a host can opt out of `nix-home-alberth` entirely by only importing the former.
 - Each darwin host merges its own overlay by adding
   `home-manager.users.${primaryUser} = { imports = [ nix-home-alberth.homeModules.alberth-<host> ]; };`
   — the module system merges the imports lists automatically. (Note: `imports` inside a
@@ -486,7 +482,7 @@ host needs to consume:
   gammu/huginn/muninn/porkchop) works around it with a 5-minute systemd timer that polls
   `http://[::1]:8384/rest/noauth/health` and force-restarts `syncthing.service` if it doesn't
   respond — a watchdog, not a fix, since the underlying cause of the listener dying is unknown.
-  Not applied on darwin (codex/nhcodex): syncthing there runs as a self-supervised Homebrew-cask
+  Not applied on darwin (codex): syncthing there runs as a self-supervised Homebrew-cask
   GUI app with no stable launchd job to target a clean restart at (`launchctl list` shows it as an
   ephemeral `application.*`-labeled process, not a fixed `Label`), so an equivalent watchdog would
   mean killing a foreground app rather than restarting a headless daemon — a different risk profile

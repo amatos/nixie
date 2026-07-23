@@ -19,7 +19,7 @@
 # `nix show-config` — no nix.custom.conf entry required), so the only missing
 # piece was ever the file itself plus SSH access.
 #
-# Only codex imports this (not nhcodex/darwintron) — see
+# Only codex imports this (not darwintron) — see
 # modules/nixos/remote-build-server.nix (imported only by gammu) for the
 # matching server-side half (the `remotebuild` user gammu trusts).
 {
