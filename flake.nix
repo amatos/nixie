@@ -19,13 +19,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ragenix = {
-      url = "github:yaxitech/ragenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # sops-nix migration experiment (sops-nix-migration branch) — see
-    # SOPS_MIGRATION.md. Not yet consumed by any real host.
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -131,7 +124,6 @@
       nix-darwin,
       determinate,
       home-manager,
-      ragenix,
       sops-nix,
       nix-secrets,
       nix-keytabs-matos-cc,
@@ -445,7 +437,6 @@
             packages = with pkgs; [
               nil # Nix LSP
               nixfmt # canonical Nix formatter
-              ragenix.packages.${system}.default # rekey secrets, add recipients
               sops # sops-nix migration experiment — see SOPS_MIGRATION.md
               age # sops-nix migration experiment — see SOPS_MIGRATION.md
               # sops-nix migration experiment — see SOPS_MIGRATION.md. Use this to derive a

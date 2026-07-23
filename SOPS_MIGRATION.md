@@ -566,7 +566,20 @@ needs it. Do not batch multiple groups together.
         carried), `darwinConfigurations.codex`, and `nixosConfigurations.minixie` (no
         override needed, no `sharedSpecialArgs`). `grep -o 'agenix[a-zA-Z]*'` against all
         three built `activate` scripts returned zero matches.
-- [ ] **Step 25**: remove the `ragenix` flake input and devShell package entirely from `nixie`.
+- [x] **Step 25**: remove the `ragenix` flake input and devShell package entirely from `nixie`.
+      - Removed the `ragenix` input block (its stale "Not yet consumed by any real host"
+        comment above `sops-nix` went with it — long since untrue), the `ragenix` arg from
+        `outputs`, and `ragenix.packages.${system}.default` from the devShell's
+        `packages` list.
+      - `nix flake lock` dropped the entire dead `ragenix` transitive subtree (13 lock
+        entries: `ragenix` itself plus `agenix`, `crane`, `flake-utils`, `rust-overlay`, and
+        each of their own `nixpkgs`/`systems` follows).
+      - **Validated**: `nix flake check --all-systems --keep-going` — every host and devShell
+        evaluates clean; `checks.x86_64-linux.pre-commit` and `checks.aarch64-darwin.pre-commit`
+        pass (the `aarch64-linux` one fails only for lack of a builder for that platform on
+        this machine, a pre-existing, unrelated environment gap). Rebuilt
+        `nixosConfigurations.muninn` with the same `nix-secrets` override used throughout —
+        identical output path to before the lock update, confirming a byte-identical closure.
 - [ ] **Step 26**: **`nix-home-alberth` cleanup**: remove the `ragenix` package from
       `alberth/common/packages.nix`, add `sops` in its place if useful for interactive use.
       Re-check `alberth/default.nix`'s YubiKey identity-stub symlink comment ("so ragenix and
