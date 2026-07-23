@@ -457,7 +457,7 @@ needs it. Do not batch multiple groups together.
 
 ## Phase 5 — External module coordination
 
-- [ ] **Step 22**: update `nix-kerberos-ldap`'s `ldap.nix`/`kerberos.nix` to consume
+- [x] **Step 22**: update `nix-kerberos-ldap`'s `ldap.nix`/`kerberos.nix` to consume
       `sops.secrets.*` instead of `age.secrets.*`, on its own `sops-nix-migration` branch
       (created in Step 2).
       - **Groundwork already done in Steps 13 and 21**: `nix-secrets/ldap.yaml` exists
@@ -472,11 +472,59 @@ needs it. Do not batch multiple groups together.
         `modules/ldap.nix`/`modules/kerberos.nix`) at `sops.secrets.*` reading the same
         `ldap.yaml`/`keytab-ldap-muninn.age`, then remove Steps 13/21's now-redundant PoC
         secrets from muninn's config.
-- [ ] **Step 23**: bump `nixie`'s `flake.lock` for `nix-kerberos-ldap` to the new branch's
+      - `ldap.nix`: `adminPasswordFile`/`kdcPasswordFile` defaults repointed at
+        `${nix-secrets}/ldap.yaml`; `sops.secrets.ldapAdminPassword`/`ldapKdcPassword` read
+        `admin-password`/`kdc-password` keys with `openldap` ownership;
+        `sops.secrets.ldapSaslKeytab` reads `keytab-ldap-muninn.age` with `format = "binary"`,
+        `openldap:openldap 0600`. `olcRootPW` now points at
+        `config.sops.secrets.ldapAdminPassword.path`. The old
+        `after/wants = ["agenix.service"]` ordering on `systemd.services.openldap` was dropped
+        entirely (replaced with just the `KRB5_KTNAME` env var) — sops-nix installs secrets in
+        the same activation-script phase NixOS itself uses, before services (re)start, so the
+        explicit dependency this used to guard against no longer applies, consistent with every
+        other module converted in Steps 12–21.
+      - `kerberos.nix`: `masterKeyFile`/`kdcLdapPasswordFile` defaults repointed at
+        `${nix-secrets}/ldap.yaml`; `sops.secrets.krb5MasterKey`/`kdcLdapPassword` read
+        `krb5-master-key`/`kdc-password` keys, `root:root 0400`.
+      - `flake.nix`: removed the dead, unused `ragenix` input entirely (module code never
+        referenced it directly — it flowed in only via `age.secrets` created by the two
+        modules above, now gone).
+      - Muninn's four Step 13/21 PoC secrets (`ldap-admin-password-sops-poc`,
+        `ldap-kdc-password-sops-poc`, `ldap-krb5-master-key-sops-poc`,
+        `ldap-sasl-keytab-sops-poc`) removed from `hosts/nixos/muninn/default.nix` — fully
+        superseded by the real cutover above.
+- [x] **Step 23**: bump `nixie`'s `flake.lock` for `nix-kerberos-ldap` to the new branch's
       revision (temporary, branch-to-branch reference during the experiment — resolved to a
       normal `main`-to-`main` reference in Phase 8 if kept). Validate muninn's full KDC/LDAP
       stack against the updated module — this is where the `kinit`/`ldapwhoami` check deferred
       from Step 13 actually happens.
+      - `nixie/flake.nix`'s `nix-kerberos-ldap` input repointed to
+        `git+file:///Users/alberth/Projects/nix-kerberos-ldap?ref=sops-nix-migration`;
+        `nix flake lock --update-input nix-kerberos-ldap` also dropped the entire dead
+        transitive `ragenix` subtree from the lock file.
+      - `nix flake check --all-systems` clean; manifest inspection confirmed all 5
+        LDAP/Kerberos secrets (`ldapAdminPassword`, `ldapKdcPassword`, `ldapSaslKeytab`,
+        `krb5MasterKey`, `kdcLdapPassword`) resolve to the correct `sopsFile`/`key`/owner.
+      - Real remote deploy to muninn
+        (`nixos-rebuild switch --flake .#muninn --target-host muninn.ts.matos.cc`) completed
+        cleanly: `sops-install-secrets` imported the muninn SSH host key
+        (`age16vynhfk26c2z9tq6xh53skcwm4lqfwx5qr2cwjng3hlgj8hssp9qyncpnm`, matching the
+        `*muninn_ssh` `.sops.yaml` anchor), added the 5 real secrets, removed the 4 PoC
+        secrets, and restarted `openldap.service`. No `agenix` activity appeared in the log at
+        all — muninn's `age.secrets` is now fully empty, confirming the Step 12-era
+        `mkMerge`/`mkIf` fix to `age-host-key.nix`/`agenix-fix.nix` holds under a real deploy,
+        not just eval.
+      - Post-deploy validation: `kdc.service`, `kadmind.service`, `openldap.service` all
+        `active`. Secret files on disk match expectations exactly —
+        `ldapAdminPassword`/`ldapKdcPassword` `0400 openldap:openldap`,
+        `krb5MasterKey`/`kdcLdapPassword` `0400 root:root`, `ldapSaslKeytab`
+        `0600 openldap:openldap` (346 bytes, byte-identical to the Step 21 PoC). `systemctl
+        show openldap.service -p Environment` confirmed `KRB5_KTNAME=/run/secrets/ldapSaslKeytab`.
+      - Full GSSAPI bind-chain validation (deferred since Step 13): `kinit alberth` +
+        `ldapwhoami -Y GSSAPI -H ldap://muninn.ts.matos.cc` succeeded — `SASL SSF: 112`,
+        `dn:cn=admin,dc=matos,dc=cc`, confirming `saslAuthzRegexp` correctly maps
+        `alberth@MATOS.CC` to the LDAP rootDN end-to-end through the new sops-nix-backed
+        keytab. This closes the loop deferred from Step 13 through Step 21.
 
 ## Phase 6 — Fleet-wide agenix removal
 
