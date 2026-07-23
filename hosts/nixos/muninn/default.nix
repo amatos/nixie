@@ -190,4 +190,15 @@ in
     owner = "root";
     mode = "0400";
   };
+
+  # sops-nix PoC (SOPS_MIGRATION.md Phase 4, Step 21) — same rationale as
+  # the ldap.yaml PoC secrets above: alongside, not replacing,
+  # age.secrets.ldapSaslKeytab (declared inside nix-kerberos-ldap's own
+  # ldap.nix). Binary format, side path.
+  sops.secrets."ldap-sasl-keytab-sops-poc" = {
+    sopsFile = "${nix-secrets}/keytab-ldap-muninn.age";
+    format = "binary";
+    owner = "root";
+    mode = "0400";
+  };
 }
