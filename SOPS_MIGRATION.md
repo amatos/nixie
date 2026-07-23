@@ -711,15 +711,39 @@ needs it. Do not batch multiple groups together.
         the way (Step 13's `ldapwhoami`, Step 21's keytab validation) were both closed out in
         Step 23.
       - No known-broken host. No repo has uncommitted or unpushed-but-uncommitted state.
-- [ ] **Step 32**: **decision point** — keep or revert? This is a single decision covering all
+- [x] **Step 32**: **decision point** — keep or revert? This is a single decision covering all
       five repos together (they're not independently useful mid-migration — e.g. nixie's
       `sops-nix-migration` branch depends on the others' branches while the experiment is live).
-      - **If keeping**: merge each repo's `sops-nix-migration` branch into its own `main`
-        (squash or merge commit, your call) in dependency order — secrets repos and
-        `nix-kerberos-ldap` first, then `nixie` (re-pointing its `flake.lock` references from
-        the other repos' branches back to their `main`s), then `nix-home-alberth`. Push each,
-        then update `ARCHITECTURE.md`'s "Latest releases" table / cut a release in each per the
-        usual convention.
-      - **If not keeping**: discard all five branches (`git branch -D sops-nix-migration` after
-        checking out `main` in each repo); no repo's `main` was ever touched, so no cleanup
-        needed anywhere.
+      - **Decision: keep.** Merged in dependency order — `nix-secrets`, `nix-keytabs-matos-cc`,
+        and `nix-kerberos-ldap` first (each `--no-ff` merge commit, preserving the full
+        incremental commit history rather than squashing), then `nixie` (re-pointing
+        `nix-kerberos-ldap`'s input from the temporary `git+file:...?ref=sops-nix-migration`
+        back to `github:amatos/nix-kerberos-ldap`, updating `flake.lock` for all three secrets
+        repos, and validating with real builds using **no** `--override-input` — proof the
+        migration is live on the real `main` branches, not just local overrides), then
+        `nix-home-alberth`. Every repo pushed, then released per the usual CalVer convention:
+        `nixie` `26.07.20`, `nix-secrets` `26.07.08`, `nix-keytabs-matos-cc` `26.07.06`,
+        `nix-kerberos-ldap` `26.07.02`, `nix-home-alberth` `26.07.06`. `ARCHITECTURE.md`'s
+        "Latest releases" table updated to match (the four repos it tracks;
+        `nix-kerberos-ldap` was never part of that table, consistent with existing convention).
+      - **Two real bugs found and fixed during the merge review, neither caught by Step 31**:
+        1. `nix-secrets/.sops.yaml` still listed `yubikey_d43f4e92` as a live recipient on
+           every rule, even though that identity had already been retired in `secrets.nix` by
+           an unrelated, already-on-`main` commit (`4780093`, predating the migration branch's
+           divergence) — the migration branch's `.sops.yaml` was transcribed from `secrets.nix`
+           early on (Step 5/6) and never picked up the later rotation. Fixed by removing the
+           anchor and running `sops updatekeys` on all 13 affected files (with the safe
+           `yubikey_0634d1c4` identity), deleting the stub file, and applying the identical fix
+           to `nix-keytabs-matos-cc`'s own `.sops.yaml` scaffold (created fresh in Step 27,
+           mirroring `nix-secrets`'s identities including the now-stale one).
+        2. `nix-home-alberth/alberth/default.nix` symlinked
+           `~/.config/age/yubikey-identity.txt` to
+           `nix-secrets/age-yubikey-identity-d43f4e92.txt` on **both** `main` and the migration
+           branch — this was outside every phase's scope (Step 26 only touched the
+           `packages.nix`/comment wiring, not this path) and would have broken every
+           `home-manager switch` once `nix-secrets`'s `main` no longer carried that file.
+           Repointed to `age-yubikey-identity-b4d67c6f.txt` (user's choice among the remaining
+           identities). Both fixes validated with real decrypts/builds before their respective
+           releases.
+      - `sops-nix-migration` branches left in place in all five repos (not deleted) — merging
+        doesn't require it, and keeping them costs nothing.
