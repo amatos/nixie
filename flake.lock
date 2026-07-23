@@ -583,28 +583,27 @@
         ]
       },
       "locked": {
-        "lastModified": 1784765401,
-        "narHash": "sha256-bz5CPIZjvVdhBJXrKKvCrecf9sskhCG2ORBrCpSYzw8=",
-        "ref": "sops-nix-migration",
-        "rev": "1ab944fbb702c45a68364ddad34ad840004758d6",
-        "revCount": 23,
-        "type": "git",
-        "url": "file:///Users/alberth/Projects/nix-kerberos-ldap"
+        "lastModified": 1784773575,
+        "narHash": "sha256-VOKwh5iS9GAKzK2iV/A2Q0HXNzXqJcnTbvGYjB9RmOc=",
+        "owner": "amatos",
+        "repo": "nix-kerberos-ldap",
+        "rev": "85d4587368da589d88834b266fa0f1d409f570e7",
+        "type": "github"
       },
       "original": {
-        "ref": "sops-nix-migration",
-        "type": "git",
-        "url": "file:///Users/alberth/Projects/nix-kerberos-ldap"
+        "owner": "amatos",
+        "repo": "nix-kerberos-ldap",
+        "type": "github"
       }
     },
     "nix-keytabs-matos-cc": {
       "flake": false,
       "locked": {
-        "lastModified": 1784664562,
-        "narHash": "sha256-pKP6o371YN3k+hP1vIua3Sp1VQkdA31Du3mGH/z+o38=",
+        "lastModified": 1784773537,
+        "narHash": "sha256-uNZcfa4nTVmsqwA/zbZwzgCtEllXzgsdVE2XkHKDoyU=",
         "owner": "amatos",
         "repo": "nix-keytabs-matos-cc",
-        "rev": "27fbc2348a014895c252a88a7d1dee7d9236c48d",
+        "rev": "59085100e9b83e495c57779b7e5bfd84851e9e63",
         "type": "github"
       },
       "original": {
@@ -616,11 +615,11 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1784694067,
-        "narHash": "sha256-lJToFqxewdwq9WT66g2V1KkskaH0i6bZxzOzcMtdZaM=",
+        "lastModified": 1784773363,
+        "narHash": "sha256-rBWNmjITu2BbzaAYW/VwyQDwMcIgUE0TvE97UhQdxAY=",
         "owner": "amatos",
         "repo": "nix-secrets",
-        "rev": "dd944c06150e08e2a877c8918a2f19f41015265a",
+        "rev": "1beedef5638bd8f7f5222e3f179433cad64e0ba5",
         "type": "github"
       },
       "original": {

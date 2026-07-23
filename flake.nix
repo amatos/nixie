@@ -69,10 +69,7 @@
     };
 
     nix-kerberos-ldap = {
-      # TEMPORARY branch-to-branch reference during the sops-nix migration
-      # experiment (SOPS_MIGRATION.md Step 23) — resolved back to
-      # github:amatos/nix-kerberos-ldap (main-to-main) in Phase 8 if kept.
-      url = "git+file:///Users/alberth/Projects/nix-kerberos-ldap?ref=sops-nix-migration";
+      url = "github:amatos/nix-kerberos-ldap";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nix-secrets.follows = "nix-secrets";
     };
