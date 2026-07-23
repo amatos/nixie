@@ -1,7 +1,6 @@
 {
   pkgs,
   nix-secrets,
-  nix-keytabs-matos-cc,
   ...
 }:
 
@@ -71,9 +70,9 @@ in
       domain = "matos.cc";
       baseDN = "dc=matos,dc=cc";
       # SASL/GSSAPI — slapd authenticates clients via Kerberos tickets.
-      # saslKeytabFile: age-encrypted keytab for the ldap/ service principal;
-      #   deployed to /run/agenix/ldapSaslKeytab with openldap ownership.
-      #   Contains TWO principals: ldap/muninn.ts.matos.cc (the "intended"
+      # saslKeytabFile: sops-encrypted (binary) keytab for the ldap/ service
+      #   principal; deployed to /run/secrets/ldapSaslKeytab with openldap
+      #   ownership. Contains TWO principals: ldap/muninn.ts.matos.cc (the "intended"
       #   custom-domain name, unreachable in practice — see below) and
       #   ldap/muninn.tail2269e5.ts.net (the tailnet's real native MagicDNS
       #   name, what clients actually request tickets for).
@@ -98,7 +97,7 @@ in
       #   this cyrus-sasl/krb5 version actually produces — no separate
       #   "cn=<realm>" component appears, despite the extra "cn=[^,]*,"
       #   segment doc'd elsewhere (and previously here) assuming one does.
-      saslKeytabFile = "${nix-keytabs-matos-cc}/keytab-ldap-muninn.age";
+      saslKeytabFile = "${nix-secrets}/keytab-ldap-muninn.age";
       saslAuthzRegexp = [
         "{0}uid=${primaryUser},cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
       ];
@@ -163,42 +162,5 @@ in
         "quic://0.0.0.0:22000"
       ];
     };
-  };
-
-  # sops-nix PoC (SOPS_MIGRATION.md Step 13) — alongside, not replacing, the
-  # existing age.secrets.{krb5MasterKey,kdcLdapPassword,ldapAdminPassword,
-  # ldapKdcPassword} declared inside nix-kerberos-ldap's own modules. Deployed
-  # to side paths, not wired into the live KDC/LDAP config: full cutover is
-  # deferred to Phase 5, since the actual consuming code lives in that
-  # external repo, not here. Purely validates the encrypt/deploy/decrypt
-  # pipeline and exact content match for this highest-consequence secret group.
-  sops.secrets."ldap-admin-password-sops-poc" = {
-    sopsFile = "${nix-secrets}/ldap.yaml";
-    key = "admin-password";
-    owner = "root";
-    mode = "0400";
-  };
-  sops.secrets."ldap-kdc-password-sops-poc" = {
-    sopsFile = "${nix-secrets}/ldap.yaml";
-    key = "kdc-password";
-    owner = "root";
-    mode = "0400";
-  };
-  sops.secrets."ldap-krb5-master-key-sops-poc" = {
-    sopsFile = "${nix-secrets}/ldap.yaml";
-    key = "krb5-master-key";
-    owner = "root";
-    mode = "0400";
-  };
-
-  # sops-nix PoC (SOPS_MIGRATION.md Phase 4, Step 21) — same rationale as
-  # the ldap.yaml PoC secrets above: alongside, not replacing,
-  # age.secrets.ldapSaslKeytab (declared inside nix-kerberos-ldap's own
-  # ldap.nix). Binary format, side path.
-  sops.secrets."ldap-sasl-keytab-sops-poc" = {
-    sopsFile = "${nix-secrets}/keytab-ldap-muninn.age";
-    format = "binary";
-    owner = "root";
-    mode = "0400";
   };
 }
