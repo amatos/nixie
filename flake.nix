@@ -412,14 +412,12 @@
             packages = with pkgs; [
               nil # Nix LSP
               nixfmt # canonical Nix formatter
-              sops # sops-nix migration experiment — see SOPS_MIGRATION.md
-              age # sops-nix migration experiment — see SOPS_MIGRATION.md
-              # sops-nix migration experiment — see SOPS_MIGRATION.md. Use this to derive a
-              # host's age recipient for .sops.yaml (`ssh-to-age -i <host>.pub`) — its output
-              # matches what sops-nix's own sops-install-secrets computes internally at deploy
-              # time (confirmed via Step 10's real deploy log). Do NOT use the raw SSH .pub
-              # string as the recipient instead — that only works with plain sops/age CLI
-              # testing, not the real sops-nix deploy path (see Step 8/9 notes).
+              sops # edit/decrypt secrets in nix-secrets — see its README.md
+              age # age CLI, for manual secret decryption/testing
+              # Derives a host's age recipient for .sops.yaml (`ssh-to-age -i <host>.pub`) — its
+              # output matches what sops-nix's own sops-install-secrets computes internally at
+              # deploy time. Do NOT use the raw SSH .pub string as the recipient instead — that
+              # only works with plain sops/age CLI testing, not the real sops-nix deploy path.
               ssh-to-age
               nixos-anywhere # provision new hosts via nixos-anywhere
               nix-tree # visualize derivation dependency graph

@@ -45,11 +45,9 @@ modules/
   common/                        # cross-platform modules (NixOS + darwin)
     packages.nix                 # shared system packages, allowUnfree, environment.shells
     development-packages.nix     # dev-tool packages, wired only to gammu and codex
-    secrets.nix                  # ragenix identity paths
-    age-host-key.nix             # generates /etc/age/host-key on first activation
-    github-secrets.nix           # deploys GitHub SSH keys via ragenix
-    certbot-secrets.nix          # deploys LuaDNS credentials via ragenix
-    tailscale-secrets.nix        # deploys Tailscale auth key via ragenix (NixOS only)
+    github-secrets.nix           # deploys GitHub SSH keys via sops-nix
+    certbot-secrets.nix          # deploys LuaDNS credentials via sops-nix
+    tailscale-secrets.nix        # deploys Tailscale auth key via sops-nix (NixOS only)
   nixos/
     users.nix                    # NixOS user declarations
     home-manager.nix             # shared NixOS home-manager block
@@ -79,8 +77,8 @@ nix develop
 cd nixie   # shell loads automatically
 ```
 
-The devShell provides: `nil` (Nix LSP), `nixfmt`, `ragenix`, `nixos-anywhere`, `nix-tree`, `nvd`,
-`statix`.
+The devShell provides: `nil` (Nix LSP), `nixfmt`, `sops`, `age`, `ssh-to-age`, `nixos-anywhere`,
+`nix-tree`, `nvd`, `statix`.
 
 To activate direnv:
 
@@ -128,81 +126,74 @@ nixos-anywhere --flake .#minixie \
 Before deploying, replace the placeholder SSH key in `hosts/nixos/minixie/default.nix` under
 `users.users.root.openssh.authorizedKeys.keys` with your own.
 
-## Secrets (ragenix + YubiKey)
+## Secrets (sops-nix + YubiKey)
 
-Secrets are encrypted with [ragenix](https://github.com/yaxitech/ragenix) using an age identity backed
-by a YubiKey via `age-plugin-yubikey`. Encrypted `.age` files live in the
-[nix-secrets](https://github.com/amatos/nix-secrets) repository, pulled in as a non-flake flake input
-(`flake = false`).
+Secrets are encrypted with [sops](https://github.com/getsops/sops), using
+[age](https://github.com/FiloSottile/age) as the crypto backend, and deployed via
+[sops-nix](https://github.com/Mic92/sops-nix). Recipients are a mix of YubiKey identities (via
+`age-plugin-yubikey`) and each host's own SSH host key (converted with `ssh-to-age`) — no
+separate per-host age identity file or generation step. Encrypted files live in the
+[nix-secrets](https://github.com/amatos/nix-secrets) repository, pulled in as a non-flake flake
+input (`flake = false`).
+
+Full workflow (creating/editing secrets, adding/removing recipients, manual decryption) is
+documented in `nix-secrets`'s own `README.md`/`CLAUDE.md` — the short version:
 
 ### Prerequisites
 
-- YubiKey plugged in
-- `age-plugin-yubikey` available (`nix shell nixpkgs#age-plugin-yubikey`)
+- YubiKey plugged in (unless using the non-interactive `yubikey_0634d1c4` identity)
+- `sops`/`age`/`ssh-to-age` available — they're in this repo's devShell (`nix develop`)
 
 ### Generating a new secret
 
-1. **Add the secret's entry to `nix-secrets`'s own `secrets.nix`** (a separate repo, not a
-   subdirectory of this one — see [nix-secrets](https://github.com/amatos/nix-secrets)), listing
-   the recipients that should be able to decrypt it:
-
-   ```nix
-   "my-new-secret.age".publicKeys = allKeys;
-   ```
-
-2. **Encrypt the secret** using ragenix, from inside the `nix-secrets` checkout:
+1. **Confirm (or add) a `.sops.yaml` rule** in `nix-secrets` covering the new file's recipient
+   scope.
+2. **Create/edit the encrypted file**, from inside the `nix-secrets` checkout:
 
    ```bash
    cd /path/to/nix-secrets
-   ragenix -e my-new-secret.age
+   sops my-new-secrets.yaml
    ```
 
-3. **Commit the `.age` file** to the appropriate repository.
-
-4. **Declare the secret on the hosts** that need it:
+3. **Commit the file** to `nix-secrets`.
+4. **Declare the secret on the hosts** that need it (usually in a `modules/common/` module):
 
    ```nix
-   age.secrets.my-new-secret = {
-     file  = "${nix-secrets}/my-new-secret.age";
-     path  = "/path/on/host/my-new-secret";
-     owner = "alberth";
-     mode  = "0600";
+   sops.secrets.my-new-secret = {
+     sopsFile = "${nix-secrets}/my-new-secrets.yaml";
+     key      = "my-new-secret"; # the YAML key inside the file
+     owner    = "alberth";
+     mode     = "0400";
    };
    ```
 
-5. **Rebuild the host.**
+5. **Rebuild the host.** The decrypted value lands at
+   `config.sops.secrets.my-new-secret.path` (`/run/secrets/my-new-secret` by default).
 
 ### Adding a new host
 
-Each host auto-generates its own age key at `/etc/age/host-key` on first activation.
+Each host decrypts using its own SSH host key — no separate age identity to generate or
+provision.
 
-1. Deploy with the YubiKey plugged in — the activation script prints the new host's public key:
-
-   ```text
-   Host age public key (add this to nix-secrets/secrets.nix and rekey):
-   age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   ```
-
-2. Add that key to `nix-secrets/secrets.nix` as a new recipient.
-
-3. Rekey all secrets:
+1. Add a `<host>_ssh` recipient to `nix-secrets/.sops.yaml`, derived via
+   `ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub` against the new host's key.
+2. Re-encrypt the data key of every secret file that needs the new host:
 
    ```bash
-   nix run github:yaxitech/ragenix -- --rekey
+   sops updatekeys my-new-secrets.yaml
    ```
 
-4. Commit, push, and redeploy. All subsequent boots are fully automatic.
+3. Commit, push, and redeploy.
 
 ### Re-keying secrets
 
-```bash
-nix run github:yaxitech/ragenix -- --rekey
-```
+`sops updatekeys <file>` per affected file — see `nix-secrets/README.md` for full detail on
+adding/removing recipients.
 
 ## Tailscale
 
 Tailscale is enabled on all hosts. NixOS hosts authenticate automatically at activation using the
-auth key decrypted from `nix-secrets/tailscale-authkey.age`. Darwin hosts do not support
+auth key decrypted from `nix-secrets/fleet-secrets.yaml`. Darwin hosts do not support
 `authKeyFile` via nix-darwin and must be authenticated once manually after the first deploy:
 
 ```bash
@@ -217,8 +208,8 @@ nodes persist across reboots and re-deploys.
 Certificates renew automatically — weekly via a systemd timer (NixOS, with 1h
 randomized delay) or launchd job (darwin, Sunday 03:00). Both use `--keep-until-expiring`.
 
-The LuaDNS API credentials are decrypted from `nix-secrets/luadns.ini.age` at boot and placed at
-`/run/agenix/luadns-ini`.
+The LuaDNS API credentials are decrypted from `nix-secrets/fleet-secrets.yaml` at boot and placed
+at `/run/secrets/luadns-ini`.
 
 ### Configuring domains
 
