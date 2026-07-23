@@ -27,6 +27,7 @@ in
     imagemagick
     inkscape # Vector graphics editor
     lazygit
+    nil
     nmap
     pre-commit
     prettier

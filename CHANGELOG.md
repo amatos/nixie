@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Added
+
+- `nil` (Nix language server) to `modules/common/development-packages.nix`,
+  alongside `yaml-language-server`, for Zed's Nix language support on
+  `codex` (also picked up fleet-wide on `gammu`/`darwintron`, the other
+  hosts that import this shared dev-tools module).
+
 ## 26.07.21
 
 ### Removed
