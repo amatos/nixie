@@ -14,7 +14,7 @@ path, checked directly rather than assumed):
 | `nix-secrets` | Text secrets repo — Phase 3 migrates its content | [x] |
 | `nix-keytabs-matos-cc` | Binary keytabs repo — Phase 4 migrates its content | [x] |
 | `nix-kerberos-ldap` | External module consumes `age.secrets.ldapAdminPassword` etc. directly — Phase 5 | [x] |
-| `nix-home-alberth` | `alberth/common/packages.nix` installs the `ragenix` CLI; `alberth/common/cachix.nix` hardcodes `/run/agenix/cachix-authtoken`; `alberth/default.nix` symlinks the YubiKey identity stub for interactive `ragenix`/`age` use | [x] |
+| `nix-home-alberth` | Installs the `ragenix` CLI; `cachix.nix` hardcodes `/run/agenix/*`; symlinks the YubiKey identity stub | [x] |
 
 See the proposal discussed in chat for full background/rationale and the areas-of-concern list.
 This file is the actionable checklist version of that proposal.
@@ -428,15 +428,15 @@ needs it. Do not batch multiple groups together.
       - Along the way, found and fixed a real, previously-latent bug: `gammu` was the first
         host in this whole migration to reach *zero* remaining `age.secrets` (every consumer
         had already been converted in earlier steps), and building it broke with "The option
-        `system.activationScripts.agenix.text' was accessed but has no value defined."
+        \`system.activationScripts.agenix.text' was accessed but has no value defined."
         `modules/common/age-host-key.nix` and `modules/nixos/agenix-fix.nix` both
         unconditionally referenced `system.activationScripts.agenix(Install)` to sequence
         themselves relative to ragenix's own stages, which only exist when `age.secrets` is
         non-empty. Wrapping just the *value* in `mkIf` wasn't enough — `attrsOf`-submodule
         merging still structurally instantiates the referenced key regardless of the
-        condition; fixed by wrapping the whole attribute-path assignment in an outer `mkIf`
-        instead, matching `ragenix`'s own gate exactly. Affects every NixOS host as it reaches
-        zero `agenix` secrets during this migration (darwin hosts don't hit it — different
+        condition; fixed by wrapping the whole attribute-path assignment in an outer
+        `mkIf` instead, matching `ragenix`'s own gate exactly. Affects every NixOS host as
+        it reaches zero `agenix` secrets during this migration (darwin hosts don't hit it — different
         activation mechanism); `porkchop` and `huginn` needed the same fix, `muninn` doesn't
         yet since it still has `age.secrets` via the deferred Phase 5 LDAP secrets.
       - Also found `default-nixos-user-password`-style dead weight:
@@ -528,10 +528,44 @@ needs it. Do not batch multiple groups together.
 
 ## Phase 6 — Fleet-wide agenix removal
 
-- [ ] **Step 24**: once every secret has a validated SOPS counterpart on every host that needs
+- [x] **Step 24**: once every secret has a validated SOPS counterpart on every host that needs
       it, remove all remaining `age.secrets.*` wiring, the `ragenix.nixosModules.default` /
       darwin equivalent imports, and `modules/common/secrets.nix` (ragenix identity paths) —
       replaced by whatever Phase 1 Step 8 decided for host identity.
+      - Deleted `modules/common/age-host-key.nix`, `modules/common/secrets.nix`, and
+        `modules/nixos/agenix-fix.nix` outright — all three existed purely to support
+        ragenix's own activation-script sequencing/identity, superseded by Step 8's decision
+        (`sops.age.sshKeyPaths` deriving identity from each host's existing SSH host key,
+        already the sops-nix default whenever `services.openssh.enable` is true, which every
+        NixOS host in this fleet already sets — no explicit option needed).
+      - Removed their imports from `hosts/nixos/common-nixos.nix` and
+        `hosts/darwin/common-darwin.nix`.
+      - Removed `ragenix.nixosModules.default` from every host's module list in `flake.nix`:
+        `codex`, `nhcodex`, `darwintron`, `template-darwin`, `gammu`, `porkchop`,
+        `template-nixos`, `huginn`, `muninn`, and `minixie` (the last one never had
+        `sharedSpecialArgs`/secrets to begin with — trivially satisfies "every secret has a
+        validated counterpart" since it has none — but still carried the module and a
+        `pkgs.ragenix` package for no remaining reason, both removed).
+      - Updated now-stale comments referencing `ragenix` across `flake.nix`,
+        `hosts/nixos/{gammu,porkchop,muninn,huginn}/default.nix` (syncthing-password.nix
+        attribution), `hosts/nixos/ephemeraltron/default.nix`, and
+        `hosts/darwin/common-darwin.nix`. Left `modules/nixos/user-passwords.nix`'s comment
+        alone — it's a historical comparison ("same ordering guarantee ragenix gave for
+        free"), not a description of current wiring.
+      - Drive-by: fixed pre-existing markdownlint debt in this file (an over-long table cell
+        and an escaped-backtick issue in Step 20's notes) that `nix flake check`'s
+        `pre-commit run --all-files` caught but a normal `git commit`'s incremental hook
+        never had — unrelated to this step's changes but blocking validation.
+      - **Validated**: `nix flake check --all-systems` clean (`checks.x86_64-linux.pre-commit`
+        and `checks.aarch64-darwin.pre-commit` both pass; `aarch64-linux` cancelled only for
+        lack of a native/remote aarch64-linux builder on this machine, a pre-existing
+        environment limitation unrelated to this change). Real builds with
+        `--override-input nix-secrets git+file:///Users/alberth/Projects/nix-secrets?ref=sops-nix-migration`
+        succeeded for `nixosConfigurations.muninn` (the host with the most secrets, and the
+        one that originally needed the `mkMerge`/`mkIf` fix now-deleted `age-host-key.nix`
+        carried), `darwinConfigurations.codex`, and `nixosConfigurations.minixie` (no
+        override needed, no `sharedSpecialArgs`). `grep -o 'agenix[a-zA-Z]*'` against all
+        three built `activate` scripts returned zero matches.
 - [ ] **Step 25**: remove the `ragenix` flake input and devShell package entirely from `nixie`.
 - [ ] **Step 26**: **`nix-home-alberth` cleanup**: remove the `ragenix` package from
       `alberth/common/packages.nix`, add `sops` in its place if useful for interactive use.

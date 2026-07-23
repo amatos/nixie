@@ -270,11 +270,8 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
             zapp.darwinModules.default
-            # sops-nix PoC (SOPS_MIGRATION.md Step 9) — alongside, not replacing,
-            # ragenix. codex is the one real host validated so far.
             sops-nix.darwinModules.sops
             ./hosts/darwin/codex
           ];
@@ -289,10 +286,6 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
-            # sops-nix migration (SOPS_MIGRATION.md Step 17) — alongside, not
-            # replacing, ragenix. Needed since it reuses common-darwin.nix,
-            # which imports modules that now declare sops.secrets.*.
             sops-nix.darwinModules.sops
             ./hosts/darwin/nhcodex
           ];
@@ -306,10 +299,6 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
-            # sops-nix smoke test (SOPS_MIGRATION.md Step 3) — darwinModules.sops,
-            # not nixosModules.sops, since darwintron is a nix-darwin host. Present
-            # but unused: no sops.secrets.* wired up yet.
             sops-nix.darwinModules.sops
             ./hosts/darwin/darwintron
           ];
@@ -321,9 +310,7 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
-            # sops-nix migration (SOPS_MIGRATION.md Step 17) — see nhcodex.
             sops-nix.darwinModules.sops
             ./hosts/darwin/template-darwin
           ];
@@ -339,11 +326,8 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
             zapp.nixosModules.default
             orion-browser.nixosModules.default
-            # sops-nix migration (SOPS_MIGRATION.md Step 17) — alongside, not
-            # replacing, ragenix.
             sops-nix.nixosModules.sops
             ./hosts/nixos/gammu
           ];
@@ -355,9 +339,6 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
-            # sops-nix migration (SOPS_MIGRATION.md Step 12) — alongside, not
-            # replacing, ragenix.
             sops-nix.nixosModules.sops
             ./hosts/nixos/porkchop
           ];
@@ -369,8 +350,6 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
-            # sops-nix migration (SOPS_MIGRATION.md Step 17) — see gammu.
             sops-nix.nixosModules.sops
             ./hosts/nixos/template-nixos
           ];
@@ -382,9 +361,6 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
-            # sops-nix migration (SOPS_MIGRATION.md Step 12) — alongside, not
-            # replacing, ragenix.
             sops-nix.nixosModules.sops
             ./hosts/nixos/huginn
           ];
@@ -396,11 +372,7 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
             nix-kerberos-ldap.nixosModules.default
-            # sops-nix PoC (SOPS_MIGRATION.md Step 13) — alongside, not
-            # replacing, ragenix. Full cutover deferred to Phase 5, since
-            # nix-kerberos-ldap's own modules still consume age.secrets.*.
             sops-nix.nixosModules.sops
             ./hosts/nixos/muninn
           ];
@@ -426,7 +398,6 @@
           system = "x86_64-linux";
           modules = [
             disko.nixosModules.disko
-            ragenix.nixosModules.default
             ./hosts/nixos/minixie
             # hardware.facter.reportPath is a native nixpkgs option (the
             # standalone nixos-facter-modules flake is deprecated/upstreamed).

@@ -46,7 +46,7 @@ in
 
   services = {
     # Syncthing — runs as a systemd service, syncs to the primary user's home.
-    # GUI password is managed via syncthing-password.nix (ragenix secret).
+    # GUI password is managed via syncthing-password.nix (sops-nix secret).
     #
     # guiAddress/settings.gui.address use the IPv4 wildcard "0.0.0.0", not the
     # IPv6 wildcard "[::]" — see CLAUDE.md Syncthing conventions for why (the
