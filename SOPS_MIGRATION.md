@@ -613,40 +613,68 @@ needs it. Do not batch multiple groups together.
 
 ## Phase 7 — Documentation rewrite
 
-- [ ] **Step 28**: rewrite `ARCHITECTURE.md` §4 (Secrets architecture — model, lifecycle
+- [x] **Step 28**: rewrite `ARCHITECTURE.md` §4 (Secrets architecture — model, lifecycle
       diagram, invariants) to describe the SOPS-based model instead of agenix.
-- [ ] **Step 29**: rewrite `CLAUDE.md`'s secrets sections (the "Secrets" section and "Wiring an
+      - Full rewrite of §4.1–4.4: `.sops.yaml`/`path_regex` recipients instead of `secrets.nix`,
+        SSH-host-key-derived identity (`sops.age.sshKeyPaths`) instead of a generated
+        `/etc/age/host-key`, `sops updatekeys` for adding/removing a recipient replacing
+        `ragenix --rekey`. Mermaid lifecycle diagram and the "wiring a new secrets repo"/"adding
+        a host" subsections updated to match.
+      - Also fixed stale `ragenix`/`secrets.nix` mentions that had bled into §1 (table,
+        flowchart), §2 (`ragenix -e` workflow prose), §3 (a `luadns.ini.age` example that no
+        longer exists post-consolidation), and §6's invariants #1/#5/#7 — left purely
+        unqualified without this pass, the document would have described a mix of both
+        mechanisms depending on which section a reader landed on. §10's dated historical log
+        left untouched (records what was true at the time, like a changelog).
+      - Validated: `nix run nixpkgs#markdownlint-cli2 -- ARCHITECTURE.md` clean.
+- [x] **Step 29**: rewrite `CLAUDE.md`'s secrets sections (the "Secrets" section and "Wiring an
       external secrets repo into nixie" subsection) to match.
-- [ ] **Step 30**: update each of the other four repos' own `CLAUDE.md`/`README.md` similarly
-      (`nix-secrets`, `nix-keytabs-matos-cc`, `nix-kerberos-ldap`, `nix-home-alberth`). For
-      `nix-secrets` and `nix-keytabs-matos-cc` — the two repos where secrets actually get
-      created/edited — replace the existing ragenix workflow instructions (declare in
-      `secrets.nix`, `ragenix -e`, `ragenix --rekey`, etc.) with the equivalent `sops`
-      workflows, covering at minimum:
-      - **Adding a new secret**: add a `path_regex` rule (or confirm the file already matches
-        an existing one) and recipient `key_groups` in `.sops.yaml` first, then
-        `sops <file>` to create and encrypt it (`sops --input-type binary --output-type binary
-        <file>` for binary content, per Step 7's text/binary split). Cross-reference the
-        `sops.secrets.<name>` wiring needed on the consuming side (`sopsFile`, `key`, `format`
-        for binary, owner/mode) — see `modules/common/krb5-client.nix` or
-        `modules/nixos/user-passwords.nix` in `nixie` for real examples.
-      - **Updating an existing secret's content**: `sops <file>` (or `sops -i` patterns used
-        during this migration for scripted updates) — no rekey needed, `.sops.yaml`'s
-        recipients are unchanged.
-      - **Adding a recipient to an existing secret**: add the key to the relevant
-        `key_groups` entry (or a new `&anchor` under `keys:` if it's a new
-        host/user) in `.sops.yaml`, then `sops updatekeys <file>` to re-encrypt the file's
-        data key for the new recipient set — no need to decrypt/re-encrypt the content itself.
-      - **Removing a recipient**: remove the key from `.sops.yaml`'s `key_groups`, then
-        `sops updatekeys <file>` the same way — note this does NOT rotate the underlying
-        secret value, so anyone who already had access could have retained a copy; treat as a
-        access-list change only, not a guarantee of revocation (rotate the secret separately if
-        that matters for the specific case).
-      - Note where each repo's identity comes from for local interactive use (the YubiKey
-        `age-plugin-yubikey` identity files, `SOPS_AGE_KEY_FILE`/`-i` flag patterns used
-        throughout this migration) versus how each host decrypts automatically at
-        activation time (`sops.age.sshKeyPaths`, Step 8's decision — no manual step needed
-        once a host's SSH host key is already a recipient).
+      - Rewrote both to describe `sops.secrets`/`.sops.yaml`/`sops.age.sshKeyPaths`.
+      - Found and fixed several more stale mentions outside the two named sections while
+        auditing the whole file for `ragenix`/`age.secrets`/`secrets.nix`: the "Key inputs"
+        summary near the top still named `ragenix`; the project-layout tree still listed
+        `modules/common/secrets.nix` and `age-host-key.nix` as if they existed (both were
+        deleted in Step 24); and the "Remote builders" section described codex's SSH key as
+        `ragenix`-deployed at `nix-secrets/builder/codex-ssh-key.age`, a path that was never
+        actually correct post-Step-15 (the real file is `builder-codex-ssh-key.yaml`, wired as
+        `sops.secrets.remote-build-ssh-key`). Left one historical mention (an activation-scripts
+        pitfall example citing the now-deleted `age-host-key.nix`) with a note that the module
+        was retired, rather than deleting the example outright.
+      - Validated: `nix run nixpkgs#markdownlint-cli2 -- CLAUDE.md` clean.
+- [x] **Step 30**: update each of the other four repos' own `CLAUDE.md`/`README.md` similarly
+      (`nix-secrets`, `nix-keytabs-matos-cc`, `nix-kerberos-ldap`, `nix-home-alberth`).
+      - **`nix-secrets`**: full rewrite of both `CLAUDE.md` and `README.md` — every ragenix
+        workflow instruction (`secrets.nix`, `ragenix -e`, `ragenix --rekey`) replaced with the
+        sops equivalent, plus new "Updating an existing secret's content", "Adding a recipient",
+        and "Removing a recipient" (`sops updatekeys`) sections this repo never had under
+        ragenix. Documented the interactive-vs-activation-time identity split (YubiKey
+        `age-plugin-yubikey` stubs + `SOPS_AGE_KEY_FILE` for local use, `sops.age.sshKeyPaths`
+        for hosts) and `yubikey_0634d1c4`'s non-interactive PIN/touch-Never policy. Rebuilt
+        `README.md`'s Recipients/Secrets tables to match current reality (the `*_ssh` anchors,
+        the consolidated multi-key YAML files) instead of the stale ragenix-era per-file
+        layout. Added `sops`/`ssh-to-age` to `shell.nix` so the documented manual-decrypt
+        workflow actually works standalone, not just via `nix develop /path/to/nixie`.
+      - **`nix-keytabs-matos-cc`**: same rewrite, plus a real gap found along the way — this
+        repo's `.age` files all migrated *out* to `nix-secrets` during Phase 4/5 rather than
+        being converted in place, so it never actually got a `.sops.yaml` of its own. Created
+        one (mirroring `nix-secrets`'s shared identities, no host-specific anchors yet since no
+        host currently needs a keytab from here) so the newly-written workflow describes
+        something that exists rather than aspirational scaffolding. Smoke-tested:
+        `sops -e -i` against the new file succeeds (encryption only needs public keys,
+        confirming the recipient set is well-formed); a full decrypt round-trip needs an
+        interactive YubiKey PIN not available in this session, left for whenever the first real
+        keytab is added here again. Also added `sops`/`ssh-to-age` to `shell.nix`.
+      - **`nix-kerberos-ldap`**: its `CLAUDE.md` had hedged language ("sops-nix / agenix
+        patterns — whichever `nix-secrets` uses") written before Phase 5 settled the question —
+        replaced with a definitive description of the actual `sops.secrets`/`sopsFile`/`key`
+        pattern used in `modules/ldap.nix`/`modules/kerberos.nix`. This repo has no
+        markdownlint/pre-commit setup, so left the existing long-line prose style as-is rather
+        than introducing 80-char wrapping inconsistent with the rest of the file.
+      - **`nix-home-alberth`**: audited `CLAUDE.md`/`README.md`/`ARCHITECTURE.md` — zero
+        `ragenix`/`age.secrets`/`secrets.nix` mentions found. This repo's docs never described
+        the secrets mechanism in narrative form (secrets flow in only via `extraSpecialArgs`
+        from `nixie`), so Step 26's code-comment fixes already covered everything relevant.
+        Nothing further needed.
 
 ## Phase 8 — Final decision
 
