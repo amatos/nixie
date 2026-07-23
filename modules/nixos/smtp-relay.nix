@@ -2,17 +2,17 @@
 # Configures Postfix to relay all outbound mail through an upstream SMTP server
 # using SASL authentication and STARTTLS.
 #
-# The SASL credentials file must be an age-encrypted Postfix passwd map in the format:
+# The SASL credentials file must be a sops-encrypted Postfix passwd map in the format:
 #   [smtp.fastmail.com]:587 user@example.com:app-password
 #
-# Uses texthash: lookup so no postmap run is required — the ragenix-decrypted
+# Uses texthash: lookup so no postmap run is required — the sops-nix-decrypted
 # plain-text file is read directly by Postfix.
 #
 # Usage — in a host's default.nix:
 #   nixie.smtpRelay.enable = true;
 #
 # Remember to also import modules/common/smtp-relay-secrets.nix so the
-# ragenix secret is deployed before Postfix starts.
+# sops-nix secret is deployed before Postfix starts.
 {
   config,
   lib,
@@ -72,11 +72,11 @@ in
 
     saslSecretPath = lib.mkOption {
       type = lib.types.str;
-      default = config.age.secrets.smtp-relay-sasl.path;
-      defaultText = "config.age.secrets.smtp-relay-sasl.path";
+      default = config.sops.secrets.smtp-relay-sasl.path;
+      defaultText = "config.sops.secrets.smtp-relay-sasl.path";
       description = ''
-        Path to the age-decrypted Postfix SASL passwd map file.
-        Defaults to the ragenix-managed secret path. Uses texthash: lookup
+        Path to the sops-nix-decrypted Postfix SASL passwd map file.
+        Defaults to the sops-nix-managed secret path. Uses texthash: lookup
         so no postmap run is required.
       '';
     };
@@ -101,11 +101,11 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
-        # Postfix must start after agenix has decrypted the SASL credentials.
-        systemd.services.postfix = {
-          after = [ "agenix.service" ];
-          wants = [ "agenix.service" ];
-        };
+        # Postfix restarting on credential changes is handled by
+        # modules/common/smtp-relay-secrets.nix's sops.secrets.smtp-relay-sasl.restartUnits.
+        # No explicit boot-ordering dependency is needed: sops-nix installs
+        # secrets via the same activation-script phase NixOS itself uses,
+        # which completes before services (re)start.
 
         # Generic table rewriting the bare hostname domain to the LAN FQDN
         # on outbound mail — see the module-level comment above. "@<host>"
@@ -117,7 +117,7 @@ in
         # bind-mount from /var/lib/postfix/conf (NixOS's postfix module
         # manages it as a whole unit), so environment.etc can't inject an
         # individual extra file into it (mkdir collision at build time).
-        # Same reason the SASL password map above references a /run/agenix
+        # Same reason the SASL password map above references a /run/secrets
         # path rather than anything under /etc/postfix/.
         environment.etc."postfix-generic-map".text = ''
           @${config.networking.hostName} ${config.networking.hostName}.home.matos.cc

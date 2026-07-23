@@ -3,7 +3,7 @@
 # Deploy a fresh machine with:
 #   nixos-anywhere --flake .#minixie root@<target-ip>
 #
-# This installs a bare NixOS + ragenix system with no identity baked in.
+# This installs a bare NixOS system with no identity baked in.
 # Replace the placeholder SSH key below before deploying. Once the machine
 # is reachable, replace this stub entirely with a real nixie host config
 # (see hosts/nixos/template-nixos/default.nix) — minixie only exists to get
@@ -36,7 +36,6 @@
   environment.systemPackages = map lib.lowPrio [
     pkgs.curl
     pkgs.gitMinimal
-    pkgs.ragenix
     pkgs.vim
   ];
 

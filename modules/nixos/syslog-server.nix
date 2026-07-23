@@ -63,16 +63,12 @@ in
       # default anymore (the old default was a shared, publicly-known
       # value). Referenced via Grafana's own $__file{} provider syntax so
       # the plaintext never appears in the Nix store.
-      age.secrets.grafanaSecretKey = {
-        file = "${nix-secrets}/grafana-secret-key.age";
+      sops.secrets.grafanaSecretKey = {
+        sopsFile = "${nix-secrets}/grafana-secret-key.yaml";
+        key = "grafana-secret-key";
         owner = "grafana";
         mode = "0400";
-      };
-
-      # Grafana must start after agenix has decrypted the secret key.
-      systemd.services.grafana = {
-        after = [ "agenix.service" ];
-        wants = [ "agenix.service" ];
+        restartUnits = [ "grafana.service" ];
       };
 
       # Minimal single-node Loki — filesystem storage, no object store,
@@ -115,7 +111,7 @@ in
           http_addr = "0.0.0.0";
           http_port = 3000;
         };
-        settings.security.secret_key = "$__file{${config.age.secrets.grafanaSecretKey.path}}";
+        settings.security.secret_key = "$__file{${config.sops.secrets.grafanaSecretKey.path}}";
         provision.datasources.settings.datasources = [
           {
             name = "Loki";

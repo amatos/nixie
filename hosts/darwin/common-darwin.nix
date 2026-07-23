@@ -20,8 +20,6 @@ in
     ../../modules/darwin/sudo.nix
     ../../modules/darwin/macos-defaults
     ../../modules/common/packages.nix
-    ../../modules/common/age-host-key.nix
-    ../../modules/common/secrets.nix
     ../../modules/common/github-secrets.nix
     ../../modules/common/cachix-secrets.nix
     ../../modules/common/ghostty-theme-secrets.nix
@@ -41,7 +39,7 @@ in
       primaryUser
       "@staff" # all local user accounts
     ];
-    # Allow substituters declared in flake nixConfig blocks (e.g. ragenix,
+    # Allow substituters declared in flake nixConfig blocks (e.g.
     # home-manager, zed). Without this, the daemon ignores those caches even
     # for users already in trusted-users — trusted-users only covers caches
     # the user specifies in their own nix config, not flake-sourced ones.

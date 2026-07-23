@@ -5,8 +5,9 @@ let
   inherit (userDefs) primaryUser;
 in
 {
-  age.secrets.cachix-authtoken = {
-    file = "${nix-secrets}/cachix-authtoken.age";
+  sops.secrets.cachix-authtoken = {
+    sopsFile = "${nix-secrets}/fleet-secrets.yaml";
+    key = "cachix-authtoken";
     owner = primaryUser;
     mode = "0400";
   };

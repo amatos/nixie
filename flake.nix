@@ -19,8 +19,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ragenix = {
-      url = "github:yaxitech/ragenix";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -69,7 +69,10 @@
     };
 
     nix-kerberos-ldap = {
-      url = "github:amatos/nix-kerberos-ldap";
+      # TEMPORARY branch-to-branch reference during the sops-nix migration
+      # experiment (SOPS_MIGRATION.md Step 23) — resolved back to
+      # github:amatos/nix-kerberos-ldap (main-to-main) in Phase 8 if kept.
+      url = "git+file:///Users/alberth/Projects/nix-kerberos-ldap?ref=sops-nix-migration";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nix-secrets.follows = "nix-secrets";
     };
@@ -121,7 +124,7 @@
       nix-darwin,
       determinate,
       home-manager,
-      ragenix,
+      sops-nix,
       nix-secrets,
       nix-keytabs-matos-cc,
       nvf,
@@ -259,9 +262,9 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
             zapp.darwinModules.default
+            sops-nix.darwinModules.sops
             ./hosts/darwin/codex
           ];
         };
@@ -275,7 +278,7 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
+            sops-nix.darwinModules.sops
             ./hosts/darwin/nhcodex
           ];
         };
@@ -288,7 +291,7 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
+            sops-nix.darwinModules.sops
             ./hosts/darwin/darwintron
           ];
         };
@@ -299,8 +302,8 @@
           modules = [
             determinate.darwinModules.default
             home-manager.darwinModules.home-manager
-            ragenix.nixosModules.default
             nix-homebrew.darwinModules.nix-homebrew
+            sops-nix.darwinModules.sops
             ./hosts/darwin/template-darwin
           ];
         };
@@ -315,9 +318,9 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
             zapp.nixosModules.default
             orion-browser.nixosModules.default
+            sops-nix.nixosModules.sops
             ./hosts/nixos/gammu
           ];
         };
@@ -328,7 +331,7 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
+            sops-nix.nixosModules.sops
             ./hosts/nixos/porkchop
           ];
         };
@@ -339,7 +342,7 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
+            sops-nix.nixosModules.sops
             ./hosts/nixos/template-nixos
           ];
         };
@@ -350,7 +353,7 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
+            sops-nix.nixosModules.sops
             ./hosts/nixos/huginn
           ];
         };
@@ -361,8 +364,8 @@
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
-            ragenix.nixosModules.default
             nix-kerberos-ldap.nixosModules.default
+            sops-nix.nixosModules.sops
             ./hosts/nixos/muninn
           ];
         };
@@ -387,7 +390,6 @@
           system = "x86_64-linux";
           modules = [
             disko.nixosModules.disko
-            ragenix.nixosModules.default
             ./hosts/nixos/minixie
             # hardware.facter.reportPath is a native nixpkgs option (the
             # standalone nixos-facter-modules flake is deprecated/upstreamed).
@@ -435,7 +437,15 @@
             packages = with pkgs; [
               nil # Nix LSP
               nixfmt # canonical Nix formatter
-              ragenix.packages.${system}.default # rekey secrets, add recipients
+              sops # sops-nix migration experiment — see SOPS_MIGRATION.md
+              age # sops-nix migration experiment — see SOPS_MIGRATION.md
+              # sops-nix migration experiment — see SOPS_MIGRATION.md. Use this to derive a
+              # host's age recipient for .sops.yaml (`ssh-to-age -i <host>.pub`) — its output
+              # matches what sops-nix's own sops-install-secrets computes internally at deploy
+              # time (confirmed via Step 10's real deploy log). Do NOT use the raw SSH .pub
+              # string as the recipient instead — that only works with plain sops/age CLI
+              # testing, not the real sops-nix deploy path (see Step 8/9 notes).
+              ssh-to-age
               nixos-anywhere # provision new hosts via nixos-anywhere
               nix-tree # visualize derivation dependency graph
               nvd # diff two NixOS/darwin closures before switching

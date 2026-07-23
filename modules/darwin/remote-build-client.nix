@@ -28,8 +28,9 @@
 }:
 
 {
-  age.secrets.remote-build-ssh-key = {
-    file = "${nix-secrets}/builder/codex-ssh-key.age";
+  sops.secrets.remote-build-ssh-key = {
+    sopsFile = "${nix-secrets}/builder-codex-ssh-key.yaml";
+    key = "builder-codex-ssh-key";
     path = "/etc/nix/remotebuild_ed25519";
     # The nix-daemon (and thus remote-build ssh connections) runs as root on
     # darwin, unlike the primaryUser-owned secrets elsewhere in this repo.

@@ -24,7 +24,7 @@
 # that (nonexistent, on porkchop) identity and attempts GSSAPI first, adding
 # noisy/misleading "no such identity" errors to the log before ever getting
 # to the key that actually matters. These two options make the service use
-# *only* the ragenix-deployed key.
+# *only* the sops-nix-deployed key.
 #
 # Usage — in a host's default.nix:
 #   nixie.unifiBackup = {
@@ -55,7 +55,7 @@ let
       -o PreferredAuthentications=publickey \
       -o StrictHostKeyChecking=accept-new \
       -o UserKnownHostsFile=${stateDir}/known_hosts \
-      -i /run/agenix/unifi-backup-ssh-key \
+      -i ${config.sops.secrets.unifi-backup-ssh-key.path} \
       "${cfg.remoteUser}@${cfg.remoteHost}:${cfg.remotePath}" \
       "${cfg.localDir}"
   '';
@@ -105,10 +105,7 @@ in
 
       services.unifi-backup = {
         description = "scp backup of UniFi autobackup directory from ${cfg.remoteHost}";
-        after = [
-          "network-online.target"
-          "agenix.service"
-        ];
+        after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
         serviceConfig = {
           Type = "oneshot";

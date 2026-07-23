@@ -1,4 +1,4 @@
-{ nix-keytabs-matos-cc, ... }:
+{ nix-secrets, ... }:
 
 let
   userDefs = import ../../../users.nix;
@@ -32,7 +32,7 @@ in
   };
 
   nixie = {
-    krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-huginn.age";
+    krb5.keytabFile = "${nix-secrets}/keytab-huginn.age";
 
     # SMTP relay — Postfix smarthost via Fastmail; primary relay for the fleet
     # (see ARCHITECTURE.md §10 Stage 5/6 — porkchop becomes the backup relay).
@@ -71,7 +71,7 @@ in
   };
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
-  # GUI password is managed via syncthing-password.nix (ragenix secret).
+  # GUI password is managed via syncthing-password.nix (sops-nix secret).
   #
   # guiAddress/settings.gui.address use the IPv4 wildcard "0.0.0.0", not the
   # IPv6 wildcard "[::]" — see CLAUDE.md Syncthing conventions for why (the

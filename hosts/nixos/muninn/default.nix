@@ -1,6 +1,6 @@
 {
   pkgs,
-  nix-keytabs-matos-cc,
+  nix-secrets,
   ...
 }:
 
@@ -70,9 +70,9 @@ in
       domain = "matos.cc";
       baseDN = "dc=matos,dc=cc";
       # SASL/GSSAPI — slapd authenticates clients via Kerberos tickets.
-      # saslKeytabFile: age-encrypted keytab for the ldap/ service principal;
-      #   deployed to /run/agenix/ldapSaslKeytab with openldap ownership.
-      #   Contains TWO principals: ldap/muninn.ts.matos.cc (the "intended"
+      # saslKeytabFile: sops-encrypted (binary) keytab for the ldap/ service
+      #   principal; deployed to /run/secrets/ldapSaslKeytab with openldap
+      #   ownership. Contains TWO principals: ldap/muninn.ts.matos.cc (the "intended"
       #   custom-domain name, unreachable in practice — see below) and
       #   ldap/muninn.tail2269e5.ts.net (the tailnet's real native MagicDNS
       #   name, what clients actually request tickets for).
@@ -97,7 +97,7 @@ in
       #   this cyrus-sasl/krb5 version actually produces — no separate
       #   "cn=<realm>" component appears, despite the extra "cn=[^,]*,"
       #   segment doc'd elsewhere (and previously here) assuming one does.
-      saslKeytabFile = "${nix-keytabs-matos-cc}/keytab-ldap-muninn.age";
+      saslKeytabFile = "${nix-secrets}/keytab-ldap-muninn.age";
       saslAuthzRegexp = [
         "{0}uid=${primaryUser},cn=gssapi,cn=auth cn=admin,dc=matos,dc=cc"
       ];
@@ -122,7 +122,7 @@ in
     };
   };
 
-  nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-muninn.age";
+  nixie.krb5.keytabFile = "${nix-secrets}/keytab-muninn.age";
 
   # Certbot — certificates via LuaDNS DNS-01 challenge.
   # ldapDeploy copies renewed cert+key to /var/lib/openldap-tls/ (root:openldap 640)
@@ -140,7 +140,7 @@ in
   };
 
   # Syncthing — runs as a systemd service, syncs to the primary user's home.
-  # GUI password is managed via syncthing-password.nix (ragenix secret).
+  # GUI password is managed via syncthing-password.nix (sops-nix secret).
   #
   # guiAddress/settings.gui.address use the IPv4 wildcard "0.0.0.0", not the
   # IPv6 wildcard "[::]" — see CLAUDE.md Syncthing conventions for why (the
