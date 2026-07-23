@@ -398,30 +398,80 @@ needs it. Do not batch multiple groups together.
 
 ## Phase 4 — Migrate `nix-keytabs-matos-cc`
 
-- [ ] **Step 19**: migrate one host's keytab as proof — recommend `keytab-codex.age` (lowest
+- [x] **Step 19**: migrate one host's keytab as proof — recommend `keytab-codex.age` (lowest
       consequence: codex losing its keytab briefly just means a Kerberos client hiccup, not a
       KDC/LDAP outage). Use SOPS's binary mode (`--input-type binary --output-type binary`).
       Validate `kinit -k -t /etc/krb5.keytab host/codex.matos.cc` still works.
-- [ ] **Step 20**: migrate the remaining host keytabs (`keytab-gammu`, `keytab-porkchop`,
+      - Confirmed genuinely binary first (47–62% non-printable bytes per host, verified via
+        Python after a naive `grep -qc` check gave a false "text" result on binary input —
+        don't trust that method for binary content again).
+      - `huginn`'s decrypted "keytab" turned out to be garbage (no magic bytes, no structure,
+        4096 bytes of what looked like random data) — the KDC principal
+        `host/huginn.matos.cc` didn't actually exist, so whatever was in `keytab-huginn.age`
+        was never valid. Regenerated via `kadmin.local` on muninn (`addprinc -randkey` +
+        `ktadd`), confirmed the new one has correct magic bytes/structure/principal before
+        using it.
+      - Hit a real bug while encrypting: `sops` matches `creation_rules` `path_regex` against
+        the *input* file path, not an output shell redirect target — `sops -e ...
+        /tmp/foo.plain > keytab-codex.age` silently fell through to the fleet-wide catch-all
+        rule (12 recipients: every host) instead of the intended 9-recipient host-specific
+        rule. Fixed by copying plaintext into the correctly-named target file first, then
+        encrypting in-place (`-i`). Caught via round-trip validation before ever deploying.
+      - `kinit -k -t /etc/krb5.keytab host/codex.matos.cc` succeeded for real on codex.
+- [x] **Step 20**: migrate the remaining host keytabs (`keytab-gammu`, `keytab-porkchop`,
       `keytab-huginn`, `keytab-muninn`) one at a time, validating `kinit -k` on each.
-- [ ] **Step 21**: migrate the LDAP SASL keytabs (`keytab-ldap-porkchop`, `keytab-ldap-muninn`)
+      - All 4 encrypted the same way (binary mode, one file per host, users + that host's real
+        `ssh-to-age` key). `kinit -k -t /etc/krb5.keytab host/<h>.matos.cc` succeeded on all 4
+        (confirmed via exit code — `klist` immediately after showed "no credentials cache" on
+        each, but that's a UID mismatch artifact of running `kinit` via `sudo` then `klist`
+        without it, not an auth failure).
+      - Along the way, found and fixed a real, previously-latent bug: `gammu` was the first
+        host in this whole migration to reach *zero* remaining `age.secrets` (every consumer
+        had already been converted in earlier steps), and building it broke with "The option
+        `system.activationScripts.agenix.text' was accessed but has no value defined."
+        `modules/common/age-host-key.nix` and `modules/nixos/agenix-fix.nix` both
+        unconditionally referenced `system.activationScripts.agenix(Install)` to sequence
+        themselves relative to ragenix's own stages, which only exist when `age.secrets` is
+        non-empty. Wrapping just the *value* in `mkIf` wasn't enough — `attrsOf`-submodule
+        merging still structurally instantiates the referenced key regardless of the
+        condition; fixed by wrapping the whole attribute-path assignment in an outer `mkIf`
+        instead, matching `ragenix`'s own gate exactly. Affects every NixOS host as it reaches
+        zero `agenix` secrets during this migration (darwin hosts don't hit it — different
+        activation mechanism); `porkchop` and `huginn` needed the same fix, `muninn` doesn't
+        yet since it still has `age.secrets` via the deferred Phase 5 LDAP secrets.
+      - Also found `default-nixos-user-password`-style dead weight:
+        `keytab-ldap-porkchop.age` had zero consumers anywhere (porkchop dropped the LDAP role
+        a while back) — deleted rather than migrated.
+- [x] **Step 21**: migrate the LDAP SASL keytabs (`keytab-ldap-porkchop`, `keytab-ldap-muninn`)
       — validate the full GSSAPI LDAP bind chain (`ldapwhoami -Y GSSAPI`) still works on both,
       given how much debugging that exact path took to get right originally.
+      - `keytab-ldap-porkchop` was the dead file noted in Step 20 — nothing to migrate.
+      - `keytab-ldap-muninn`: confirmed genuinely binary (48.8% non-printable, correct magic
+        bytes/principal `ldap/muninn.ts.matos.cc`) before encrypting. PoC-only, like Step 13's
+        `ldap.yaml` — the real consuming code (`age.secrets.ldapSaslKeytab`) lives in the
+        external `nix-kerberos-ldap` repo, deferred to Phase 5 along with the rest of the LDAP
+        group. Deployed to a side path on muninn; content landed byte-exact (346 bytes,
+        `0400 root:root`), live `kdc.service`/`openldap.service` confirmed untouched. Full
+        `ldapwhoami -Y GSSAPI` validation deferred to Phase 5's real cutover, same reasoning
+        as Step 13.
 
 ## Phase 5 — External module coordination
 
 - [ ] **Step 22**: update `nix-kerberos-ldap`'s `ldap.nix`/`kerberos.nix` to consume
       `sops.secrets.*` instead of `age.secrets.*`, on its own `sops-nix-migration` branch
       (created in Step 2).
-      - **Groundwork already done in Step 13**: `nix-secrets/ldap.yaml` exists (consolidated
-        `admin-password`/`kdc-password`/`krb5-master-key`, byte-identical to the originals),
-        `.sops.yaml` already has a `*muninn_ssh`-scoped rule for it, and muninn already has
-        `sops-nix.nixosModules.sops` in its module list (`flake.nix`) and three PoC secrets
-        wired to side paths (`hosts/nixos/muninn/default.nix`) proving the pipeline works. This
-        step just needs the module code itself switched over — point
-        `age.secrets.ldapAdminPassword`/etc. (currently in `nix-kerberos-ldap`'s own
+      - **Groundwork already done in Steps 13 and 21**: `nix-secrets/ldap.yaml` exists
+        (consolidated `admin-password`/`kdc-password`/`krb5-master-key`, byte-identical to the
+        originals) and `nix-secrets/keytab-ldap-muninn.age` exists (binary, byte-identical),
+        `.sops.yaml` already has `*muninn_ssh`-scoped rules for both, and muninn already has
+        `sops-nix.nixosModules.sops` in its module list (`flake.nix`) and four PoC secrets
+        wired to side paths (`hosts/nixos/muninn/default.nix`) proving the pipeline works for
+        both the text secrets and the binary keytab. This step just needs the module code
+        itself switched over — point `age.secrets.ldapAdminPassword`/etc. and
+        `age.secrets.ldapSaslKeytab` (currently in `nix-kerberos-ldap`'s own
         `modules/ldap.nix`/`modules/kerberos.nix`) at `sops.secrets.*` reading the same
-        `ldap.yaml` keys, then remove Step 13's now-redundant PoC secrets from muninn's config.
+        `ldap.yaml`/`keytab-ldap-muninn.age`, then remove Steps 13/21's now-redundant PoC
+        secrets from muninn's config.
 - [ ] **Step 23**: bump `nixie`'s `flake.lock` for `nix-kerberos-ldap` to the new branch's
       revision (temporary, branch-to-branch reference during the experiment — resolved to a
       normal `main`-to-`main` reference in Phase 8 if kept). Validate muninn's full KDC/LDAP
