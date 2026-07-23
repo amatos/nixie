@@ -618,7 +618,35 @@ needs it. Do not batch multiple groups together.
 - [ ] **Step 29**: rewrite `CLAUDE.md`'s secrets sections (the "Secrets" section and "Wiring an
       external secrets repo into nixie" subsection) to match.
 - [ ] **Step 30**: update each of the other four repos' own `CLAUDE.md`/`README.md` similarly
-      (`nix-secrets`, `nix-keytabs-matos-cc`, `nix-kerberos-ldap`, `nix-home-alberth`).
+      (`nix-secrets`, `nix-keytabs-matos-cc`, `nix-kerberos-ldap`, `nix-home-alberth`). For
+      `nix-secrets` and `nix-keytabs-matos-cc` — the two repos where secrets actually get
+      created/edited — replace the existing ragenix workflow instructions (declare in
+      `secrets.nix`, `ragenix -e`, `ragenix --rekey`, etc.) with the equivalent `sops`
+      workflows, covering at minimum:
+      - **Adding a new secret**: add a `path_regex` rule (or confirm the file already matches
+        an existing one) and recipient `key_groups` in `.sops.yaml` first, then
+        `sops <file>` to create and encrypt it (`sops --input-type binary --output-type binary
+        <file>` for binary content, per Step 7's text/binary split). Cross-reference the
+        `sops.secrets.<name>` wiring needed on the consuming side (`sopsFile`, `key`, `format`
+        for binary, owner/mode) — see `modules/common/krb5-client.nix` or
+        `modules/nixos/user-passwords.nix` in `nixie` for real examples.
+      - **Updating an existing secret's content**: `sops <file>` (or `sops -i` patterns used
+        during this migration for scripted updates) — no rekey needed, `.sops.yaml`'s
+        recipients are unchanged.
+      - **Adding a recipient to an existing secret**: add the key to the relevant
+        `key_groups` entry (or a new `&anchor` under `keys:` if it's a new
+        host/user) in `.sops.yaml`, then `sops updatekeys <file>` to re-encrypt the file's
+        data key for the new recipient set — no need to decrypt/re-encrypt the content itself.
+      - **Removing a recipient**: remove the key from `.sops.yaml`'s `key_groups`, then
+        `sops updatekeys <file>` the same way — note this does NOT rotate the underlying
+        secret value, so anyone who already had access could have retained a copy; treat as a
+        access-list change only, not a guarantee of revocation (rotate the secret separately if
+        that matters for the specific case).
+      - Note where each repo's identity comes from for local interactive use (the YubiKey
+        `age-plugin-yubikey` identity files, `SOPS_AGE_KEY_FILE`/`-i` flag patterns used
+        throughout this migration) versus how each host decrypts automatically at
+        activation time (`sops.age.sshKeyPaths`, Step 8's decision — no manual step needed
+        once a host's SSH host key is already a recipient).
 
 ## Phase 8 — Final decision
 
