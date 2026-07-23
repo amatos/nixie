@@ -15,7 +15,7 @@ Three repositories, each with a single, non-overlapping responsibility:
 | --- | --- | --- | --- |
 | `nixie` | System config for every host (NixOS + darwin) | Nix modules, hosts | Yes — top-level flake |
 | `nix-home-alberth` | Home-manager configuration for `alberth` | `alberth/` home-manager modules | Yes — real flake, also independently usable |
-| `nix-secrets` | sops/age-encrypted secrets, **text and binary** (SSH keys, tokens, `.ini` files, `MATOS.CC` Kerberos keytabs) | `*.yaml` files, `keytab-*.age` files, `.sops.yaml` recipients | No — `flake = false` |
+| `nix-secrets` | sops/age-encrypted secrets, **text and binary** — see §4 | `*.yaml`, `keytab-*.age`, `.sops.yaml` | No — `flake = false` |
 
 `nixie` is the only thing that gets built/switched as a system. `nix-secrets` is pulled in
 purely as a source tree (`flake = false` input) so `nixie` can reference sops-encrypted files by
