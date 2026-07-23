@@ -19,8 +19,9 @@ nixie is a unified NixOS + nix-darwin system configuration managed as a single N
 It uses Determinate Nix and is driven exclusively by flakes — no `nix-env`, no imperative installs.
 
 **Key inputs:** nix-darwin, home-manager (as a NixOS/darwin module — nixie itself never
-runs home-manager standalone), ragenix (age-encrypted secrets via YubiKey), nvf
-(declarative neovim), nix-homebrew (declarative Homebrew on darwin).
+runs home-manager standalone), sops-nix (sops-encrypted secrets, age recipients derived from
+each host's SSH key or a YubiKey), nvf (declarative neovim), nix-homebrew (declarative
+Homebrew on darwin).
 
 **Home-manager configuration** lives in the separate `github:amatos/nix-home-alberth` repo
 (input `nix-home-alberth`), a real flake (not `flake = false`) exposing `homeModules.<name>`
@@ -100,11 +101,9 @@ modules/
   common/                        # cross-platform modules (NixOS + darwin)
     packages.nix                 # shared system packages + nixpkgs.config.allowUnfree
     development-packages.nix     # dev-tool packages, wired only to gammu, codex, darwintron
-    secrets.nix                  # ragenix identity paths
-    age-host-key.nix             # generates /etc/age/host-key on first activation
-    github-secrets.nix           # deploys GitHub SSH keys via ragenix (age.secrets only)
-    certbot-secrets.nix          # deploys LuaDNS credentials via ragenix
-    ghostty-theme-secrets.nix    # deploys Ghostty commercial themes via ragenix to
+    github-secrets.nix           # deploys GitHub SSH keys via sops-nix (sops.secrets)
+    certbot-secrets.nix          # deploys LuaDNS credentials via sops-nix
+    ghostty-theme-secrets.nix    # deploys Ghostty commercial themes via sops-nix to
                                   # ~/.config/ghostty/themes/<name>
   nixos/
     users.nix                    # NixOS user declarations
@@ -160,8 +159,9 @@ Home-manager configuration is **not** in this repo — it lives in the separate
   `system.activationScripts.<your-own-name>.text` is accepted by the module system and
   evaluates fine, but is **silently never run** — it isn't one of the names the fixed script
   concatenates. This bit the OrbStack `ContainerData` volume script, the long-standing `ntp`
-  script in `hosts/darwin/common-darwin.nix`, and `modules/common/age-host-key.nix`'s
-  `/etc/age/host-key` generation (fixed by branching on `pkgs.stdenv.isDarwin`; see CHANGELOG).
+  script in `hosts/darwin/common-darwin.nix`, and the now-deleted `modules/common/age-host-key.nix`'s
+  `/etc/age/host-key` generation (fixed by branching on `pkgs.stdenv.isDarwin` at the time; the
+  module itself was retired along with ragenix — see CHANGELOG).
 - Use `system.activationScripts.extraActivation.text = lib.mkAfter "..."` instead — it's
   nix-darwin's supported extension point and runs early (before `homebrew` and home-manager
   activation). `postActivation` (runs last, after `homebrew`) is the other valid hook if
@@ -212,9 +212,10 @@ Home-manager configuration is **not** in this repo — it lives in the separate
   `nix.buildMachines` entirely. This works because `builders = @/etc/nix/machines` is already
   Determinate Nix's effective default (confirmed via `nix show-config`, no
   `determinateNix.customSettings` entry needed) — the file was the only missing piece. The SSH
-  private key is deployed via ragenix (`nix-secrets/builder/codex-ssh-key.age`, owned by `root`
-  since the nix-daemon — and thus the remote-build SSH connection — runs as root on darwin, unlike
-  the primaryUser-owned secrets elsewhere in this repo).
+  private key is deployed via sops-nix (`sops.secrets.remote-build-ssh-key`, sourced from
+  `nix-secrets/builder-codex-ssh-key.yaml`), owned by `root` since the nix-daemon — and thus the
+  remote-build SSH connection — runs as root on darwin, unlike the primaryUser-owned secrets
+  elsewhere in this repo).
 - **gammu side**: `modules/nixos/remote-build-server.nix` (imported only by gammu) declares a
   dedicated unprivileged `remotebuild` system user (SSH-key-only, no password) and adds it to
   `nix.settings.trusted-users` (plain NixOS `nix.settings` — no Determinate quirk there). Its
@@ -228,7 +229,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - No Tailscale/firewall changes were needed: `hosts/nixos/common-nixos.nix` already sets
   `networking.firewall.trustedInterfaces = [ "tailscale0" ]` fleet-wide, so SSH over
   `gammu.ts.matos.cc` is already open.
-- To point remote builds at a different/second host, add another `age.secrets`-deployed key +
+- To point remote builds at a different/second host, add another `sops.secrets`-deployed key +
   `/etc/nix/machines` line on the client side and a matching `remotebuild` user + authorized key
   on the new builder side — the two modules are already split so a third host can reuse either
   half independently (e.g. multiple darwin clients trusting the same builder, or multiple
@@ -307,10 +308,19 @@ layout and conventions; here, only the consumption side:
 
 ### Secrets
 
-- All secrets are age-encrypted via ragenix. Recipient lists live in the external secrets
-  repos' own `secrets.nix` (`nix-secrets` or `nix-keytabs-matos-cc`), not in nixie itself.
-- Secrets are deployed to known paths by modules in `modules/common/` or platform modules.
-- The YubiKey identity stub and host key paths are configured in `modules/common/secrets.nix`.
+- All secrets are sops-encrypted, deployed via sops-nix (`sops-nix.nixosModules.sops` /
+  `darwinModules.sops`). Recipients live in the external secrets repos' own `.sops.yaml`
+  (`nix-secrets` or `nix-keytabs-matos-cc`), not in nixie itself — nixie only references
+  `sops.secrets.<name>.sopsFile` paths.
+- Secrets are deployed by modules in `modules/common/` or platform modules declaring
+  `sops.secrets.<name>` (`sopsFile`, `key` for multi-secret YAML files, `format = "binary"` for
+  keytabs, `owner`/`mode`, `neededForUsers` for password hashes needed before user activation).
+  sops-nix decrypts them at activation time to `/run/secrets/<name>` by default.
+- Host decryption identity is each host's own SSH host key (`sops.age.sshKeyPaths`, sops-nix's
+  default whenever `services.openssh.enable` is true — already set fleet-wide, so no explicit
+  option is needed). No dedicated per-host age key or generation step exists — see
+  [ARCHITECTURE.md](./ARCHITECTURE.md) §4.1 for the full identity model, including the
+  YubiKey/`ssh-to-age` details for interactive use.
 - **Text secrets** (SSH keys, tokens, passwords, `.ini` credentials) go in `nix-secrets`.
 - **Binary secrets** (e.g. Kerberos keytabs) go in their own dedicated repo
   (`nix-keytabs-matos-cc`) — git diffs binary files poorly and they don't share the
@@ -326,16 +336,18 @@ host needs to consume:
 1. If the repo is not yet a flake input, add it in `flake.nix`:
    `<name> = { url = "github:amatos/<repo>"; flake = false; };` (plain git repo, not a flake).
 2. Thread `<name>` through the `outputs` function arguments and add it to `sharedSpecialArgs`.
-3. Reference the file from the consuming host/module as `"${<name>}/<file>"` — e.g.
-   `nixie.krb5.keytabFile = "${nix-keytabs-matos-cc}/keytab-codex.age";`.
+3. Reference the file from the consuming host/module as `sops.secrets.<secretName>.sopsFile =
+   "${<name>}/<file>";` — e.g. `nixie.krb5.keytabFile = "${nix-secrets}/keytab-codex.age";`,
+   consumed by `modules/common/krb5-client.nix` as `sops.secrets.hostKeytab.sopsFile =
+   config.nixie.krb5.keytabFile;` with `format = "binary"`.
 4. Only declare `<name>` in a file's function args if that file actually uses it — remove
    unused specialArgs args rather than leaving dead ones around.
 5. Update the `hosts/*/template-*` skeleton comments if the new pattern applies to future hosts.
 6. Run `nix flake lock --update-input <name>` to pick up the input, then verify with
    `nix eval .#<darwinConfigurations|nixosConfigurations>.<host>.config.<option>` before
    committing — confirms the path resolves into the new input's store path.
-7. Update the secrets repo's own `README.md` (recipients table, secrets table) — see that
-   repo's `CLAUDE.md` for its conventions.
+7. Confirm the file matches a `path_regex` rule in the secrets repo's own `.sops.yaml` covering
+   the hosts that need it (add one if not — see that repo's `CLAUDE.md` for its conventions).
 
 ### Theming
 
