@@ -678,8 +678,39 @@ needs it. Do not batch multiple groups together.
 
 ## Phase 8 — Final decision
 
-- [ ] **Step 31**: full review of all five branches' diffs against their respective `main`
+- [x] **Step 31**: full review of all five branches' diffs against their respective `main`
       branches, confirm every phase above validated cleanly with no known-broken hosts.
+      - All five repos: `sops-nix-migration` checked out, working tree clean, zero divergence
+        from `main` (`git log sops-nix-migration..main` empty everywhere — safe fast-forward
+        merge whenever Step 32 decides to keep). Commit counts ahead of `main`: `nixie` 37,
+        `nix-secrets` 18, `nix-keytabs-matos-cc` 3, `nix-kerberos-ldap` 2, `nix-home-alberth` 2.
+      - Every commit across all five repos is GPG-signed (`git log --pretty=%G?` reports `G`
+        for all 62 commits combined) — the CI `verify-signed-commits` gate would pass on merge.
+      - `nixie`: `nix flake check --all-systems --keep-going` clean except
+        `checks.aarch64-linux.pre-commit`, which fails only for lack of an aarch64-linux
+        builder on this machine (pre-existing environment gap, unrelated to this migration —
+        `x86_64-linux` and `aarch64-darwin` variants of the identical check both pass). Real
+        builds succeeded for every real host at current `HEAD`, not just the ones touched most
+        recently: `nixosConfigurations.{gammu,porkchop,huginn,muninn}` and
+        `darwinConfigurations.codex` (all with `--override-input nix-secrets
+        git+file:///Users/alberth/Projects/nix-secrets?ref=sops-nix-migration`), plus
+        `nixosConfigurations.minixie` (no override needed). Final fleet-wide grep for
+        `ragenix`/`age.secrets`/`age.identityPaths` across all `.nix` files returns zero
+        hits outside `modules/nixos/user-passwords.nix`'s intentional historical comparison
+        comment; `ARCHITECTURE.md`/`CLAUDE.md` are clean outside §10's dated historical log.
+      - Every phase's own validation, recapped: Phase 0-2 PoC on `ghostty-theme-dracula`
+        (Step 9-10); Phase 3 migrated all `nix-secrets` groups with real service-level checks
+        (test emails, GitHub SSH auth, remote Nix build, UniFi backup, Grafana health) in
+        Steps 12-18; Phase 4 migrated all keytabs with real `kinit` on all 5 hosts (Steps
+        19-21); Phase 5 completed the `nix-kerberos-ldap` cutover with a full GSSAPI LDAP
+        bind-chain validation on muninn (Steps 22-23); Phase 6 removed every last trace of
+        `ragenix` fleet-wide, validated via real deploys showing zero `agenix` activity
+        (Steps 24-27); Phase 7 brought every repo's documentation in line with what Phases
+        0-6 actually built (Steps 28-30). No phase was left with a deferred or unresolved
+        validation gap by the time Phase 8 started — the two items explicitly deferred along
+        the way (Step 13's `ldapwhoami`, Step 21's keytab validation) were both closed out in
+        Step 23.
+      - No known-broken host. No repo has uncommitted or unpushed-but-uncommitted state.
 - [ ] **Step 32**: **decision point** — keep or revert? This is a single decision covering all
       five repos together (they're not independently useful mid-migration — e.g. nixie's
       `sops-nix-migration` branch depends on the others' branches while the experiment is live).
