@@ -4,13 +4,46 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.20
+
 ### Added
 
 - `hosts/darwin/codex/homebrew.nix` — `elgato-control-center` cask, to
   control Elgato Key Light, Ring Light, and other Elgato lighting gear.
+- `SOPS_MIGRATION.md` — the full 32-step, 8-phase record of migrating
+  every secret in the fleet from [ragenix](https://github.com/yaxitech/ragenix)
+  to [sops-nix](https://github.com/Mic92/sops-nix), executed across all five
+  repos (`nixie`, `nix-secrets`, `nix-keytabs-matos-cc`, `nix-kerberos-ldap`,
+  `nix-home-alberth`) on parallel `sops-nix-migration` branches and now
+  merged. Kept here as the permanent record of what changed and how each
+  step was validated.
 
-### Fixed
+### Changed
 
+- Every secret in the fleet is now sops-encrypted (`sops.secrets.<name>`)
+  instead of ragenix-encrypted (`age.secrets.<name>`). Recipients live in
+  each secrets repo's `.sops.yaml` (`path_regex` rules, `key_groups`)
+  instead of `secrets.nix`. Related secrets that shared a recipient set
+  are consolidated into multi-key YAML documents (`fleet-secrets.yaml`,
+  `ldap.yaml`, `ghostty-themes.yaml`, ...) instead of one `.age` file per
+  secret.
+- Host decryption identity is now each host's own SSH host key
+  (`sops.age.sshKeyPaths`, defaulting to `/etc/ssh/ssh_host_ed25519_key`
+  whenever `services.openssh.enable` is true — already set fleet-wide)
+  converted to age's X25519 form via `ssh-to-age`, replacing the old
+  ragenix-generated `/etc/age/host-key` per-host identity. There is no
+  separate host identity file or generation step anymore.
+- `nix-kerberos-ldap`'s `ldap.nix`/`kerberos.nix` converted to `sops.secrets`,
+  dropping the `openldap` unit's explicit ordering against `agenix.service` —
+  sops-nix installs secrets in the same activation-script phase NixOS itself
+  uses, before services (re)start.
+- `ARCHITECTURE.md` §4 (secrets architecture) and `CLAUDE.md`'s secrets
+  sections rewritten to describe the sops-nix model. All four sibling repos'
+  own `CLAUDE.md`/`README.md` updated to match — `nix-secrets` and
+  `nix-keytabs-matos-cc` gained full sops workflow docs (add/update a secret,
+  add/remove a recipient via `sops updatekeys`) they never had under ragenix.
 - `hosts/nixos/gammu/default.nix` — gammu still booted straight into GDM
   despite `systemd.services.display-manager.wantedBy = mkForce [ ]`.
   Root cause: upstream systemd's `graphical.target` hardcodes
@@ -20,6 +53,29 @@ All notable changes to this project will be documented in this file.
   `systemd.defaultUnit = "multi-user.target"` so boot never reaches
   `graphical.target` at all; GDM remains startable on demand via
   `systemctl start display-manager`.
+
+### Removed
+
+- `modules/common/age-host-key.nix`, `modules/common/secrets.nix`,
+  `modules/nixos/agenix-fix.nix` — all three existed purely to support
+  ragenix's own activation-script sequencing/identity, superseded above.
+- The `ragenix` flake input and devShell package, and every host's
+  `ragenix.nixosModules.default`/darwin-equivalent import.
+- Every legacy `.age` file across `nix-secrets` and `nix-keytabs-matos-cc`
+  superseded by its sops-encrypted equivalent.
+
+Fixed along the way (found during pre-merge review): a stale `.sops.yaml`
+recipient — `yubikey_d43f4e92`, retired in `nix-secrets`'s ragenix
+`secrets.nix` before the migration branch was created but never carried
+into the newer `.sops.yaml` — was granting decrypt access to a YubiKey
+that was supposed to be revoked. Removed via `sops updatekeys` on every
+affected file across `nix-secrets` and `nix-keytabs-matos-cc`.
+
+Validated throughout with real deploys (not just eval) on every host —
+test emails, real Kerberos `kinit` on all 5 hosts, a real remote Nix
+build, real GitHub SSH auth, a real UniFi backup run, a real Grafana
+health check, and a full GSSAPI LDAP bind-chain test on muninn. See
+`SOPS_MIGRATION.md` for the complete, step-by-step record.
 
 ---
 

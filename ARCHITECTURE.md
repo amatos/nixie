@@ -371,10 +371,10 @@ current rules; this document only explains how those rules compose across repos.
 
 | Repo | Latest release |
 | --- | --- |
-| `nixie` | `26.07.19` |
+| `nixie` | `26.07.20` |
 | `nix-home-alberth` | `26.07.05` |
-| `nix-secrets` | `26.07.07` |
-| `nix-keytabs-matos-cc` | `26.07.05` |
+| `nix-secrets` | `26.07.08` |
+| `nix-keytabs-matos-cc` | `26.07.06` |
 
 Kept in sync manually — update this table whenever any of the four repos cuts a new release (see
 `CLAUDE.md` "Before making changes").
