@@ -89,332 +89,98 @@ in
       # recording) persist across darwin-rebuild. This is different from nixpkgs
       # apps which require copyApps workaround in home-manager.
       #
-      # greedy = true: required for any app that ships a built-in auto-updater.
-      # Without this flag, `brew upgrade` silently skips the app because Homebrew
-      # assumes the app will update itself. In practice, built-in updaters are
-      # unreliable (require the app to be open, can be dismissed, etc.), so greedy
-      # ensures updates land deterministically via brew autoupdate.
+      # No per-cask `greedy` flag: `brew autoupdate` and the manual fallback
+      # command both already invoke `brew upgrade --greedy`, which applies
+      # greedy behaviour (upgrading casks with a built-in auto-updater too,
+      # since those updaters are unreliable in practice) to every cask in this
+      # list globally — see "Update Philosophy" above.
       # NOTE: ChatGPT and Cursor are in nixpkgs - see home.packages.
       # NOTE: Antigravity and gemini-cli are in homebrew (above).
 
-      {
-        name = "aldente"; # MacOS power control
-        greedy = true;
-      }
-      {
-        name = "orion"; # Safari-based browser
-        greedy = true;
-      }
-      {
-        name = "dracula/install/dracula-steam"; # Dracula theme for Steam
-        greedy = true;
-      }
-      {
-        name = "dracula/install/dracula-betterdiscord"; # Dracula theme for BetterDiscord
-        greedy = true;
-      }
-      {
-        name = "1password"; # Password manager and secure digital wallet
-        greedy = true;
-      }
-      {
-        name = "1password-cli"; # 1Password command-line tool (op)
-        greedy = true;
-      }
-      {
-        name = "airfoil"; # Sends audio from computer to outputs
-        greedy = true;
-      }
-      {
-        name = "arq"; # Multi-cloud backup application
-        greedy = true;
-      }
-      {
-        name = "audio-hijack"; # Records audio from any application
-        greedy = true;
-      }
-      {
-        name = "automounterhelper"; # Helper for AutoMounter to mount shares to custom locations
-        greedy = true;
-      }
-      {
-        name = "betterdiscord-installer"; # Installer for BetterDiscord
-        greedy = true;
-      }
-      {
-        name = "betterdisplay"; # Display management tool
-        greedy = true;
-      }
-      {
-        name = "bettermouse";
-        greedy = true;
-      }
-      {
-        name = "bettertouchtool"; # Customise touchpad behavior
-        greedy = true;
-      }
-      {
-        name = "claude"; # Anthropic's official Claude AI desktop app
-        greedy = true;
-      }
-      {
-        name = "claude-code"; # Anthropic's official Claude AI CLI app
-        greedy = true;
-      }
-      {
-        name = "claudebar"; # Menu bar app for monitoring AI coding assistant usage quotas
-        greedy = true;
-      }
-      {
-        name = "cleanshot"; # Screen capturing tool
-        greedy = true;
-      }
-      {
-        name = "cmux"; # Native macOS terminal for running AI coding agents in parallel
-        greedy = true;
-      }
-      {
-        name = "coherence-x"; # GUI for managing CrossOver/Wine bottles
-        greedy = true;
-      }
-      {
-        name = "crossover"; # Tool to run Windows software
-        greedy = true;
-      }
-      {
-        name = "discord"; # Voice and text chat software
-        greedy = true;
-      }
-      {
-        name = "elgato-capture-device-utility"; # Update and configure Elgato Capture devices
-        greedy = true;
-      }
-      {
-        name = "elgato-control-center"; # Control Elgato Key Light, Ring Light, and other gear
-        greedy = true;
-      }
-      {
-        name = "elgato-stream-deck"; # Assign keys, and then decorate and label them
-        greedy = true;
-      }
-      {
-        name = "elgato-studio"; # Capture and manage Elgato devices for content creation
-        greedy = true;
-      }
-      {
-        name = "elgato-wave-link"; # Mixer software for Elgato Wave audio devices
-        greedy = true;
-      }
-      {
-        name = "farrago";
-        greedy = true;
-      }
-      {
-        name = "fission"; # Audio editor
-        greedy = true;
-      }
-      {
-        name = "focusrite-control-2"; # Focusrite interface controller for devices of the 4th generation and newer
-        greedy = true;
-      }
-      {
-        # iosevka fails to build on aarch64-darwin due to a known upstream bug
-        # (nixpkgs issue 532294); fall back to Homebrew's prebuilt binary here.
-        # x86_64-linux (gammu) is unaffected and uses pkgs.iosevka instead.
-        name = "font-iosevka";
-        greedy = true;
-      }
-      {
-        name = "font-iosevka-nerd-font"; # see font-iosevka note above
-        greedy = true;
-      }
-      {
-        # same upstream build issue as font-iosevka above (ioskeley-mono is
-        # built on top of iosevka); Homebrew only ships the base variant, no
-        # Term/NerdFont zips like nixpkgs' pkgs.ioskeley-mono attrset
-        name = "font-ioskeley-mono";
-        greedy = true;
-      }
-      {
-        name = "font-sf-mono-nerd-font-ligaturized"; # no nixpkgs equivalent
-        greedy = true;
-      }
-      {
-        name = "font-tengwar-telcontar";
-        greedy = true;
-      }
-      {
-        name = "font-zed-mono";
-        greedy = true;
-      }
-      {
-        name = "font-zed-mono-nerd-font";
-        greedy = true;
-      }
-      {
-        name = "font-zed-sans";
-        greedy = true;
-      }
-      {
-        name = "ghostty"; # Terminal emulator that uses platform-native UI and GPU acceleration
-        greedy = true;
-      }
-      {
-        name = "google-chrome";
-        greedy = true;
-      }
-      {
-        name = "gpg-suite@nightly"; # Tools to protect your emails and files
-        greedy = true;
-      }
-      {
-        name = "hazel"; # Automated organisation
-        greedy = true;
-      }
-      {
-        name = "helium-browser"; # Chromium-based web browser
-        greedy = true;
-      }
-      {
-        name = "hex-fiend"; # Hex editor focussing on speed
-        greedy = true;
-      }
-      {
-        name = "iina"; # Free and open-source media player
-        greedy = true;
-      }
-      {
-        name = "jetbrains-toolbox"; # JetBrains tools manager
-        greedy = true;
-      }
-      {
-        name = "kaleidoscope"; # Spot and merge differences in text and image files or folders
-        greedy = true;
-      }
-      {
-        name = "keyboard-maestro"; # Automation software
-        greedy = true;
-      }
-      {
-        name = "latest"; # Utility that shows the latest app updates
-        greedy = true;
-      }
-      {
-        name = "lingon-x"; # GUI for creating and managing launchd jobs
-        greedy = true;
-      }
-      {
-        name = "little-snitch"; # Host-based application firewall
-        greedy = true;
-      }
-      {
-        name = "lm-studio";
-        greedy = true;
-      }
-      {
-        name = "loopback"; # Loopback audio driver
-        greedy = true;
-      }
-      {
-        name = "mactex"; # Full TeX Live distribution with GUI applications
-        greedy = true;
-      }
-      {
-        name = "obs"; # Open-source software for live streaming and screen recording
-        greedy = true;
-      }
-      {
-        name = "obsidian"; # Knowledge base that works on top of a local folder of plain text Markdown files
-        greedy = true;
-      }
-      {
-        name = "orbstack";
-        greedy = true;
-      }
-      {
-        name = "piezo";
-        greedy = true;
-      }
-      {
-        name = "pixelsnap"; # Screen measuring tool
-        greedy = true;
-      }
-      {
-        name = "plistedit-pro"; # Property list and JSON editor
-        greedy = true;
-      }
-      {
-        name = "powerphotos"; # Tool to organise photo libraries
-        greedy = true;
-      }
-      {
-        name = "raycast"; # Control your tools with a few keystrokes
-        greedy = true;
-      }
-      {
-        name = "setapp"; # Collection of apps available by subscription
-        greedy = true;
-      }
-      {
-        name = "skim"; # PDF reader and note-taking application
-        greedy = true;
-      }
-      {
-        name = "soundsource"; # Sound and audio controller
-        greedy = true;
-      }
-      {
-        name = "spamsieve"; # Spam filtering extension for e-mail clients
-        greedy = true;
-      }
-      {
-        name = "steam"; # Video game digital distribution service
-        greedy = true;
-      }
-      {
-        name = "supacode"; # Worktree coding agents command center (macOS)
-        greedy = true;
-      }
-      {
-        name = "superwhisper"; # AI-powered dictation tool
-        greedy = true;
-      }
-      {
-        name = "syncthing-app"; # Real time file synchronisation software
-        greedy = true;
-      }
-      {
-        name = "tailscale-app"; # WireGuard-based VPN client
-        greedy = true;
-      }
-      {
-        name = "texstudio"; # LaTeX editor
-        greedy = true;
-      }
-      {
-        name = "textsniper"; # Extract text from images using OCR
-        greedy = true;
-      }
-      {
-        name = "tower"; # Git client focusing on power and productivity
-        greedy = true;
-      }
-      {
-        name = "visual-studio-code";
-        greedy = true;
-      }
-      {
-        name = "vmlx";
-        greedy = true;
-      }
-      {
-        name = "winbox"; # Administration tool for MikroTik RouterOS
-        greedy = true;
-      }
-      {
-        name = "zed"; # Replacing nix flake due to https://github.com/zed-industries/zed/issues/59250
-        greedy = true;
-      }
+      "aldente" # MacOS power control
+      "orion" # Safari-based browser
+      "dracula/install/dracula-steam" # Dracula theme for Steam
+      "dracula/install/dracula-betterdiscord" # Dracula theme for BetterDiscord
+      "1password" # Password manager and secure digital wallet
+      "1password-cli" # 1Password command-line tool (op)
+      "airfoil" # Sends audio from computer to outputs
+      "arq" # Multi-cloud backup application
+      "audio-hijack" # Records audio from any application
+      "automounterhelper" # Helper for AutoMounter to mount shares to custom locations
+      "betterdiscord-installer" # Installer for BetterDiscord
+      "betterdisplay" # Display management tool
+      "bettermouse"
+      "bettertouchtool" # Customise touchpad behavior
+      "claude" # Anthropic's official Claude AI desktop app
+      "claude-code" # Anthropic's official Claude AI CLI app
+      "claudebar" # Menu bar app for monitoring AI coding assistant usage quotas
+      "cleanshot" # Screen capturing tool
+      "cmux" # Native macOS terminal for running AI coding agents in parallel
+      "coherence-x" # GUI for managing CrossOver/Wine bottles
+      "crossover" # Tool to run Windows software
+      "discord" # Voice and text chat software
+      "elgato-capture-device-utility" # Update and configure Elgato Capture devices
+      "elgato-control-center" # Control Elgato Key Light, Ring Light, and other gear
+      "elgato-stream-deck" # Assign keys, and then decorate and label them
+      "elgato-studio" # Capture and manage Elgato devices for content creation
+      "elgato-wave-link" # Mixer software for Elgato Wave audio devices
+      "farrago"
+      "fission" # Audio editor
+      "focusrite-control-2" # Focusrite interface controller for devices of the 4th generation and newer
+      # iosevka fails to build on aarch64-darwin due to a known upstream bug
+      # (nixpkgs issue 532294); fall back to Homebrew's prebuilt binary here.
+      # x86_64-linux (gammu) is unaffected and uses pkgs.iosevka instead.
+      "font-iosevka"
+      "font-iosevka-nerd-font" # see font-iosevka note above
+      # same upstream build issue as font-iosevka above (ioskeley-mono is
+      # built on top of iosevka); Homebrew only ships the base variant, no
+      # Term/NerdFont zips like nixpkgs' pkgs.ioskeley-mono attrset
+      "font-ioskeley-mono"
+      "font-sf-mono-nerd-font-ligaturized" # no nixpkgs equivalent
+      "font-tengwar-telcontar"
+      "font-zed-mono"
+      "font-zed-mono-nerd-font"
+      "font-zed-sans"
+      "ghostty" # Terminal emulator that uses platform-native UI and GPU acceleration
+      "google-chrome"
+      "gpg-suite@nightly" # Tools to protect your emails and files
+      "hazel" # Automated organisation
+      "helium-browser" # Chromium-based web browser
+      "hex-fiend" # Hex editor focussing on speed
+      "iina" # Free and open-source media player
+      "jetbrains-toolbox" # JetBrains tools manager
+      "kaleidoscope" # Spot and merge differences in text and image files or folders
+      "keyboard-maestro" # Automation software
+      "latest" # Utility that shows the latest app updates
+      "lingon-x" # GUI for creating and managing launchd jobs
+      "little-snitch" # Host-based application firewall
+      "lm-studio"
+      "loopback" # Loopback audio driver
+      "mactex" # Full TeX Live distribution with GUI applications
+      "obs" # Open-source software for live streaming and screen recording
+      "obsidian" # Knowledge base that works on top of a local folder of plain text Markdown files
+      "orbstack"
+      "piezo"
+      "pixelsnap" # Screen measuring tool
+      "plistedit-pro" # Property list and JSON editor
+      "powerphotos" # Tool to organise photo libraries
+      "raycast" # Control your tools with a few keystrokes
+      "setapp" # Collection of apps available by subscription
+      "skim" # PDF reader and note-taking application
+      "soundsource" # Sound and audio controller
+      "spamsieve" # Spam filtering extension for e-mail clients
+      "steam" # Video game digital distribution service
+      "supacode" # Worktree coding agents command center (macOS)
+      "superwhisper" # AI-powered dictation tool
+      "syncthing-app" # Real time file synchronisation software
+      "tailscale-app" # WireGuard-based VPN client
+      "texstudio" # LaTeX editor
+      "textsniper" # Extract text from images using OCR
+      "tower" # Git client focusing on power and productivity
+      "visual-studio-code"
+      "vmlx"
+      "winbox" # Administration tool for MikroTik RouterOS
+      "zed" # Replacing nix flake due to https://github.com/zed-industries/zed/issues/59250
     ];
 
     # Mac App Store apps (requires signed into App Store)

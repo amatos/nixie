@@ -11,6 +11,15 @@ All notable changes to this project will be documented in this file.
   `codex` (also picked up fleet-wide on `gammu`/`darwintron`, the other
   hosts that import this shared dev-tools module).
 
+### Changed
+
+- `hosts/darwin/codex/homebrew.nix` `homebrew.casks` entries from
+  `{ name = "..."; greedy = true; }` attrsets to plain strings, matching the
+  `homebrew.brews` list style. Per-cask `greedy` was redundant: `brew
+  autoupdate` and the manual fallback command both already invoke `brew
+  upgrade --greedy`, which applies greedy behaviour to every cask globally
+  regardless of the per-cask flag.
+
 ## 26.07.21
 
 ### Removed
