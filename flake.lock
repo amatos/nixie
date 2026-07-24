@@ -565,11 +565,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784926412,
-        "narHash": "sha256-UKrRzZ3tIgSOFXZo4L/ZQT7BeqSydDqBj9+1VMsjGes=",
+        "lastModified": 1784926909,
+        "narHash": "sha256-jWh55zpO9Cz8WzFj69XR1jL2TQruPcnVlNk3E+2jmW8=",
         "owner": "amatos",
         "repo": "nix-home-alberth",
-        "rev": "205d3455670424f6ace415738d03f3080867d8d4",
+        "rev": "036a86d91056592ca03c5c4108cc74ad262dd472",
         "type": "github"
       },
       "original": {
