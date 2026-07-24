@@ -26,6 +26,26 @@ All notable changes to this project will be documented in this file.
   autoupdate` and the manual fallback command both already invoke `brew
   upgrade --greedy`, which applies greedy behaviour to every cask globally
   regardless of the per-cask flag.
+- `flake.nix` — actually wired up the `nixpkgs`/`nixpkgs-stable` split
+  introduced above: only `gammu` and `codex` build against `nixpkgs`
+  (unstable); every other host (`porkchop`, `huginn`, `muninn`,
+  `darwintron`, `template-nixos`, `template-darwin`, `ephemeraltron`,
+  `minixie`) now builds against `nixpkgs-stable`. NixOS hosts just call
+  `nixpkgs-stable.lib.nixosSystem` instead of the top-level
+  `lib.nixosSystem`. darwin needed a new `nix-darwin-stable` input
+  (flakehub `/0`, following `nixpkgs-stable`) alongside the existing
+  `nix-darwin` (flakehub `/0.1`, following `nixpkgs`, now codex-only) —
+  nix-darwin has no free multi-channel `darwinSystem` the way nixpkgs
+  does, and its release branches hard-assert against the nixpkgs release
+  they're paired with. See `CLAUDE.md` "Nixpkgs channels" for the full
+  rationale, including why a per-host `nixpkgs.pkgs` override was
+  rejected in favor of the second input. Also fixed the `nixpkgs`/`nix-darwin`
+  input comments, stale since the earlier unstable bump (still read
+  "Stable ... (use 0.1 for unstable)" while already pointing at `0.1`).
+  `nix-home-alberth` bumped in lockstep (see its own `CHANGELOG.md`) to
+  mirror the same split in its standalone `homeConfigurations`, and to
+  pull in a fix for a home-manager `fzf`/nushell-integration assertion
+  that the `nixpkgs-stable` channel's older fzf package triggered.
 
 ## 26.07.21
 

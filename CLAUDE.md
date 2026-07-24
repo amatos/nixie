@@ -45,36 +45,40 @@ its own repo (`amatos/minixie`), merged into nixie to share one `flake.lock`.
 
 ## Hosts
 
-| Name | Platform | Arch | File | Notes |
-| --- | --- | --- | --- | --- |
-| `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | physical |
-| `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | virtual, CI build target |
-| `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | physical |
-| `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | physical |
-| `huginn` | NixOS | x86_64-linux | `hosts/nixos/huginn/` | physical |
-| `muninn` | NixOS | x86_64-linux | `hosts/nixos/muninn/` | physical |
-| `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | virtual, CI build target |
-| `minixie` | NixOS | x86_64-linux | `hosts/nixos/minixie/` | generic nixos-anywhere bootstrap target, not a real host — see README "Provisioning new hosts" |
-| `template-darwin` | nix-darwin | aarch64-darwin | `hosts/darwin/template-darwin/` | new host template |
-| `template-nixos` | NixOS | x86_64-linux | `hosts/nixos/template-nixos/` | new host template |
+| Name | Platform | Arch | File | Channel | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `codex` | nix-darwin | aarch64-darwin | `hosts/darwin/codex/` | unstable | physical |
+| `darwintron` | nix-darwin | aarch64-darwin | `hosts/darwin/darwintron/` | stable | virtual, CI build target |
+| `gammu` | NixOS | x86_64-linux | `hosts/nixos/gammu/` | unstable | physical |
+| `porkchop` | NixOS | x86_64-linux | `hosts/nixos/porkchop/` | stable | physical |
+| `huginn` | NixOS | x86_64-linux | `hosts/nixos/huginn/` | stable | physical |
+| `muninn` | NixOS | x86_64-linux | `hosts/nixos/muninn/` | stable | physical |
+| `ephemeraltron` | NixOS | x86_64-linux | `hosts/nixos/ephemeraltron/` | stable | virtual, CI build target |
+| `minixie` | NixOS | x86_64-linux | `hosts/nixos/minixie/` | stable | nixos-anywhere bootstrap target, not a real host — see README "Provisioning new hosts" |
+| `template-darwin` | nix-darwin | aarch64-darwin | `hosts/darwin/template-darwin/` | stable | new host template |
+| `template-nixos` | NixOS | x86_64-linux | `hosts/nixos/template-nixos/` | stable | new host template |
 
-Hosts whose names end in `tron` are virtual machines.
+Hosts whose names end in `tron` are virtual machines. See "Nixpkgs channels" below for what
+drives the Channel column and how to wire a new host onto either one.
 
 **Adding a new NixOS host:** create `hosts/nixos/<name>/default.nix` importing
 `../common-nixos.nix` and `./hardware-configuration.nix`, set `networking.hostName`,
-add an entry to `nixosConfigurations` in `flake.nix` using `sharedSpecialArgs`. If
-host-specific home settings are needed, add `alberth/<name>.nix` to the `nix-home-alberth`
-repo — `alberth/nixos.nix` auto-imports it when present, no wiring needed here beyond
+add an entry to `nixosConfigurations` in `flake.nix` using `sharedSpecialArgs` and
+`nixpkgs-stable.lib.nixosSystem` (default to stable — see "Nixpkgs channels" — unless this
+host has the same reason gammu does to track unstable). If host-specific home settings are
+needed, add `alberth/<name>.nix` to the `nix-home-alberth` repo — `alberth/nixos.nix`
+auto-imports it when present, no wiring needed here beyond
 `nix flake lock --update-input nix-home-alberth`.
 
 **Adding a new darwin host:** create `hosts/darwin/<name>/default.nix` importing
 `../common-darwin.nix`, set `networking.hostName` and `networking.computerName`,
 merge a home overlay via
 `home-manager.users.${primaryUser} = { imports = [ nix-home-alberth.homeModules.alberth-<name> ]; }`,
-and add an entry to `darwinConfigurations` in `flake.nix`. Add a matching
-`alberth/<name>.nix` and a `homeModules.alberth-<name>` output entry to the
-`nix-home-alberth` repo (commit and push it there first) for darwin platform-specific
-settings (gpg-agent pinentry, etc.).
+and add an entry to `darwinConfigurations` in `flake.nix` using `nix-darwin-stable.lib.darwinSystem`
+(default to stable, matching darwintron/template-darwin, unless this host has the same reason
+codex does to track unstable — see "Nixpkgs channels"). Add a matching `alberth/<name>.nix`
+and a `homeModules.alberth-<name>` output entry to the `nix-home-alberth` repo (commit and push
+it there first) for darwin platform-specific settings (gpg-agent pinentry, etc.).
 
 ---
 
@@ -174,6 +178,51 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - All hosts share
   `sharedSpecialArgs = { inherit self nix-secrets nvf homebrew-autoupdate qmd stylix direnv-instant nix-home-alberth; }`.
 - Do not add per-host specialArgs unless there is no other way.
+
+### Nixpkgs channels
+
+- Two nixpkgs channels: `nixpkgs` (flakehub `/0.1`, unstable) and `nixpkgs-stable`
+  (flakehub `/0`, stable). `gammu` and `codex` — the two actively-used dev/daily-driver
+  machines — track unstable; every other host (porkchop, huginn, muninn, darwintron,
+  template-nixos, template-darwin, ephemeraltron, minixie) tracks stable. New hosts should
+  default to `nixpkgs-stable` unless there's a specific reason (like being a
+  dev/daily-driver machine) to want bleeding-edge packages.
+- **NixOS**: `nixosSystem` ships inside nixpkgs itself, so the split is free — a stable
+  host just calls `nixpkgs-stable.lib.nixosSystem` instead of the top-level `lib.nixosSystem`
+  (which is `nixpkgs.lib`, i.e. unstable). No second flake input needed.
+- **darwin**: nix-darwin has no equivalent multi-channel entrypoint — a single `nix-darwin`
+  input's `lib.darwinSystem` always builds against whatever nixpkgs *that one input*
+  follows. Worse, nix-darwin's release branches correspond 1:1 to nixpkgs releases and it
+  hard-asserts the two match (`enableNixpkgsReleaseCheck`) — you cannot just re-follow a
+  different nixpkgs on the same nix-darwin release stream. This is why there are **two**
+  `nix-darwin` inputs: `nix-darwin` (flakehub `/0.1`, follows `nixpkgs`, used by codex only)
+  and `nix-darwin-stable` (flakehub `/0` — note the *different* flakehub version, not just a
+  different `nixpkgs.follows` — follows `nixpkgs-stable`, used by darwintron/template-darwin).
+  Mixing this up (e.g. giving `nix-darwin-stable` flakehub version `0.1` with
+  `nixpkgs.follows = "nixpkgs-stable"`) evaluates fine at the input level but fails at
+  `darwinSystem` eval time with a "you are currently using nix-darwin X with Nixpkgs Y"
+  assertion.
+- Also considered and rejected: overriding `nixpkgs.pkgs` per-host inside a single
+  `lib.nixosSystem`/`nix-darwin.lib.darwinSystem` call to fake a second channel. The
+  `nixpkgs.nix` module asserts `nixpkgs.pkgs` and a non-empty `nixpkgs.config` can't both be
+  set (`opt.pkgs.isDefined -> cfg.config == {}` in `nixos/modules/misc/nixpkgs.nix`), which
+  conflicts with `modules/common/packages.nix`'s fleet-wide `nixpkgs.config.allowUnfree =
+  true` — would have forced per-host conditionals in an otherwise uniform shared file.
+- Shared modules (`determinate`, `home-manager`, `sops-nix`, `nix-homebrew`, `zapp`,
+  `orion-browser`, `nix-kerberos-ldap`, `disko`) stay single-instance and get imported into
+  either channel's system call unchanged — they don't need to be forked per channel, since
+  NixOS/darwin module files evaluate fine against either channel's slightly-different `lib`.
+  One real consequence of this did surface: home-manager here tracks `master` (unstable)
+  regardless of a host's own channel, and one of its modules (`programs.fzf`) asserts a
+  minimum package version for a feature that defaults on — see
+  `nix-home-alberth`'s `CLAUDE.md`/`CHANGELOG.md` for the concrete case (fzf's
+  `enableNushellIntegration` vs. nixpkgs-stable's older fzf). Watch for this class of issue
+  (a home-manager module assertion tied to a package version) whenever adding new home
+  config that stable-channel hosts also consume.
+- Verify a host's actual channel with `nix eval .#nixosConfigurations.<host>.pkgs.lib.version`
+  / `.#darwinConfigurations.<host>.pkgs.lib.version` — `26.11pre-git`-style is unstable,
+  `26.05pre-git`-style is stable (version numbers will drift; compare gammu/codex against
+  another host rather than hardcoding an expected string).
 
 ### Nix daemon settings (Determinate)
 

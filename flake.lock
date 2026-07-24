@@ -515,6 +515,25 @@
         "url": "https://flakehub.com/f/nix-darwin/nix-darwin/0.1"
       }
     },
+    "nix-darwin-stable": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-stable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783744694,
+        "narHash": "sha256-2cp6N3rrwnGYLTx9l6N+NI+kwrCWxvJUbj5WJhvB29A=",
+        "rev": "c3e90c89649b07d1a96e4b9dd6cd0d6e44b91a74",
+        "revCount": 2372,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/nix-darwin/nix-darwin/0.2605.2372%2Brev-c3e90c89649b07d1a96e4b9dd6cd0d6e44b91a74/019f4f99-5243-7ed3-8f4c-83bd80ed9885/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/nix-darwin/nix-darwin/0"
+      }
+    },
     "nix-home-alberth": {
       "inputs": {
         "direnv-instant": [
@@ -528,6 +547,9 @@
         ],
         "nixpkgs": [
           "nixpkgs"
+        ],
+        "nixpkgs-stable": [
+          "nixpkgs-stable"
         ],
         "nvf": [
           "nvf"
@@ -543,11 +565,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784774421,
-        "narHash": "sha256-J3pcCPiRdb5jrbM+ACwtKDhdoD8ke/Q3QJbs8KbJ6II=",
+        "lastModified": 1784913263,
+        "narHash": "sha256-YmBzz+t9okmciSusDIOpsWOxBdbXrzr9kfz1nae3GLM=",
         "owner": "amatos",
         "repo": "nix-home-alberth",
-        "rev": "34f270e7cad9ae1fed9c00cc8b20a24eea369d3f",
+        "rev": "c5f07a57a05a099aa68893d13d971d53619eb6f3",
         "type": "github"
       },
       "original": {
@@ -806,6 +828,7 @@
         "homebrew-cirruslabs-cli": "homebrew-cirruslabs-cli",
         "homebrew-dracula-install": "homebrew-dracula-install",
         "nix-darwin": "nix-darwin",
+        "nix-darwin-stable": "nix-darwin-stable",
         "nix-home-alberth": "nix-home-alberth",
         "nix-homebrew": "nix-homebrew",
         "nix-kerberos-ldap": "nix-kerberos-ldap",

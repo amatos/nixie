@@ -9,18 +9,20 @@ its companion secrets repo (`nix-secrets`).
 
 ## Hosts
 
-| Hostname | OS | Architecture | Physical / Virtual | Function |
-| --- | --- | --- | --- | --- |
-| `codex` | nix-darwin | aarch64-darwin | Physical | MacBook Pro, main desktop |
-| `darwintron` | nix-darwin | aarch64-darwin | Virtual | CI build target |
-| `gammu` | NixOS | x86_64-linux | Physical | Video games, LLMs, and other tasks best suited for a Linux host |
-| `porkchop` | NixOS | x86_64-linux | Physical | SMTP backup relay, centralized syslog (rsyslog + Grafana/Loki/Alloy) |
-| `huginn` | NixOS | x86_64-linux | Physical | SMTP primary relay |
-| `muninn` | NixOS | x86_64-linux | Physical | LDAP server, Kerberos KDC |
-| `ephemeraltron` | NixOS | x86_64-linux | Virtual | CI build target |
-| `minixie` | NixOS | x86_64-linux | N/A | generic nixos-anywhere bootstrap target, not a real host |
+| Hostname | OS | Architecture | Physical / Virtual | Channel | Function |
+| --- | --- | --- | --- | --- | --- |
+| `codex` | nix-darwin | aarch64-darwin | Physical | unstable | MacBook Pro, main desktop |
+| `darwintron` | nix-darwin | aarch64-darwin | Virtual | stable | CI build target |
+| `gammu` | NixOS | x86_64-linux | Physical | unstable | Video games, LLMs, and other tasks best suited for a Linux host |
+| `porkchop` | NixOS | x86_64-linux | Physical | stable | SMTP backup relay, centralized syslog (rsyslog + Grafana/Loki/Alloy) |
+| `huginn` | NixOS | x86_64-linux | Physical | stable | SMTP primary relay |
+| `muninn` | NixOS | x86_64-linux | Physical | stable | LDAP server, Kerberos KDC |
+| `ephemeraltron` | NixOS | x86_64-linux | Virtual | stable | CI build target |
+| `minixie` | NixOS | x86_64-linux | N/A | stable | nixos-anywhere bootstrap target, not a real host |
 
-Hosts whose names end in `tron` are virtual machines.
+Hosts whose names end in `tron` are virtual machines. `codex`/`gammu` track nixpkgs
+unstable; every other host tracks nixpkgs-stable — see nixie's `CLAUDE.md`
+"Nixpkgs channels" for the rationale.
 
 ## Repository layout
 
