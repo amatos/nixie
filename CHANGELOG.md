@@ -16,6 +16,10 @@ All notable changes to this project will be documented in this file.
 
 - `flake.nix` - Added `nixpkgs-stable` input at stable (`0`), and switched
   `nixpkgs` to unstable (`0.1`).
+- `flake.nix` - `nix-darwin` switched from stable (`0`) to unstable (`0.1`),
+  and `home-manager` switched from the pinned `release-26.05` branch to
+  `github:nix-community/home-manager` (master), both following `nixpkgs`'s
+  switch to unstable above so all three inputs track the same channel.
 - `hosts/darwin/codex/homebrew.nix` `homebrew.casks` entries from
   `{ name = "..."; greedy = true; }` attrsets to plain strings, matching the
   `homebrew.brews` list style. Per-cask `greedy` was redundant: `brew

@@ -6,7 +6,7 @@
     nixpkgs-stable.url = "https://flakehub.com/f/NixOS/nixpkgs/0"; # Stable Nixpkgs (use 0.1 for unstable)
 
     nix-darwin = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0"; # Stable nix-darwin (use 0.1 for unstable)
+      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1"; # Stable nix-darwin (use 0.1 for unstable)
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -16,7 +16,7 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-26.05"; # pin to same release as nixpkgs
+      url = "github:nix-community/home-manager"; # pin to same release as nixpkgs
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
