@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `flake.nix` - Added `nixpkgs-stable` input at stable (`0`), and switched
+  `nixpkgs` to unstable (`0.1`).
 - `hosts/darwin/codex/homebrew.nix` `homebrew.casks` entries from
   `{ name = "..."; greedy = true; }` attrsets to plain strings, matching the
   `homebrew.brews` list style. Per-cask `greedy` was redundant: `brew
