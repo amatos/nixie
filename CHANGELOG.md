@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
   alongside `yaml-language-server`, for Zed's Nix language support on
   `codex` (also picked up fleet-wide on `gammu`/`darwintron`, the other
   hosts that import this shared dev-tools module).
+- `hosts/darwin/codex/homebrew.nix` - `popclip` cask added to `homebrew.casks`.
 
 ### Changed
 

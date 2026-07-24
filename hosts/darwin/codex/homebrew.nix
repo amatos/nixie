@@ -163,6 +163,7 @@ in
       "piezo"
       "pixelsnap" # Screen measuring tool
       "plistedit-pro" # Property list and JSON editor
+      "popclip"
       "powerphotos" # Tool to organise photo libraries
       "raycast" # Control your tools with a few keystrokes
       "setapp" # Collection of apps available by subscription
