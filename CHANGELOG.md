@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/darwin/codex/homebrew.nix` - `Stecker` (id `6447288587`) added to
+  `homebrew.masApps`.
+
+### Changed
+
+- `hosts/darwin/codex/homebrew.nix` - `homebrew.masApps` sorted
+  alphabetically.
+
 ---
 
 ## 26.07.22

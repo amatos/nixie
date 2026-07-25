@@ -214,6 +214,7 @@ in
       "HyperSpace" = 6739505345;
       "Ivory" = 6444602274;
       "John's Background Switcher" = 907640277;
+      "Kagi for Safari" = 1622835804;
       "keymapp" = 6472865291;
       "Keynote" = 361285480;
       "LanguageTool" = 1534275760;
@@ -239,6 +240,7 @@ in
       "Simple Comic" = 1497435571;
       "Sink It" = 6449873635;
       "Steam Link" = 1246969117;
+      "Stecker" = 6447288587;
       "StopTheMadness Pro" = 6471380298;
       "Swift Playground" = 1496833156;
       "Things" = 904280696;
@@ -248,7 +250,6 @@ in
       "Velja" = 1607635845;
       "Windows App" = 1295203466;
       "WireGuard" = 1451685025;
-      "Kagi for Safari" = 1622835804;
       # "Xcode" = 497799835;
     };
   };
