@@ -2,23 +2,11 @@
   description = "nixie — combined NixOS and nix-darwin configuration";
 
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1"; # Unstable Nixpkgs (use 0 for stable)
-    nixpkgs-stable.url = "https://flakehub.com/f/NixOS/nixpkgs/0"; # Stable Nixpkgs (use 0.1 for unstable)
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0"; # Stable Nixpkgs (use 0.1 for unstable)
 
     nix-darwin = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1"; # Unstable nix-darwin (use 0 for stable)
+      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0"; # Stable nix-darwin (use 0.1 for unstable)
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # nix-darwin's release branches correspond 1:1 to nixpkgs releases and it
-    # asserts the two match (enableNixpkgsReleaseCheck) — flakehub version 0
-    # is nix-darwin's release branch matching stable nixpkgs, just like
-    # nixpkgs-stable above. Gives darwin hosts a clean nixpkgs-stable
-    # darwinSystem entrypoint (see CLAUDE.md "Nixpkgs channels"). Used by
-    # every darwin host except codex.
-    nix-darwin-stable = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0";
-      inputs.nixpkgs.follows = "nixpkgs-stable";
     };
 
     determinate = {
@@ -27,7 +15,7 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager"; # pin to same release as nixpkgs
+      url = "github:nix-community/home-manager/release-26.05"; # pin to same release as nixpkgs
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -105,7 +93,6 @@
       url = "github:amatos/nix-home-alberth";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        nixpkgs-stable.follows = "nixpkgs-stable";
         home-manager.follows = "home-manager";
         nix-secrets.follows = "nix-secrets";
         nvf.follows = "nvf";
@@ -126,9 +113,7 @@
     {
       self,
       nixpkgs,
-      nixpkgs-stable,
       nix-darwin,
-      nix-darwin-stable,
       determinate,
       home-manager,
       sops-nix,
@@ -275,9 +260,8 @@
         };
 
         # CI build target — mirrors ephemeraltron's role on the darwin side.
-        # Not provisioned or switched to interactively. Tracks nixpkgs-stable,
-        # not codex's unstable channel — see CLAUDE.md "Nixpkgs channels".
-        darwintron = nix-darwin-stable.lib.darwinSystem {
+        # Not provisioned or switched to interactively.
+        darwintron = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -288,7 +272,7 @@
           ];
         };
 
-        template-darwin = nix-darwin-stable.lib.darwinSystem {
+        template-darwin = nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -317,9 +301,7 @@
           ];
         };
 
-        # Tracks nixpkgs-stable, not gammu's unstable channel — see
-        # CLAUDE.md "Nixpkgs channels".
-        porkchop = nixpkgs-stable.lib.nixosSystem {
+        porkchop = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -330,7 +312,7 @@
           ];
         };
 
-        template-nixos = nixpkgs-stable.lib.nixosSystem {
+        template-nixos = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -341,7 +323,7 @@
           ];
         };
 
-        huginn = nixpkgs-stable.lib.nixosSystem {
+        huginn = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -352,7 +334,7 @@
           ];
         };
 
-        muninn = nixpkgs-stable.lib.nixosSystem {
+        muninn = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -367,9 +349,7 @@
         # CI build target — exists so ci.yml's build-ephemeraltron job has a
         # real x86_64-linux nixosConfiguration to build (not just evaluate)
         # on every push/PR. Not provisioned or switched to interactively.
-        # Tracks nixpkgs-stable, matching the rest of the nixos fleet other
-        # than gammu — see CLAUDE.md "Nixpkgs channels".
-        ephemeraltron = nixpkgs-stable.lib.nixosSystem {
+        ephemeraltron = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = sharedSpecialArgs;
           modules = [
@@ -381,8 +361,7 @@
         # in. Deploy with: nixos-anywhere --flake .#minixie root@<target-ip>
         # Replace with a real host config once reachable; not part of
         # sharedSpecialArgs on purpose (it never consumes nix-secrets).
-        # Tracks nixpkgs-stable — see CLAUDE.md "Nixpkgs channels".
-        minixie = nixpkgs-stable.lib.nixosSystem {
+        minixie = lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
             disko.nixosModules.disko

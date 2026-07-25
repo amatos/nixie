@@ -13,6 +13,20 @@ All notable changes to this project will be documented in this file.
 
 - `hosts/darwin/codex/homebrew.nix` - `homebrew.masApps` sorted
   alphabetically.
+- `flake.nix` - reverted the `26.07.22` nixpkgs/nix-darwin unstable switch and
+  the subsequent per-host channel split. Dropped the `nixpkgs-stable` and
+  `nix-darwin-stable` inputs; `nixpkgs` and `nix-darwin` are back to flakehub
+  `/0` (stable) for every host, and `home-manager` is back to the pinned
+  `release-26.05` branch instead of tracking `master`. Every
+  `nixosConfigurations`/`darwinConfigurations` entry now calls the plain
+  `lib.nixosSystem`/`nix-darwin.lib.darwinSystem` again — no per-host channel
+  selection. `CLAUDE.md`/`README.md` host tables lost their Channel column,
+  and `CLAUDE.md`'s "Nixpkgs channels" section was removed. `nix-home-alberth`
+  reverted in lockstep (see its own `CHANGELOG.md`) — except its nushell
+  removal in `alberth/common/tools.nix`, which is kept: that fzf/nushell
+  version assertion is triggered by stable nixpkgs's older `fzf` regardless
+  of channel split, so it's still needed now that every host is back on
+  stable.
 
 ---
 
