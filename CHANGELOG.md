@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.22
+
 ### Added
 
 - `nil` (Nix language server) to `modules/common/development-packages.nix`,
