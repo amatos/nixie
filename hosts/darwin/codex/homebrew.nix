@@ -79,6 +79,7 @@ in
       "mas" # Mac App Store CLI
       "pinentry-mac" # GPG pinentry with macOS Keychain / Touch ID support
       "cirruslabs/cli/cirrus" # Cirrus CLI (cirruslabs/cli tap)
+      "ykman" # YubiKey Manager CLI
     ];
 
     casks = [

@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
   `codex` (also picked up fleet-wide on `gammu`/`darwintron`, the other
   hosts that import this shared dev-tools module).
 - `hosts/darwin/codex/homebrew.nix` - `popclip` cask added to `homebrew.casks`.
+- `hosts/darwin/codex/homebrew.nix` - `ykman` (YubiKey Manager CLI) added to
+  `homebrew.brews`.
 
 ### Changed
 
