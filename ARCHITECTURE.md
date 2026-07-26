@@ -361,7 +361,7 @@ current rules; this document only explains how those rules compose across repos.
 
 | Repo | Latest release |
 | --- | --- |
-| `nixie` | `26.07.23` |
+| `nixie` | `26.07.24` |
 | `nix-home-alberth` | `26.07.07` |
 | `nix-secrets` | `26.07.09` |
 
