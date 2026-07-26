@@ -15,6 +15,7 @@ in
 {
   environment.systemPackages = with pkgs; [
     black
+    cargo
     cmake
     codex
     commitizen
@@ -35,6 +36,7 @@ in
     pylint
     pyrefly
     rbenv
+    rustc
     shellcheck
     yaml-language-server
     yamllint

@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 
 - `hosts/darwin/codex/homebrew.nix` - `Stecker` (id `6447288587`) added to
   `homebrew.masApps`.
+- `cargo`/`rustc` to `modules/common/development-packages.nix`, giving
+  `gammu`/`codex` a plain-nixpkgs Rust toolchain (no version pinning, matching
+  how `python3`/`ruby` are already handled elsewhere in this repo).
 
 ### Changed
 
