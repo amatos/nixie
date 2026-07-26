@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- `hosts/darwin/codex/homebrew.nix` - `parallels` added to
+  `homebrew.casks`.
+
 ---
 
 ## 26.07.23

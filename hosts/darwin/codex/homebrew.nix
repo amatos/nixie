@@ -161,6 +161,7 @@ in
       "obs" # Open-source software for live streaming and screen recording
       "obsidian" # Knowledge base that works on top of a local folder of plain text Markdown files
       "orbstack"
+      "parallels" # Virtualization software for running Windows/other OSes
       "piezo"
       "pixelsnap" # Screen measuring tool
       "plistedit-pro" # Property list and JSON editor
