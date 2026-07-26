@@ -9,6 +9,14 @@ All notable changes to this project will be documented in this file.
 - `hosts/darwin/codex/homebrew.nix` - `parallels` added to
   `homebrew.casks`.
 
+### Changed
+
+- `modules/darwin/macos-defaults/dock/persistent-apps.nix` — reordered to match
+  the macOS 27 default Dock order, with existing third-party additions (Orion,
+  Safari, Helium, Zed, Ghostty, Claude) interleaved in their prior positions.
+  Added `Apps.app`, `Maps.app`, `FaceTime.app`, `Phone.app`, `Contacts.app`,
+  `Notes.app`, and `Games.app`; removed `Siri.app`.
+
 ---
 
 ## 26.07.23
