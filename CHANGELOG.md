@@ -16,8 +16,8 @@ All notable changes to this project will be documented in this file.
   directly in `environment.systemPackages` (file collision); a small
   `mkVersionedJdk` helper instead symlinks every binary in each JDK's
   `bin/` with its major version suffixed (`java21`, `javac21`, `java25`,
-  `javac25`, ...), so both toolchains are available with no default
-  unqualified `java` chosen between them.
+  `javac25`, ...), alongside plain `jdk25` for the unqualified default
+  `java`/`javac`.
 
 ### Changed
 

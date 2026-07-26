@@ -15,7 +15,8 @@ let
   # jdk21 and jdk25 both ship bin/java, bin/javac, etc., so they collide if
   # both land in environment.systemPackages directly. Suffix every binary in
   # each JDK's bin/ with its major version instead (java21, javac21, java25,
-  # javac25, ...) so both toolchains coexist with no default `java` picked.
+  # javac25, ...) so both toolchains coexist alongside the unqualified
+  # `java`/`javac` from plain jdk25 below (the default toolchain).
   mkVersionedJdk =
     version: jdk:
     pkgs.runCommand "jdk${version}-versioned" { } ''
@@ -43,6 +44,7 @@ in
     imagemagick
     inkscape # Vector graphics editor
     jdk21-versioned
+    jdk25 # default `java`/`javac`
     jdk25-versioned
     lazygit
     nil
