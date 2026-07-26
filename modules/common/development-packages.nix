@@ -34,7 +34,6 @@ in
   environment.systemPackages = with pkgs; [
     ant
     black
-    cargo
     cmake
     codex
     commitizen
@@ -59,7 +58,7 @@ in
     pylint
     pyrefly
     rbenv
-    rustc
+    rustup
     shellcheck
     yaml-language-server
     yamllint

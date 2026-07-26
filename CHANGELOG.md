@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `modules/common/development-packages.nix` — replaced `cargo`/`rustc` with
+  `rustup` on `gammu`/`codex`. RustRover doesn't work with nixpkgs' packaged
+  rustc/cargo and needs a rustup-managed toolchain instead;
+  `nix-home-alberth`'s `$HOME/.cargo/bin` `sessionPath` entry already covers
+  rustup-installed binaries.
+- `flake.lock` — updated `nix-home-alberth` input to pick up
+  `home.activation.rustupDefaultToolchain` on `codex`/`gammu`, which seeds
+  `rustup default stable` on first activation after `rustup` lands on PATH.
 - `modules/darwin/macos-defaults/dock/persistent-apps.nix` — reordered to match
   the macOS 27 default Dock order, with existing third-party additions (Orion,
   Safari, Helium, Zed, Ghostty, Claude) interleaved in their prior positions.
