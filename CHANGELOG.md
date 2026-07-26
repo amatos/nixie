@@ -11,6 +11,13 @@ All notable changes to this project will be documented in this file.
 - `cargo`/`rustc` to `modules/common/development-packages.nix`, giving
   `gammu`/`codex` a plain-nixpkgs Rust toolchain (no version pinning, matching
   how `python3`/`ruby` are already handled elsewhere in this repo).
+- JDK 21 and JDK 25 to `modules/common/development-packages.nix`. `jdk21`
+  and `jdk25` both ship `bin/java`/`bin/javac`, so they can't coexist
+  directly in `environment.systemPackages` (file collision); a small
+  `mkVersionedJdk` helper instead symlinks every binary in each JDK's
+  `bin/` with its major version suffixed (`java21`, `javac21`, `java25`,
+  `javac25`, ...), so both toolchains are available with no default
+  unqualified `java` chosen between them.
 
 ### Changed
 
