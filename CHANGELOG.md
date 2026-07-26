@@ -18,6 +18,13 @@ All notable changes to this project will be documented in this file.
   `bin/` with its major version suffixed (`java21`, `javac21`, `java25`,
   `javac25`, ...), alongside plain `jdk25` for the unqualified default
   `java`/`javac`.
+- `ant`/`maven` to `modules/common/development-packages.nix`, and
+  `environment.variables._JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd"`
+  fleet-wide-equivalent for `gammu`/`codex` (applies to every shell via
+  `environment.variables`, not just one shell's rc file). `openjfx`
+  (any version) was left out: it unconditionally depends on `alsa-lib`,
+  which is Linux-only, so it fails to evaluate on `codex`
+  (aarch64-darwin) even though it builds fine on `gammu`.
 
 ### Changed
 

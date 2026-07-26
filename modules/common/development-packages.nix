@@ -29,7 +29,10 @@ let
   jdk25-versioned = mkVersionedJdk "25" pkgs.jdk25;
 in
 {
+  environment.variables._JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
+
   environment.systemPackages = with pkgs; [
+    ant
     black
     cargo
     cmake
@@ -47,6 +50,7 @@ in
     jdk25 # default `java`/`javac`
     jdk25-versioned
     lazygit
+    maven
     nil
     nmap
     pre-commit
