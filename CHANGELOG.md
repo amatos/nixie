@@ -31,6 +31,17 @@ All notable changes to this project will be documented in this file.
   of channel split, so it's still needed now that every host is back on
   stable.
 
+### Fixed
+
+- `hosts/darwin/darwintron/default.nix` - dropped the
+  `modules/common/development-packages.nix` import. Traced to `7690eab`
+  (2026-07-12), which added it as an unreviewed side effect of a copy-paste
+  from `codex` while fixing an unrelated eval failure — never called out in
+  that commit's own `CHANGELOG` entry, and inconsistent with `ephemeraltron`
+  (darwintron's NixOS-side CI-target counterpart), which imports no dev
+  tooling at all. `CLAUDE.md`'s "Packages" section reverted to documenting
+  `development-packages.nix` as wired only to `gammu`/`codex`.
+
 ---
 
 ## 26.07.22

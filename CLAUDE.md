@@ -240,7 +240,7 @@ Home-manager configuration is **not** in this repo — it lives in the separate
 - System daemons and tools needed before home-manager → `environment.systemPackages`
 - Fleet-wide CLI tools (every host, any platform) → `modules/common/packages.nix`
 - Development-only tools (compilers, linters, formatters) → `modules/common/development-packages.nix`,
-  wired only to hosts actually used for development (`gammu`, `codex`, `darwintron`) — not fleet-wide
+  wired only to hosts actually used for development (`gammu`, `codex`) — not fleet-wide
 - darwin-specific system tools (e.g. `dockutil`) → inline in the host's `default.nix`
 - `nixpkgs.config.allowUnfree = true` is set in `modules/common/packages.nix`
 
