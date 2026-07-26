@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+---
+
+## 26.07.23
+
 ### Added
 
 - `hosts/darwin/codex/homebrew.nix` - `Stecker` (id `6447288587`) added to
