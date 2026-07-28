@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- `flake.lock` — updated `nix-home-alberth` input to pick up new `GPGKEY` and
+  `GPGKEYFP` environment variables (exported to all shells for GPG key
+  identification), and a fix for the `ls -t` flag transformation (now correctly
+  uses `--sort=new` instead of invalid `--sort=newest`).
+
 ---
 
 ## 26.07.24
