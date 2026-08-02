@@ -117,8 +117,8 @@ in
             inet_protocols = "all";
             # Relay all mail through huginn via Tailscale hostname; fall back to
             # porkchop if huginn doesn't respond (see ARCHITECTURE.md §10 Stage 6).
-            relayhost = [ "[huginn.ts.matos.cc]:25" ];
-            smtp_fallback_relay = [ "[porkchop.ts.matos.cc]:25" ];
+            relayhost = [ "[smtp.ts.matos.cc]:25" ];
+            smtp_fallback_relay = [ "[smtp-backup.ts.matos.cc]:25" ];
             # Disable local delivery
             mydestination = "";
             local_transport = "error:local delivery disabled";

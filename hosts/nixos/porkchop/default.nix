@@ -153,6 +153,8 @@ in
           "porkchop.ts.matos.cc"
           "mail-backup.home.matos.cc"
           "mail-backup.ts.matos.cc"
+          "smtp-backup.home.matos.cc"
+          "smtp-backup.ts.matos.cc"
         ]
       ];
       syncthingDeploy = true;

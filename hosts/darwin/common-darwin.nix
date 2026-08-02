@@ -126,7 +126,8 @@ in
         systemsetup -setusingnetworktime on 2>/dev/null || true
 
         echo "configuring postfix relay client..." >&2
-        /usr/sbin/postconf -e 'relayhost = [porkchop.ts.matos.cc]:25'
+        /usr/sbin/postconf -e 'relayhost = [smtp.ts.matos.cc]:25'
+        /usr/sbin/postconf -e 'smtp_fallback_relay = [smtp-backup.ts.matos.cc]:25'
         /usr/sbin/postconf -e 'inet_interfaces = loopback-only'
         /usr/sbin/postconf -e 'inet_protocols = all'
         /usr/sbin/postconf -e 'mydestination = '

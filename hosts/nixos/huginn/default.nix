@@ -63,6 +63,8 @@ in
         [
           "mail.home.matos.cc"
           "mail.ts.matos.cc"
+          "smtp.home.matos.cc"
+          "smtp.ts.matos.cc"
         ]
       ];
       syncthingDeploy = true;
